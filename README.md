@@ -1,1 +1,3 @@
-# search-engine
+# Information Retrieval Systems
+
+Final project
