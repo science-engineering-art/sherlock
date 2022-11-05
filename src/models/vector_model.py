@@ -1,4 +1,4 @@
-from math import log2
+from math import log
 from typing import Dict, List
 from models.document import Document
 from models.base_model import BaseModel
@@ -62,4 +62,12 @@ class VectorModel(BaseModel):
                 self.tf[i][j] = tmp
 
     def __calculate_idf(self):
-        pass
+        
+        amount_docs = len(self.corpus); amount_terms = len(self.frequency[0])
+
+        for i in range(0, amount_terms):
+            n = 0
+            for j in range(0, amount_docs):
+                if self.frequency[j][i] != 0:
+                    n+=1
+            self.idf.append(log(amount_docs / n, amount_docs))
