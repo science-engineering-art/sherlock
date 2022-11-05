@@ -1,6 +1,5 @@
 from math import log
 from typing import Dict, List
-from models.document import Document
 from models.base_model import BaseModel
 from models.search_item import SearchItem
 
@@ -15,9 +14,9 @@ class VectorModel(BaseModel):
         self.frequency: List[List[int]] = []
         self.tf: List[List[float]] = []
         self.idf: List[List[float]] = []
+        self.weights: List[List[float]] = []
         
-        self.__calculate_tf()
-        self.__calculate_idf()
+        self.__calculate_weights()
     
     def search(self, query: str) -> List[SearchItem]:
         pass
@@ -70,4 +69,15 @@ class VectorModel(BaseModel):
             for j in range(0, amount_docs):
                 if self.frequency[j][i] != 0:
                     n+=1
-            self.idf.append(log(amount_docs / n, amount_docs))
+            self.idf.append(log(amount_docs / n, 2))
+
+    def __calculate_weights(self):
+        self.__calculate_tf()
+        self.__calculate_idf()
+
+        self.weights = [[0.0 for _ in range(0, len(self.frequency[0]))] 
+                           for _ in range(0, len(self.corpus))]        
+
+        for i in range(0, len(self.corpus)):
+            for j in range(0, len(self.frequency[0])):
+                self.weights[i][j] = self.tf[i][j] * self.idf[j]
