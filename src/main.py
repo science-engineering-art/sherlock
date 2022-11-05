@@ -24,8 +24,11 @@ async def root(query: str):
     print(query)
     return {
         "results": [
-            SearchItem(title="Los pilares de la tierra", snippet="Autor", score=3),
-            SearchItem(title="Los pilares de la tierra", snippet="Autor", score=3),
-            SearchItem(title="Los pilares de la tierra", snippet="Autor", score=3)
+            SearchItem(title="Los pilares de la tierra", 
+                snippet="Autor: Key Follet 2", score=1.2),
+            SearchItem(title="Los pilares de la tierra", 
+                snippet="Autor: Key Follet 3", score=20),
+            SearchItem(title="Los pilares de la tierra", 
+                snippet="Autor: Key Follet 1", score=1.1),
         ]
     }
