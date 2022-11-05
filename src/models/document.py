@@ -1,4 +1,6 @@
+import os
 import re
+from typing import List
 from unidecode import unidecode
 
 
@@ -16,3 +18,17 @@ class Document:
     
     def __str__(self):
         return f'{self.title}\n\n' + ' '.join(self.text)
+
+    @staticmethod
+    def load_corpus(path: str) -> List['Document']:
+        
+        print(os.listdir(path))
+
+        for file in os.listdir(path):
+            print(f"{path}/{file}")
+            print(Document(f"{path}/{file}")) 
+
+        corpus = [ Document(f"{path}/{file}") 
+            for file in os.listdir(path) ]
+
+        return corpus
