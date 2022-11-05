@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from models.search_item import SearchItem
 
 app = FastAPI()
 
@@ -13,11 +13,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-class SearchItem(BaseModel):
-    title: str
-    snippet: str
-    score: float
 
 @app.get("/search")
 async def root(query: str):
