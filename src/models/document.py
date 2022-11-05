@@ -20,13 +20,7 @@ class Document:
         return f'{self.title}\n\n' + ' '.join(self.text)
 
     @staticmethod
-    def load_corpus(path: str) -> List['Document']:
-        
-        print(os.listdir(path))
-
-        for file in os.listdir(path):
-            print(f"{path}/{file}")
-            print(Document(f"{path}/{file}")) 
+    def load_corpus(path: str) -> List['Document']: 
 
         corpus = [ Document(f"{path}/{file}") 
             for file in os.listdir(path) ]
