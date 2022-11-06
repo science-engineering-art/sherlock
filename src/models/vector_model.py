@@ -50,6 +50,9 @@ class VectorModel(BaseModel):
                     sim += self.tfs[i][j] * tf[dict_terms[word]]
             sims.append(sim)
 
+        for i in sorted(zip(sims, self.corpus), key=lambda x: x[0], reverse=True):
+            print(i)
+
     def __calculate_tf(
             text: List[str], 
             dict_terms: Dict[str, int] = {},
