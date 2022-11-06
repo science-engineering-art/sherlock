@@ -12,7 +12,7 @@ class VectorModel(BaseModel):
         super().__init__(path)
         
         self.dict_terms = {}
-        self.dict_docs = {}
+        self.dict_pars = {}
         self.frequency: List[List[int]] = []
         self.tfs: List[List[float]] = []
         self.idf: List[List[float]] = []
@@ -39,30 +39,27 @@ class VectorModel(BaseModel):
         weights = [0 for _ in range(0, len(frequency))]
         norm = 0
         for word in query_vector:
-            i = dict_terms[word]
-            weights[i] = (a + (1-a)*tf[i]) * self.idf[self.dict_terms[word]]
-            norm += weights[i] ** 2
+            if word in self.dict_terms:
+                i = dict_terms[word]
+                weights[i] = (a + (1-a)*tf[i]) * self.idf[self.dict_terms[word]]
+                norm += weights[i] ** 2
 
         # calculo de similitud del coseno
         sims = []
         for i in range(0, len(self.corpus)):
             sim = 0 
             n = self.norms[i] * norm
-            if n == 0:
-                print(i)
-                print(self.norms[i], norm)
-                print(f"tf:\n{[self.tfs[i][j] for j in range(0, len(self.frequency[0])) if self.tfs[i][j] > 1e-16]}")
-                print(f"idf:\n{self.idf[i]}")
-                print(self.corpus[i])
-                return
+            
             for word in self.dict_terms:
                 if word in dict_terms:
                     j = self.dict_terms[word]  
                     sim += self.weights[i][j] * weights[dict_terms[word]] / n
             sims.append(sim)
 
-        for i in sorted(zip(sims, self.corpus), key=lambda x: x[0], reverse=True):
-            print(i)
+        for i in sorted(zip(sims, self.corpus), key=lambda x: x[0], reverse=False):
+            print(f'\n\n{i[0]}\n\n{i[1]}')
+
+        print(len(self.corpus))
 
     def __calculate_tf(
             text: List[str], 
@@ -89,22 +86,22 @@ class VectorModel(BaseModel):
 
     def __calculate_tfs(self):
 
-        amount_terms = 0; amount_docs = 0
+        amount_terms = 0; amount_pars = 0
 
-        for doc in self.corpus:
+        for par in self.corpus:
 
-            self.dict_docs[doc] = amount_docs
+            self.dict_pars[par] = amount_pars
             self.frequency.append([0 for _ in range(0, amount_terms)])
             self.tfs.append([])
 
             VectorModel.__calculate_tf(
-                doc.text,
+                par.terms,
                 self.dict_terms,
-                self.frequency[amount_docs],
-                self.tfs[amount_docs]
+                self.frequency[amount_pars],
+                self.tfs[amount_pars]
             )
-            amount_terms = len(self.frequency[amount_docs])
-            amount_docs += 1
+            amount_terms = len(self.frequency[amount_pars])
+            amount_pars += 1
 
         for i in range(0, len(self.frequency)):
             while len(self.frequency[i]) < amount_terms:
@@ -113,14 +110,14 @@ class VectorModel(BaseModel):
 
     def __calculate_idf(self):
         
-        amount_docs = len(self.corpus); amount_terms = len(self.frequency[0])
+        amount_pars = len(self.corpus); amount_terms = len(self.frequency[0])
 
         for i in range(0, amount_terms):
             n = 0
-            for j in range(0, amount_docs):
+            for j in range(0, amount_pars):
                 if self.frequency[j][i] != 0:
                     n+=1
-            self.idf.append(log(amount_docs / n, 2))
+            self.idf.append(log(amount_pars / n, 2))
 
     def __calculate_weights(self):
         self.__calculate_tfs()

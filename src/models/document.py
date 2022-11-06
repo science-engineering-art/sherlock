@@ -2,28 +2,41 @@ import os
 import re
 from typing import List
 from unidecode import unidecode
+from models.paragraph import Paragraph
 
 
 class Document:
-    
-    def __init__(self, path: str):
-        # set title
-        a = re.findall(r"[\w]+", path)
-        self.path = path
-        self.title = a[len(a)-2]
-         
-        # load text
-        with open(path, "r") as source:
-            self.text = [ unidecode(word.lower()) for word in 
-                re.findall(r"[\w']+",source.read()) ]
-    
-    def __str__(self):
-        return f'{self.title}\n\n {self.path}\n\n' + ' '.join(self.text)
 
     @staticmethod
-    def load_corpus(path: str) -> List['Document']: 
+    def upload_document(path: str) -> List[Paragraph]:
+        
+        doc = open(path, 'r').read() # read file
+        terms = re.split(' |\n', doc) # split by spaces and '\n'
+        terms = [term for term in terms if term != ''] # remove empty terms
+        
+        count = 0; new_paragraph = []; paragraphs = []
 
-        corpus = [ Document(f"{path}/{file}") 
-            for file in os.listdir(path) if file != '.gitkeep']
+        for term in terms:
+            count += 1
+            new_paragraph.append(term)
+
+            if count % 20 == 0:
+                paragraphs.append(' '.join(new_paragraph)) 
+                new_paragraph = []       
+        else:
+            if new_paragraph != []:
+                paragraphs.append(' '.join(new_paragraph))
+
+        return [Paragraph(path, par) for par in paragraphs]
+
+    @staticmethod
+    def load_corpus(path: str) -> List[Paragraph]: 
+
+        corpus: List[Paragraph] = [ par
+            for file in os.listdir(path) if file != '.gitkeep'
+            for par in Document.upload_document(f"{path}/{file}")]
+
+        corpus = [paragraph for paragraph in corpus if len(paragraph.terms) > 10]
+ 
 
         return corpus
