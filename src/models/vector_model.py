@@ -17,6 +17,7 @@ class VectorModel(BaseModel):
         self.tfs: List[List[float]] = []
         self.idf: List[List[float]] = []
         self.weights: List[List[float]] = []
+        self.norms = []
         
         self.__calculate_weights()
     
@@ -36,18 +37,28 @@ class VectorModel(BaseModel):
 
         # calculo de los pesos del vector consulta
         weights = [0 for _ in range(0, len(frequency))]
+        norm = 0
         for word in query_vector:
             i = dict_terms[word]
             weights[i] = (a + (1-a)*tf[i]) * self.idf[self.dict_terms[word]]
+            norm += weights[i] ** 2
 
         # calculo de similitud del coseno
         sims = []
         for i in range(0, len(self.corpus)):
-            sim = 0
+            sim = 0 
+            n = self.norms[i] * norm
+            if n == 0:
+                print(i)
+                print(self.norms[i], norm)
+                print(f"tf:\n{[self.tfs[i][j] for j in range(0, len(self.frequency[0])) if self.tfs[i][j] > 1e-16]}")
+                print(f"idf:\n{self.idf[i]}")
+                print(self.corpus[i])
+                return
             for word in self.dict_terms:
                 if word in dict_terms:
                     j = self.dict_terms[word]  
-                    sim += self.tfs[i][j] * tf[dict_terms[word]]
+                    sim += self.weights[i][j] * weights[dict_terms[word]] / n
             sims.append(sim)
 
         for i in sorted(zip(sims, self.corpus), key=lambda x: x[0], reverse=True):
@@ -119,5 +130,7 @@ class VectorModel(BaseModel):
                            for _ in range(0, len(self.corpus))]        
 
         for i in range(0, len(self.corpus)):
+            self.norms.append(0)
             for j in range(0, len(self.frequency[0])):
                 self.weights[i][j] = self.tfs[i][j] * self.idf[j]
+                self.norms[i] += self.weights[i][j] ** 2
