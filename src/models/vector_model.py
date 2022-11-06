@@ -1,5 +1,5 @@
-from math import log
 import re
+from math import log
 from typing import Dict, List
 from unidecode import unidecode
 from models.base_model import BaseModel
@@ -22,11 +22,33 @@ class VectorModel(BaseModel):
     
     def search(self, query: str) -> List[SearchItem]:
         
+        # construir el vector consulta
         query_vector: List[str] = [ unidecode(word.lower()) for word in 
                                    re.findall(r"[\w']+", query) ]
 
-        dict_query = {}
+        # calculo del tf del vector consulta
+        dict_terms = {}; frequency = []; tf = []; a = 0.4
+        VectorModel.__calculate_tf(
+            text=query_vector,
+            dict_terms=dict_terms,
+            frequency=frequency,
+            tf=tf)
 
+        # calculo de los pesos del vector consulta
+        weights = [0 for _ in range(0, len(frequency))]
+        for word in query_vector:
+            i = dict_terms[word]
+            weights[i] = (a + (1-a)*tf[i]) * self.idf[self.dict_terms[word]]
+
+        # calculo de similitud del coseno
+        sims = []
+        for i in range(0, len(self.corpus)):
+            sim = 0
+            for word in self.dict_terms:
+                if word in dict_terms:
+                    j = self.dict_terms[word]  
+                    sim += self.tfs[i][j] * tf[dict_terms[word]]
+            sims.append(sim)
 
     def __calculate_tf(
             text: List[str], 
@@ -74,8 +96,6 @@ class VectorModel(BaseModel):
             while len(self.frequency[i]) < amount_terms:
                 self.frequency[i].append(0)
                 self.tfs[i].append(0)
-
-        print(self.tfs[amount_docs-1])
 
     def __calculate_idf(self):
         
