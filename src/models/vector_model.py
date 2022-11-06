@@ -48,13 +48,7 @@ class VectorModel(BaseModel):
         for i in range(0, len(self.corpus)):
             sim = 0 
             n = self.norms[i] * norm
-            if n == 0:
-                print(i)
-                print(self.norms[i], norm)
-                print(f"tf:\n{[self.tfs[i][j] for j in range(0, len(self.frequency[0])) if self.tfs[i][j] > 1e-16]}")
-                print(f"idf:\n{self.idf[i]}")
-                print(self.corpus[i])
-                return
+            
             for word in self.dict_terms:
                 if word in dict_terms:
                     j = self.dict_terms[word]  
