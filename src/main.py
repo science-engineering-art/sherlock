@@ -1,6 +1,16 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from models.vector_model import VectorModel
+from fastapi.middleware.cors import CORSMiddleware
+
+
+class DocumentDto(BaseModel):
+    path: str
+    score: float | None
+
+
+model = VectorModel('/home/leandro/study/3rd-year/projects' +
+    '/information-retrieval-systems/corpus/moogle')
 
 app = FastAPI()
 
@@ -14,21 +24,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class SearchItem(BaseModel):
-    title: str
-    snippet: str
-    score: float
-
 @app.get("/search")
 async def root(query: str):
-    print(query)
+
     return {
-        "results": [
-            SearchItem(title="Los pilares de la tierra", 
-                snippet="Autor: Key Follet 2", score=1.2),
-            SearchItem(title="Los pilares de la tierra", 
-                snippet="Autor: Key Follet 3", score=20),
-            SearchItem(title="Los pilares de la tierra", 
-                snippet="Autor: Key Follet 1", score=1.1),
-        ]
+        "results": [ DocumentDto(path=tuple[1].path, score=tuple[0])
+                    for tuple in model.search(query) ]
     }
+
+@app.get("/document")
+async def root(path: str):
+    return open(path, 'r').read()

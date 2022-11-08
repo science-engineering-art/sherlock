@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import '../styles/globals.css';
 import axios from 'axios';
-import { SearchItem } from './SearchItem';
+import { DocumentDto } from './DocumentIl';
 
 export type QueryBarProps = {
-  setSearchItems: (item: SearchItem[]) => void;  
+  setDocumentDtos: (item: DocumentDto[]) => void;  
   setShowResults: (show: boolean) => void
 }
 
@@ -35,7 +35,7 @@ function QueryBar(props: QueryBarProps) {
           await axios.get('http://localhost:8000/search?query=' +
             encodeURIComponent(query))
             .then((resp) => { 
-              props.setSearchItems(resp.data.results);
+              props.setDocumentDtos(resp.data.results);
               props.setShowResults(true);})
             .catch((err) => console.log(err.data));
         }}
