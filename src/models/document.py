@@ -27,3 +27,4 @@ class Document:
             for file in os.listdir(path) if file != '.gitkeep']
 
         return corpus
+

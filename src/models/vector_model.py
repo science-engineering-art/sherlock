@@ -1,9 +1,9 @@
 import re
 from math import log
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from unidecode import unidecode
 from models.base_model import BaseModel
-from models.search_item import SearchItem
+from models.document import Document
 
 
 class VectorModel(BaseModel):
@@ -21,7 +21,7 @@ class VectorModel(BaseModel):
         
         self.__calculate_weights()
     
-    def search(self, query: str) -> List[SearchItem]:
+    def search(self, query: str) -> List[Tuple[float, Document]]:
         
         # construir el vector consulta
         query_vector: List[str] = [ unidecode(word.lower()) for word in 
@@ -55,8 +55,8 @@ class VectorModel(BaseModel):
                     sim += self.weights[i][j] * weights[dict_terms[word]] / n
             sims.append(sim)
 
-        for i in sorted(zip(sims, self.corpus), key=lambda x: x[0], reverse=True):
-            print(i)
+        return [i for i in sorted(zip(sims, self.corpus), 
+                key=lambda x: x[0], reverse=True)]
 
     def __calculate_tf(
             text: List[str], 
