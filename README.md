@@ -32,3 +32,5 @@ make react
 ```
 
 Finally, enter the browser at the following web address [localhost:3000](http://localhost:3000).
+
+:warning: **NOTE:** The documents must be added to the `/corpus` folder in the root directory before the server is up.
