@@ -5,12 +5,14 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 class DocumentDto(BaseModel):
-    path: str
+    doc_id: str
+    title: str | None
+    author: str | None
+    text: str
     score: float | None
 
 
-model = VectorModel('/home/leandro/study/3rd-year/projects' +
-    '/information-retrieval-systems/corpus/moogle')
+model = VectorModel('cranfield')
 
 app = FastAPI()
 
@@ -26,12 +28,15 @@ app.add_middleware(
 
 @app.get("/search")
 async def root(query: str):
-
     return {
-        "results": [ DocumentDto(path=tuple[1].path, score=tuple[0])
-                    for tuple in model.search(query) ]
+        "results": [ DocumentDto(doc_id=tuple[1].doc_id, 
+                    title=tuple[1].title, author=tuple[1].author, 
+                    text=tuple[1].text, score=tuple[0])
+                    for tuple in model.search(query)]
     }
 
 @app.get("/document")
-async def root(path: str):
-    return open(path, 'r').read()
+async def root(doc_id: str):
+    for doc in model.corpus:
+        if doc.doc_id == doc_id:
+            return doc.text

@@ -3,7 +3,10 @@ import { useState } from 'react';
 import '../styles/globals.css';
 
 export interface DocumentDto {
-    path: string,
+    doc_id: string,
+    title: string,
+    author: string,
+    text: string,
     score: number
 };
 
@@ -18,8 +21,8 @@ export function DocumentIl(props: DocumentDto) {
         focus:outline-none focus:ring focus:ring-blue-300'
             onClick={async () => {
                 if (text === ''){
-                    await axios.get('http://localhost:8000/document?path=' +
-                        encodeURIComponent(props.path))
+                    await axios.get('http://localhost:8000/document?doc_id=' +
+                        encodeURIComponent(props.doc_id))
                         .then((resp) => { setText(resp.data); setIsThereText(true); })
                         .catch((err) => console.log(err.data));
                 }
@@ -30,10 +33,10 @@ export function DocumentIl(props: DocumentDto) {
             }}
         >
             <p className=''> 
-                <strong>score: </strong> { props.score } 
+                <strong>score: </strong> { props.score} 
             </p>
             <h1 className='font-bond'>
-                <strong>path: </strong> { props.path }
+                <strong>title: </strong> { props.title }
             </h1>
             {isThereText && <p> {text} </p>}
         </div>
