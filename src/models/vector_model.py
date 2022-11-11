@@ -23,11 +23,11 @@ class VectorModel(BaseModel):
     
     def search(self, query: str) -> List[Tuple[float, Document]]:
         
-        # construir el vector consulta
+        # build the query vector
         query_vector: List[str] = [ unidecode(word.lower()) for word in 
                                    re.findall(r"[\w']+", query) ]
 
-        # calculo del tf del vector consulta
+        # calculation of the TF of the query vector
         dict_terms = {}; frequency = []; tf = []; a = 0.4
         VectorModel.__calculate_tf(
             text=query_vector,
@@ -35,7 +35,7 @@ class VectorModel(BaseModel):
             frequency=frequency,
             tf=tf)
 
-        # calculo de los pesos del vector consulta
+        # calculation of the weights of the query vector
         weights = [0 for _ in range(0, len(frequency))]
         norm = 0
         for word in query_vector:
@@ -45,7 +45,7 @@ class VectorModel(BaseModel):
             weights[i] = (a + (1-a)*tf[i]) * self.idf[self.dict_terms[word]]
             norm += weights[i] ** 2
 
-        # calculo de similitud del coseno
+        # cosine similarity calculation
         sims = []
         for i in range(0, len(self.corpus)):
             sim = 0 
@@ -67,12 +67,10 @@ class VectorModel(BaseModel):
             frequency: List[int] = [],
             tf: List[float] = []
         ):
-
         amount_terms = len(frequency)
         max_freq = -1
 
         for word in text:
-
             if not word in dict_terms:
                 frequency.append(0)
                 dict_terms[word] = amount_terms
