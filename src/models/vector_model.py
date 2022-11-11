@@ -8,8 +8,8 @@ from models.document import Document
 
 class VectorModel(BaseModel):
 
-    def __init__(self, path: str):
-        super().__init__(path)
+    def __init__(self, dataset: str):
+        super().__init__(dataset)
         
         self.dict_terms = {}
         self.dict_docs = {}
@@ -40,6 +40,8 @@ class VectorModel(BaseModel):
         norm = 0
         for word in query_vector:
             i = dict_terms[word]
+            if not word in self.dict_terms:
+                continue
             weights[i] = (a + (1-a)*tf[i]) * self.idf[self.dict_terms[word]]
             norm += weights[i] ** 2
 
@@ -50,6 +52,7 @@ class VectorModel(BaseModel):
             n = self.norms[i] * norm
             
             for word in self.dict_terms:
+                if n == 0: break
                 if word in dict_terms:
                     j = self.dict_terms[word]  
                     sim += self.weights[i][j] * weights[dict_terms[word]] / n
@@ -92,7 +95,7 @@ class VectorModel(BaseModel):
             self.tfs.append([])
 
             VectorModel.__calculate_tf(
-                doc.text,
+                doc.terms,
                 self.dict_terms,
                 self.frequency[amount_docs],
                 self.tfs[amount_docs]

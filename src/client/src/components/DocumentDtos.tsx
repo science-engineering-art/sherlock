@@ -12,7 +12,10 @@ export function DocumentDtos(props: DocumentDtosProps) {
             {props.items.map((item) => {
                 return (
                     <DocumentIl 
-                    path={item.path}
+                    doc_id={item.doc_id}
+                    title={item.title}
+                    author={item.author}
+                    text={item.text}
                     score={item.score} />
             );})}
         </div> 
