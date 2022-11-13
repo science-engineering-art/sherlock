@@ -37,6 +37,6 @@ async def root(query: str):
 
 @app.get("/document")
 async def root(doc_id: str):
-    for doc in model.corpus:
+    for doc in model.corpus.docs:
         if doc.doc_id == doc_id:
             return doc.text

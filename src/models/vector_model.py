@@ -49,7 +49,7 @@ class VectorModel(BaseModel):
 
         # cosine similarity calculation
         sims = []
-        for i in range(0, len(self.corpus)):
+        for i in range(0, len(self.corpus.docs)):
             sim = 0 
             n = self.norms[i] * norm
             
@@ -60,7 +60,7 @@ class VectorModel(BaseModel):
                     sim += self.weights[i][j] * weights[dict_terms[word]] / n
             sims.append(sim)
 
-        return [i for i in sorted(zip(sims, self.corpus), 
+        return [i for i in sorted(zip(sims, self.corpus.docs), 
                 key=lambda x: x[0], reverse=True)]
 
     def __calculate_tf(
@@ -88,7 +88,7 @@ class VectorModel(BaseModel):
 
         amount_terms = 0; amount_docs = 0
 
-        for doc in self.corpus:
+        for doc in self.corpus.docs:
 
             self.dict_docs[doc] = amount_docs
             self.frequency.append([0 for _ in range(0, amount_terms)])
@@ -110,7 +110,7 @@ class VectorModel(BaseModel):
 
     def __calculate_idf(self):
        
-        amount_docs = len(self.corpus); amount_terms = len(self.frequency[0])
+        amount_docs = len(self.corpus.docs); amount_terms = len(self.frequency[0])
 
         for i in range(0, amount_terms):
             n = 0
@@ -124,9 +124,9 @@ class VectorModel(BaseModel):
         self.__calculate_idf()
 
         self.weights = [[0.0 for _ in range(0, len(self.frequency[0]))] 
-                           for _ in range(0, len(self.corpus))]        
+                           for _ in range(0, len(self.corpus.docs))]        
 
-        for i in range(0, len(self.corpus)):
+        for i in range(0, len(self.corpus.docs)):
             self.norms.append(0)
             for j in range(0, len(self.frequency[0])):
                 self.weights[i][j] = self.tfs[i][j] * self.idf[j]

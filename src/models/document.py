@@ -1,4 +1,3 @@
-import os
 import re
 import ir_datasets
 from typing import List
@@ -15,10 +14,3 @@ class Document:
         self.terms = [ unidecode(word.lower()) for word in 
             re.findall(r"[\w']+", doc.text)
             if not re.match(r"[\d]+", word) ]
-
-    @staticmethod
-    def load_corpus(dataset: str) -> List['Document']: 
-        ir_dataset = ir_datasets.load(dataset)
-        corpus = [ Document(doc) 
-            for doc in ir_dataset.docs_iter()]
-        return corpus
