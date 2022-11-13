@@ -10,7 +10,8 @@ class Document:
         self.text = doc.text
         self.title = doc.title or None
         self.author = doc.author or None
-    
+
+        # tokenization and standardization 
         self.terms = [ unidecode(word.lower()) for word in 
             re.findall(r"[\w']+", doc.text)
             if not re.match(r"[\d]+", word) ]

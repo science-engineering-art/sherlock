@@ -12,17 +12,31 @@ class VectorModel(BaseModel):
     def __init__(self, corpus: Corpus):
         super().__init__(corpus)
         
+        # dictionary of term to index of matrices
         self.dict_terms = {}
+        # dictionary of doc to index of matrices
         self.dict_docs = {}
+        # matrix of the frequency of each term in each document
         self.frequency: List[List[int]] = []
+        
+        # matrix of the TF of each term in each document
         self.tfs: List[List[float]] = []
-        self.idf: List[List[float]] = []
+        # IDF vector
+        self.idf: List[float] = []
+        
+        # weight of each term in each document
         self.weights: List[List[float]] = []
+        # document vector norms
         self.norms = []
         
+        # calculation of the weights of each term in each document
         self.__calculate_weights()
     
     def search(self, query: str) -> List[Tuple[float, Document]]:
+        """
+            Search for the most relevant set of documents in the corpus and 
+            their ranking, given a specific query.
+        """
         
         # build the query vector
         query_vector: List[str] = [ unidecode(word.lower()) for word in 
@@ -70,6 +84,9 @@ class VectorModel(BaseModel):
             frequency: List[int] = [],
             tf: List[float] = []
         ):
+        """
+            Calculation of TF for each term in a document.
+        """
         amount_terms = len(frequency)
         max_freq = -1
 
@@ -86,6 +103,10 @@ class VectorModel(BaseModel):
             tf.append(frequency[j] / max_freq)
 
     def __calculate_tfs(self):
+        """
+            Calculation of the TFs of each term in all the documents 
+            of the corpus.
+        """
 
         amount_terms = 0; amount_docs = 0
 
@@ -110,6 +131,9 @@ class VectorModel(BaseModel):
                 self.tfs[i].append(0)
 
     def __calculate_idf(self):
+        """
+            Calculation of the IDF vector of the corpus document set.
+        """
        
         amount_docs = len(self.corpus.docs); amount_terms = len(self.frequency[0])
 
@@ -121,6 +145,10 @@ class VectorModel(BaseModel):
             self.idf.append(log(amount_docs / n, 2))
 
     def __calculate_weights(self):
+        """
+            Calculation of the weights of each term in each document.
+        """
+
         self.__calculate_tfs()
         self.__calculate_idf()
 

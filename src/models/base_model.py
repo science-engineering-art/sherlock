@@ -11,4 +11,8 @@ class BaseModel:
 
     @abstractmethod
     def search(self, query: str) -> List[Document]: 
+        """
+            Search for the most relevant set of documents in the corpus, 
+            given a specific query.
+        """
         pass
