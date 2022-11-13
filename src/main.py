@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from models.corpus import Corpus
 from models.vector_model import VectorModel
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -12,7 +13,8 @@ class DocumentDto(BaseModel):
     score: float | None
 
 
-model = VectorModel('cranfield')
+corpus = Corpus('cranfield')
+model = VectorModel(corpus)
 
 app = FastAPI()
 

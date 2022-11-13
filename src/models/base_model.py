@@ -6,8 +6,8 @@ from models.document import Document
 
 class BaseModel:
 
-    def __init__(self, dataset: str):
-        self.corpus = Corpus(dataset)
+    def __init__(self, corpus: Corpus):
+        self.corpus = corpus
 
     @abstractmethod
     def search(self, query: str) -> List[Document]: 

@@ -1,15 +1,16 @@
 import re
 from math import log
-from typing import Dict, List, Tuple
 from unidecode import unidecode
-from models.base_model import BaseModel
+from models.corpus import Corpus
+from typing import Dict, List, Tuple
 from models.document import Document
+from models.base_model import BaseModel
 
 
 class VectorModel(BaseModel):
 
-    def __init__(self, dataset: str):
-        super().__init__(dataset)
+    def __init__(self, corpus: Corpus):
+        super().__init__(corpus)
         
         self.dict_terms = {}
         self.dict_docs = {}
