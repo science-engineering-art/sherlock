@@ -8,7 +8,7 @@ class DocumentDto(BaseModel):
     doc_id: str
     title: str | None
     author: str | None
-    text: str
+    text: str | None
     score: float | None
 
 
@@ -22,8 +22,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=origins,
+    allow_headers=origins,
 )
 
 @app.get("/search")

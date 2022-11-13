@@ -13,10 +13,8 @@ class Document:
         self.author = doc.author or None
     
         self.terms = [ unidecode(word.lower()) for word in 
-            re.findall(r"[\w']+", doc.text) ]
-    
-    def __str__(self):
-        return f'{self.doc_id}\n\n {self.text}\n\n'
+            re.findall(r"[\w']+", doc.text)
+            if not re.match(r"[\d]+", word) ]
 
     @staticmethod
     def load_corpus(dataset: str) -> List['Document']: 

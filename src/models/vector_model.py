@@ -25,7 +25,8 @@ class VectorModel(BaseModel):
         
         # build the query vector
         query_vector: List[str] = [ unidecode(word.lower()) for word in 
-                                   re.findall(r"[\w']+", query) ]
+                                   re.findall(r"[\w']+", query) 
+                                   if not re.match(r"[\d]+", word)]
 
         # calculation of the TF of the query vector
         dict_terms = {}; frequency = []; tf = []; a = 0.4
@@ -44,6 +45,7 @@ class VectorModel(BaseModel):
                 continue
             weights[i] = (a + (1-a)*tf[i]) * self.idf[self.dict_terms[word]]
             norm += weights[i] ** 2
+        norm = (norm) ** (1/2)
 
         # cosine similarity calculation
         sims = []
@@ -51,9 +53,9 @@ class VectorModel(BaseModel):
             sim = 0 
             n = self.norms[i] * norm
             
-            for word in self.dict_terms:
+            for word in dict_terms:
                 if n == 0: break
-                if word in dict_terms:
+                if word in self.dict_terms:
                     j = self.dict_terms[word]  
                     sim += self.weights[i][j] * weights[dict_terms[word]] / n
             sims.append(sim)
@@ -107,7 +109,7 @@ class VectorModel(BaseModel):
                 self.tfs[i].append(0)
 
     def __calculate_idf(self):
-        
+       
         amount_docs = len(self.corpus); amount_terms = len(self.frequency[0])
 
         for i in range(0, amount_terms):
@@ -129,3 +131,4 @@ class VectorModel(BaseModel):
             for j in range(0, len(self.frequency[0])):
                 self.weights[i][j] = self.tfs[i][j] * self.idf[j]
                 self.norms[i] += self.weights[i][j] ** 2
+            self.norms[i] = (self.norms[i]) ** (1/2)
