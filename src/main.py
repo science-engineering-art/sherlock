@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from models.corpus import Corpus
 from models.vector_model import VectorModel
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -8,11 +9,12 @@ class DocumentDto(BaseModel):
     doc_id: str
     title: str | None
     author: str | None
-    text: str
+    text: str | None
     score: float | None
 
 
-model = VectorModel('cranfield')
+corpus = Corpus('cranfield')
+model = VectorModel(corpus)
 
 app = FastAPI()
 
@@ -22,8 +24,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=origins,
+    allow_headers=origins,
 )
 
 @app.get("/search")
@@ -37,6 +39,6 @@ async def root(query: str):
 
 @app.get("/document")
 async def root(doc_id: str):
-    for doc in model.corpus:
+    for doc in model.corpus.docs:
         if doc.doc_id == doc_id:
             return doc.text

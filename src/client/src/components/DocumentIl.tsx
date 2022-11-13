@@ -23,7 +23,7 @@ export function DocumentIl(props: DocumentDto) {
                 if (text === ''){
                     await axios.get('http://localhost:8000/document?doc_id=' +
                         encodeURIComponent(props.doc_id))
-                        .then((resp) => { setText(resp.data); setIsThereText(true); })
+                        .then((resp) => { setText('\n'+resp.data); setIsThereText(true); })
                         .catch((err) => console.log(err.data));
                 }
                 if (isThereText)
