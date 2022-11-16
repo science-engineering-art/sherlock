@@ -36,7 +36,7 @@ make react
 
 ### Windows
 
-From the root directory run in a terminal,
+From the root directory run in a terminal the following,
 
 ```shell
 cd src
