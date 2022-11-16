@@ -2,9 +2,10 @@
 % the LaTeX2e class from Springer-Verlag
 % for Lecture Notes in Computer Science, version 2.4
 \documentclass{llncs}
-\usepackage{llncsdoc}
+\usepackage{Preentrega_Proyecto_Final_SRI}
 \usepackage{color}
 
+\usepackage[utf8]{inputenc}
 \usepackage{algorithm}
 \usepackage{amsfonts}
 \usepackage{todonotes}
@@ -82,7 +83,7 @@
 	\section{Modelaci\'on del problema}
 	
 	\subsection{Documentos}
-	Para el desarrollo de nuestro Sistema de Recuperaci\'on de la Informaci\'on modelamos un documento como un objeto que contiene al menos dos propiedades, un \texttt{doc\_id} que identifica de manera \'unica a un documento dentro del conjunto de documentos del dataset en cuesti\'on; y un \texttt{text} que corresponde con el texto de este. Tambi\'en puede tener otras propiedades, por ejemplo: \texttt{title}, \texttt{author}; pero eso depende de la riqueza del dataset que provee el paquete de Python \texttt{ir\_datasets} (ver \cite{B3}).
+	Para el desarrollo de este Sistema de Recuperaci\'on de la Informaci\'on modelamos un documento como un objeto que contiene al menos dos propiedades, un \texttt{doc\_id} que identifica de manera \'unica a un documento dentro del conjunto de documentos del dataset en cuesti\'on; y un \texttt{text} que corresponde con el texto de este. Tambi\'en puede tener otras propiedades, por ejemplo: \texttt{title}, \texttt{author}; pero eso depende de la riqueza del dataset que provee el paquete de Python \texttt{ir\_datasets} (ver \cite{B3}).
 	
 	Como el texto de un documento es inc\'omodo de manipular por venir en forma de \texttt{string}, este se toqueniza y convierte en una lista de t\'erminos indexados normalizados. Esto se logra haciendo uso del paquete de Python \texttt{re} (referirse a \cite{B4}) que proporciona una colecci\'on de funciones que facilitan el trabajo con expresiones regulares. 
 	
