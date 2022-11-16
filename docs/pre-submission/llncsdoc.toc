@@ -1,0 +1,11 @@
+\babel@toc {spanish}{}
+\contentsline {section}{\numberline {1}Introducci\'on}{1}{}%
+\contentsline {section}{\numberline {2}Modelaci\'on del problema}{1}{}%
+\contentsline {subsection}{\numberline {2.1}Documentos}{1}{}%
+\contentsline {subsection}{\numberline {2.2}Normalizaci\'on de un t\'ermino}{1}{}%
+\contentsline {subsection}{\numberline {2.3}Corpus}{1}{}%
+\contentsline {subsection}{\numberline {2.4}Modelo base}{2}{}%
+\contentsline {section}{\numberline {3}Modelo vectorial}{2}{}%
+\contentsline {subsection}{\numberline {3.1}Preprocesamiento}{2}{}%
+\contentsline {subsection}{\numberline {3.2}Recuperación de documentos}{2}{}%
+\contentsline {section}{\numberline {4}Conclusiones}{2}{}%
