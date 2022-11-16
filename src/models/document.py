@@ -13,5 +13,4 @@ class Document:
 
         # tokenization and standardization 
         self.terms = [ unidecode(word.lower()) for word in 
-            re.findall(r"[\w']+", doc.text)
-            if not re.match(r"[\d]+", word) ]
+            re.findall(r"[\w']+", doc.text) ]

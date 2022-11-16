@@ -6,7 +6,7 @@ function NavBar() {
       <div>
         <h1 id='name-engine' className='text-center font-mono font-bold h-30 
           text-9xl my-20'>
-          Moogle!🔍
+          Sherlock!🔍
         </h1>
       </div>
   )

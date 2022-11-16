@@ -40,8 +40,7 @@ class VectorModel(BaseModel):
         
         # build the query vector
         query_vector: List[str] = [ unidecode(word.lower()) for word in 
-                                   re.findall(r"[\w']+", query) 
-                                   if not re.match(r"[\d]+", word)]
+                                   re.findall(r"[\w']+", query) ]
 
         # calculation of the TF of the query vector
         dict_terms = {}; frequency = []; tf = []; a = 0.4
