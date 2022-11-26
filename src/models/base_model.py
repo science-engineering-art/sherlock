@@ -1,7 +1,7 @@
 from typing import List
 from abc import abstractmethod
-from corpus import Corpus
-from document import Document
+from models.corpus import Corpus
+from models.document import Document
 
 
 class BaseModel:

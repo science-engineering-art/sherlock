@@ -1,8 +1,8 @@
 from unidecode import unidecode
-from corpus import Corpus
+from models.corpus import Corpus
 from typing import Dict, List, Tuple
-from document import Document
-from base_model import BaseModel
+from models.document import Document
+from models.base_model import BaseModel
 from sympy.logic.boolalg import to_dnf
 from sympy import sympify
 
