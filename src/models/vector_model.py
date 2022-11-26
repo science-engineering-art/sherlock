@@ -1,10 +1,10 @@
 import re
 from math import log
 from unidecode import unidecode
-from models.corpus import Corpus
+from corpus import Corpus
 from typing import Dict, List, Tuple
-from models.document import Document
-from models.base_model import BaseModel
+from document import Document
+from base_model import BaseModel
 
 
 class VectorModel(BaseModel):

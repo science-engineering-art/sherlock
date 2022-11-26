@@ -1,6 +1,6 @@
 import ir_datasets
 from typing import List
-from models.document import Document
+from document import Document
 
 
 class Corpus:
