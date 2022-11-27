@@ -14,6 +14,8 @@ class BooleanModel(BaseModel):
 
         self.dict_terms = []
 
+        self.dict_docs = {}
+
         # dictionary of document collection represented as a boolean vector of its terms
         self.docs_inverted_index = {}
 
@@ -21,21 +23,34 @@ class BooleanModel(BaseModel):
 
         # Indexing all terms in corpus
         for doc in self.corpus.docs:
-            for word in doc:
+            for word in doc.terms:
                 if word not in self.dict_terms:
                     self.dict_terms.append(word)
+
+        print(f"Corpus terms: {self.dict_terms}")
 
         # Representing each document as binary vector of its terms
         amount_docs = 0
         for doc in self.corpus.docs:
+            self.dict_docs[amount_docs] = doc
+            self.docs_inverted_index[amount_docs] = []
             for term in self.dict_terms:
-                if term in doc:
+                if term in doc.terms:
                     self.docs_inverted_index[amount_docs] += [1]
                 else:
                     self.docs_inverted_index[amount_docs] += [0]
-                amount_docs += 1
+            amount_docs += 1
 
-        return super().search(query)
+        print(f"Docs vectors: {self.docs_inverted_index[0]}")
+
+        # processing query
+        processed_query = self.__process_query(query)
+        print(f"Processed query: {processed_query}")
+
+        doc_matches = self.get_docs_matches_to_query(processed_query, self.docs_inverted_index, self.dict_terms)
+        print(f"Matches: {doc_matches}")
+
+        return [[1, self.dict_docs[i]] for i in doc_matches]
 
     def __process_query(self, query: str) -> TypeError | list[str]:
         # set query to lowercase
@@ -62,17 +77,48 @@ class BooleanModel(BaseModel):
             return TypeError("Invalid logical expression.")
 
         # convert query expression into disjunctive normal form, and then convert back to string
-        query_dfn = str(to_dnf(expression))
+        query_dnf = str(to_dnf(expression))
 
         # remove parenthesis from query
-        query_dfn = query_dfn.replace("(", "")
-        query_dfn = query_dfn.replace(")", "")
+        query_dnf = query_dnf.replace("(", "")
+        query_dnf = query_dnf.replace(")", "")
 
         # split by '|' to get conjunctive components (cc)
-        query_dfn = query_dfn.split(" | ")
+        query_dnf = query_dnf.split(" | ")
 
         # split each cc by '&' to get each term in it
-        for i in range(0, len(query_dfn)):
-            query_dfn[i] = query_dfn[i].split(" & ")
+        for i in range(0, len(query_dnf)):
+            query_dnf[i] = query_dnf[i].split(" & ")
 
-        return query_dfn
+        return query_dnf
+
+    def match_neg_term(self, term, doc_vector, corpus_terms) -> bool:
+        for i in range(0, len(doc_vector)):
+            if doc_vector[i] == 1 and corpus_terms[i] == term[1:]:
+                return False
+        return True
+
+    def match_term(self, term, doc_vector, corpus_terms) -> bool:
+        for i in range(0, len(doc_vector)):
+            if doc_vector[i] == 1 and corpus_terms[i] == term:
+                print(corpus_terms[i])
+                return True
+        return False
+
+    def doc_matches_cc(self, cc, doc_vector, corpus_terms):
+        matches = True
+        for term in cc:
+            if term[0] == '~':
+                matches &= self.match_neg_term(term, doc_vector, corpus_terms)
+            else:
+                matches &= self.match_term(term, doc_vector, corpus_terms)
+        return matches
+
+    def get_docs_matches_to_query(self, processed_query, docs, corpus_terms):
+        matches = []
+        for cc in processed_query:
+            for i in range(0, len(docs)):
+                if self.doc_matches_cc(cc, docs[i], corpus_terms):
+                    matches.append(i)
+        print(len(matches))
+        return matches

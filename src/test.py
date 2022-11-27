@@ -99,4 +99,6 @@ dictionary = {1: [], 2: []}
 dictionary[1] += [2]
 dictionary[1] += [2]
 
-#print(dictionary[1])
+dictionary[3] = []
+dictionary[3] += [1]
+print(dictionary[3])
