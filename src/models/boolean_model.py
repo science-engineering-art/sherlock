@@ -63,7 +63,10 @@ class BooleanModel(BaseModel):
         query = query.replace(" and ", "&")
         query = query.replace(" & ", "&")
         query = query.replace(" not ", "~")
+        query = query.replace("not ", "~")
+        query = query.replace("not", "~")
         query = query.replace(" ~ ", "~")
+        query = query.replace("~ ", "~")
 
         # if after processing the query there are still blank spaces is becuase there is
         # no operator between those terms, so we add '&' between them

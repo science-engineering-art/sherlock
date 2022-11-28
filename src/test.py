@@ -12,7 +12,10 @@ def process_query(query):
     query = query.replace(" and ", "&")
     query = query.replace(" & ", "&")
     query = query.replace(" not ", "~")
+    query = query.replace("not ", "~")
+    query = query.replace("not", "~")
     query = query.replace(" ~ ", "~")
+    query = query.replace("~ ", "~")
 
     # if after processing the query there are still blank spaces is becuase there is
     # no operator between those terms, so we add '&' between them
@@ -75,7 +78,7 @@ def get_docs_matches_to_query(processed_query, docs, corpus_terms):
     return matches
 
 
-q = "A AND (B or ~C)"
+q = "A AND ~    (C and B)"
 q = " ".join(q.split())
 print(q)
 
@@ -90,7 +93,7 @@ docs_dict = { 0 : [0, 1, 1, 0, 0, 0],
 print(terms)
 print(docs_dict)
 
-print(doc_matches_cc(expression[1], docs_dict[2], terms))
+#print(doc_matches_cc(expression[1], docs_dict[2], terms))
 
 print(get_docs_matches_to_query(expression, docs_dict, terms))
 

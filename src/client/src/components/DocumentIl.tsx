@@ -33,7 +33,7 @@ export function DocumentIl(props: DocumentDto) {
             }}
         >
             <p className=''> 
-                <strong>score: </strong> { props.score} 
+                <strong>score: </strong> { props.score }
             </p>
             <h1 className='font-bond'>
                 <strong>title: </strong> { props.title }
