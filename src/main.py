@@ -15,6 +15,7 @@ class DocumentDto(BaseModel):
 
 
 corpus = Corpus('cranfield')
+#model = VectorModel(corpus)
 model = BooleanModel(corpus)
 
 app = FastAPI()

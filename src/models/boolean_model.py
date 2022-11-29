@@ -5,6 +5,7 @@ from models.document import Document
 from models.base_model import BaseModel
 from sympy.logic.boolalg import to_dnf
 from sympy import sympify
+import re
 
 
 class BooleanModel(BaseModel):
@@ -12,14 +13,18 @@ class BooleanModel(BaseModel):
     def __init__(self, corpus: Corpus):
         super().__init__(corpus)
 
+        self.operators = {"and": "&",
+                          "or": "|",
+                          "not": "~"}
+
+        # list containing all terms in corpus
         self.dict_terms = []
 
+        # dictionary int -> Document of all documents in corpus
         self.dict_docs = {}
 
         # dictionary of document collection represented as a boolean vector of its terms
         self.docs_inverted_index = {}
-
-    def search(self, query: str) -> List[Document]:
 
         # Indexing all terms in corpus
         for doc in self.corpus.docs:
@@ -27,7 +32,7 @@ class BooleanModel(BaseModel):
                 if word not in self.dict_terms:
                     self.dict_terms.append(word)
 
-        print(f"Corpus terms: {self.dict_terms}")
+        # print(f"Corpus terms: {self.dict_terms}")
 
         # Representing each document as binary vector of its terms
         amount_docs = 0
@@ -41,7 +46,7 @@ class BooleanModel(BaseModel):
                     self.docs_inverted_index[amount_docs] += [0]
             amount_docs += 1
 
-        print(f"Docs vectors: {self.docs_inverted_index[0]}")
+    def search(self, query: str) -> List[Document]:
 
         # processing query
         processed_query = self.__process_query(query)
@@ -53,24 +58,35 @@ class BooleanModel(BaseModel):
         return [[1, self.dict_docs[i]] for i in doc_matches]
 
     def __process_query(self, query: str) -> TypeError | list[str]:
-        # set query to lowercase
-        query = query.lower()
 
-        # convert logical operands to '&', '|' or '~' (the ones sympy uses)
-        # in case they were written differently or remove blank spaces between operators and terms
-        query = query.replace(" or ", "|")
-        query = query.replace(" | ", "|")
-        query = query.replace(" and ", "&")
-        query = query.replace(" & ", "&")
-        query = query.replace(" not ", "~")
-        query = query.replace("not ", "~")
-        query = query.replace("not", "~")
-        query = query.replace(" ~ ", "~")
-        query = query.replace("~ ", "~")
+        # set to lowercase and remove unnecessary blank spaces from query
+        query = " ".join(query.split()).lower()
 
-        # if after processing the query there are still blank spaces is becuase there is
-        # no operator between those terms, so we add '&' between them
-        query = query.replace(" ", "&")
+        # remove spaces between parenthesis and its content
+        query = query.replace("( ", "(")
+        query = query.replace(" )", ")")
+
+        # remove unwanted characters
+        query = re.findall(r"[\w()|&~']+", query)
+
+        # convert logical operands to '&', '|' or '~' (the ones sympy uses) if necessary
+        # and add '&' between words with no operand between them
+        i = 0
+        while i != len(query):
+            if query[i] in self.operators.keys():
+                query[i] = self.operators[query[i]]
+                if query[i].startswith("~") and not (query[i - 1].endswith("&") or query[i - 1].endswith("|")):
+                    query[i - 1] += "&" + query[i]
+                    query.__delitem__(i)
+                i += 1
+            elif i != len(query) - 1 and query[i] not in self.operators.values() and \
+                    query[i + 1] not in self.operators.keys() and query[i + 1] not in self.operators.values() \
+                    and not (query[i + 1].startswith("|") or query[i + 1].startswith("&")):
+                query[i] += "&" + query[i + 1]
+                query.__delitem__(i + 1)
+            else:
+                i += 1
+        query = "".join(query)
 
         # we use try except here, in case the logical expression of the query was not a valid one
         try:
@@ -95,19 +111,21 @@ class BooleanModel(BaseModel):
 
         return query_dnf
 
+    # matches a negated term of a conjunctive component to a document
     def match_neg_term(self, term, doc_vector, corpus_terms) -> bool:
         for i in range(0, len(doc_vector)):
             if doc_vector[i] == 1 and corpus_terms[i] == term[1:]:
                 return False
         return True
 
+    # matches a simple term of a conjunctive component to a document
     def match_term(self, term, doc_vector, corpus_terms) -> bool:
         for i in range(0, len(doc_vector)):
             if doc_vector[i] == 1 and corpus_terms[i] == term:
-                print(corpus_terms[i])
                 return True
         return False
 
+    # matches a conjunctive component to a document
     def doc_matches_cc(self, cc, doc_vector, corpus_terms):
         matches = True
         for term in cc:
@@ -117,11 +135,11 @@ class BooleanModel(BaseModel):
                 matches &= self.match_term(term, doc_vector, corpus_terms)
         return matches
 
+    # finds all matches of the query to the documents
     def get_docs_matches_to_query(self, processed_query, docs, corpus_terms):
         matches = []
         for cc in processed_query:
             for i in range(0, len(docs)):
                 if self.doc_matches_cc(cc, docs[i], corpus_terms):
                     matches.append(i)
-        print(len(matches))
         return matches

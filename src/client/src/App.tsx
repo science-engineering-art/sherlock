@@ -2,6 +2,7 @@ import './styles/globals.css';
 import NavBar from './components/NavBar';
 import QueryBar from './components/QueryBar';
 import { DocumentDto } from './components/DocumentIl';
+import Loading from './components/Loading';
 import { DocumentDtos } from './components/DocumentDtos';
 import { useState } from 'react';
 
@@ -20,6 +21,7 @@ function App() {
           setShowResults(show);
         } }
       />
+      {/*!showResults && <Loading />*/}
       {showResults && <DocumentDtos items={documentDtos}/>}
     </div>
   )

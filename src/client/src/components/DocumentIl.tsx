@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useState } from 'react';
 import '../styles/globals.css';
+import './DocumentIl.css'
 
 export interface DocumentDto {
     doc_id: string,
@@ -16,9 +17,7 @@ export function DocumentIl(props: DocumentDto) {
     const [isThereText, setIsThereText] = useState(false);
 
     return (
-        <div className='border w-11/12 rounded-md border-black-300 
-        mt-4 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 
-        focus:outline-none focus:ring focus:ring-blue-300'
+        <div className='document-container'
             onClick={async () => {
                 if (text === ''){
                     await axios.get('http://localhost:8000/document?doc_id=' +
@@ -32,13 +31,13 @@ export function DocumentIl(props: DocumentDto) {
                     setIsThereText(true);
             }}
         >
-            <p className=''> 
-                <strong>score: </strong> { props.score }
-            </p>
-            <h1 className='font-bond'>
+            <h1 className='document-title'>
                 <strong>title: </strong> { props.title }
             </h1>
-            {isThereText && <p> {text} </p>}
+            {isThereText && <p className='document'> {text} </p>}
+            <p className='score'>
+                <strong>score: </strong> { props.score }
+            </p>
         </div>
     );
 }

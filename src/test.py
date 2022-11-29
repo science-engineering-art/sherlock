@@ -1,25 +1,41 @@
 from sympy.logic.boolalg import to_dnf
 from sympy import sympify
+import re
+from unidecode import unidecode
+
+operators = {"and" : "&",
+              "or" : "|",
+              "not" : "~"}
+
 
 def process_query(query):
-    # set query to lowercase
-    query = query.lower()
+    # set to lowercase and remove unwanted characters from query
+    query = " ".join(query.split()).lower()
+    query = query.replace("( ", "(")
+    query = query.replace(" )", ")")
+
+    query = re.findall(r"[\w()|&~']+", query)
 
     # convert logical operands to '&', '|' or '~' (the ones sympy uses)
     # in case they were written differently or remove blank spaces between operators and terms
-    query = query.replace(" or ", "|")
-    query = query.replace(" | ", "|")
-    query = query.replace(" and ", "&")
-    query = query.replace(" & ", "&")
-    query = query.replace(" not ", "~")
-    query = query.replace("not ", "~")
-    query = query.replace("not", "~")
-    query = query.replace(" ~ ", "~")
-    query = query.replace("~ ", "~")
+    i = 0
+    while i != len(query):
+        if query[i] in operators.keys():
+            query[i] = operators[query[i]]
+            if query[i].startswith("~") and not (query[i - 1].endswith("&") or query[i - 1].endswith("|")):
+                query[i - 1] += "&" + query[i]
+                query.__delitem__(i)
+            i += 1
+        elif i != len(query)-1 and query[i] not in operators.values() and \
+                query[i+1] not in operators.keys() and query[i+1] not in operators.values() \
+                and not(query[i+1].startswith("|") or query[i+1].startswith("&")):
+            query[i] += "&" + query[i+1]
+            query.__delitem__(i+1)
+        else:
+            i += 1
+    query = "".join(query)
 
-    # if after processing the query there are still blank spaces is becuase there is
-    # no operator between those terms, so we add '&' between them
-    query = query.replace(" ", "&")
+    print(query)
 
     # we use try except here, in case the logical expression of the query was not a valid one
     try:
@@ -78,8 +94,7 @@ def get_docs_matches_to_query(processed_query, docs, corpus_terms):
     return matches
 
 
-q = "A AND ~    (C and B)"
-q = " ".join(q.split())
+q = "temperature laura riera y amigos f f f | s ~aaa"
 print(q)
 
 expression = process_query(q)
@@ -92,10 +107,9 @@ docs_dict = { 0 : [0, 1, 1, 0, 0, 0],
 
 print(terms)
 print(docs_dict)
+print(doc_matches_cc(expression[0], docs_dict[2], terms))
 
-#print(doc_matches_cc(expression[1], docs_dict[2], terms))
-
-print(get_docs_matches_to_query(expression, docs_dict, terms))
+#print(get_docs_matches_to_query(expression, docs_dict, terms))
 
 dictionary = {1: [], 2: []}
 
