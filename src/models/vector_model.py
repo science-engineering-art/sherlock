@@ -15,9 +15,9 @@ class VectorModel(BaseModel):
         super().__init__(corpus)
         
         # matrix of the TF of each term in each document
-        self.tfs: Dict = Dict()
+        self.tfs: Dict = {}
         # IDF vector
-        self.idfs: Dict = Dict()
+        self.idfs: Dict = {}
         
         # weight of each term in each document
         self.weights: Dict = Dict()
@@ -114,9 +114,9 @@ class VectorModel(BaseModel):
             Calculation of the weights of each term in each document.
         """
         self.__calculate_tfs()
+        self.__calculate_idf()
         for k in self.tfs:
             print(k, self.tfs[k])
-        self.__calculate_idf()
 
         for doc in self.corpus:
             for term in doc:
