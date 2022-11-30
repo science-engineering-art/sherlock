@@ -12,7 +12,7 @@ export interface DocumentDto {
 
 export function DocumentIl(props: DocumentDto) {
     
-    const [text, setText] = useState('');
+    // const [text, setText] = useState('');
     const [isThereText, setIsThereText] = useState(false);
 
     return (
@@ -20,12 +20,12 @@ export function DocumentIl(props: DocumentDto) {
         mt-4 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 
         focus:outline-none focus:ring focus:ring-blue-300'
             onClick={async () => {
-                if (text === ''){
-                    await axios.get('http://localhost:8000/document?doc_id=' +
-                        encodeURIComponent(props.doc_id))
-                        .then((resp) => { setText('\n'+resp.data); setIsThereText(true); })
-                        .catch((err) => console.log(err.data));
-                }
+                // if (text === ''){
+                //     await axios.get('http://localhost:8000/document?dataset=cranfield&doc_id=' +
+                //         encodeURIComponent(props.doc_id))
+                //         .then((resp) => { setText('\n'+resp.data); setIsThereText(true); })
+                //         .catch((err) => console.log(err.data));
+                // }
                 if (isThereText)
                     setIsThereText(false);
                 else
@@ -38,7 +38,7 @@ export function DocumentIl(props: DocumentDto) {
             <h1 className='font-bond'>
                 <strong>title: </strong> { props.title }
             </h1>
-            {isThereText && <p> {text} </p>}
+            {isThereText && <p> { props.text } </p>}
         </div>
     );
 }

@@ -60,7 +60,7 @@ class VectorModel(BaseModel):
             
             for term in query_vector:
                 sim += self.weights[doc_id, term] * weights[term] / n
-            sims.append((sim, self.corpus[doc_id]))
+            sims.append((sim, doc_id))
 
         return [i for i in sorted(sims, key=lambda x: x[0], reverse=True)]
 

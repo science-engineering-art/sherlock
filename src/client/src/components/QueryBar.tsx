@@ -32,7 +32,7 @@ function QueryBar(props: QueryBarProps) {
         active:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 
         rounded-sm'
         onClick={async () => {
-          await axios.get('http://localhost:8000/search?query=' +
+          await axios.get('http://localhost:8000/search?dataset=cranfield&query=' +
             encodeURIComponent(query))
             .then((resp) => { 
               props.setDocumentDtos(resp.data.results);

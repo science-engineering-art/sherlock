@@ -18,42 +18,40 @@
 # print(dictt['hla'], dictt['fss'], dictt['fjs'])
 
 text = """
-experiments on the use of suction through perforated
-strips for maintaining laminar flow . transition and
-drag measurements .
-  wind-tunnel tests are described in which suction
-is applied at perforated strips, as an alternative to
-porous strips or slots, in order to maintain a laminar boundary
-layer .  a test was first carried out on a single row of
-perforations on a cambered plate, as a preliminary to the main
-tests which were performed on strips of multiple rows
-of perforations drilled through the surface of a low-drag-type
-aerofoil 13 per cent thick and of 5-ft chord .
-  up to a wind speed of 180 ft sec it has been ascertained that
-suction may be safely applied to extend laminar flow
-provided the ratio of hole diameter to boundary-layer displacement
-thickness is less than 2, the ratio of hole pitch to
-diameter is less than 3 and there are at least three rows of holes
-in the strip .  with less than three rows, the criteria
-are much more restrictive .  it is possible to extend laminar flow
-by suction through perforations whose diameters and
-pitches exceed these values slightly, but only with the risk that
-excessive suction quantities will produce wedges of
-turbulent boundary layer originating at the holes .
-  a uniform distribution of suction through the holes was
-necessary .  this was successfully obtained by two methods,
-the use of cells and throttle holes, and with tapered holes .
-in particular, tests were carried out on some panels
-supplied by handley page, ltd., in which the cells and tapered
-holes had been constructed by commercial methods, and
-the suction distribution proved satisfactory .
-  the resistance of some of the cellular arrangements was
-measured .  it was found that when the suction quantities
-were the minimum required to maintain laminar flow, the
-additional losses in total head of the sucked air due to
-the resistance of the throttle holes could be made small compared
-with the loss in total head of the sucked boundary
-layer .
+the problem of obtaining high lift-drag ratios at supersonic speeds .
+the importance of the lift to drag ratio is well
+known to all aircraft designers since it gives, to a
+great extent, the aerodynamic efficiency of the airplane .
+aerodynamic efficiency, however, is only one
+component of the grand compromise that a completed
+airplane represents .  at subsonic speeds, lift-drag
+ratios of well over 200 have been measured in wind
+tunnels on airfoil sections., but few powered aircraft
+have attained (lift to drag ratio) value of 20 .  it is invariably true
+that the requirements of stability and control, structure,
+and flight operation all contribute to reducing the
+design (lift to drag ratio) considerably below those exotic values
+which can be predicted from unrestricted aerodynamic
+theory .  if, however, a certain range or operating
+efficiency is required, there is most certainly a minimum
+if we examine the range equation we see that range is
+proportional to the lift-drag ratio, the thermopropulsive
+efficiency, and the logarithm of the initial to final
+weight ratio .  the appearance of the lift-drag ratio as a
+linear factor in the range equation indicates that every
+attempt should be made to increase (lift to drag ratio)., however,
+the search for higher (lift to drag ratio) may lead to strange
+and unorthodox configurations .  most frequently, such
+configurations are ruled out by the adverse effects of
+their geometry on the weight ratios .  in the present
+paper, we will deal with the maximum lift-drag ratio
+problem for conventional configurations having a wing
+and a body in close proximity to each other .  no attempt
+will be made to select a particular configuration
+as being the best .  however, the promising direction
+to go from the aerodynamic view will be stressed with
+the understanding that the other factors may outweight
+the aerodynamics .
 """
 
 import spacy
@@ -63,6 +61,7 @@ from models.dict import Dict
 NLP = spacy.load('en_core_web_sm') 
 
 terms = [ word.lemma_ for word in NLP(text) if word.pos_ == 'NOUN']
+print('search' in terms)
 terms = Dict(Counter(terms))
 
 print(text)
@@ -73,3 +72,7 @@ for t in terms:
 #             re.findall(r"[\w]+", "La muchacHÁ 33 también fue..") 
 #             if not re.match(r"[\d]+", word) ]
 # print(' '.join(terms))
+
+# import ir_datasets
+# dataset = ir_datasets.load('cranfield')
+# print(dataset)
