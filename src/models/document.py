@@ -1,5 +1,3 @@
-import re
-import ir_datasets
 from typing import List, Tuple
 from unidecode import unidecode
 import spacy

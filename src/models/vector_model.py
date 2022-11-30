@@ -45,7 +45,7 @@ class VectorModel(BaseModel):
         weights = Dict()
         norm = 0
         for t in query_vector:
-            weights[t] = (a + (1-a)*tf[None, t]) * self.idfs[t]
+            weights[t] = (a + (1-a)*tf[-1, t]) * self.idfs[t]
             norm += weights[t] ** 2
         norm = norm ** (1/2)
 
@@ -53,21 +53,27 @@ class VectorModel(BaseModel):
         sims = []
         for doc in self.corpus:
             sim = 0 
-            n = self.norms[doc] * norm            
+            n = self.norms[doc.doc_id] * norm            
             
             if n == 0: continue
             
             for term in query_vector:
-                sim += self.weights[doc, term] * weights[term] / n
-            sims.append(sim)
+                # if self.weights[doc,term] != 0 and weights[term] != 0:
+                    # print(doc.title)
+                    # print(doc.text)
+                    # for t in doc.terms:
+                    #     print(t,doc.terms[t])
+                    # print(f'weigths {self.weights[doc,term]} -- {weights[term]}')
+                    # print(f'tfs {self.tfs[doc,term]} idf {self.idfs[term]}')
+                sim += self.weights[doc.doc_id, term] * weights[term] / n
+            sims.append((sim, doc))
 
-        return [i for i in sorted(zip(sims, self.corpus.docs), 
-                key=lambda x: x[0], reverse=True)]
+        return [i for i in sorted(sims, key=lambda x: x[0], reverse=True)]
 
     def __calculate_tf(
             terms, 
             tfs, 
-            doc = None
+            doc_id = -1
         ):
         """
             Calculation of TF for each term in a document.
@@ -77,7 +83,7 @@ class VectorModel(BaseModel):
             max_freq = max(max_freq, terms[t])
 
         for t in terms:
-            tfs[doc, t] = terms[t] / max_freq
+            tfs[doc_id, t] = terms[t] / max_freq
 
     def __calculate_tfs(self):
         """
@@ -86,17 +92,17 @@ class VectorModel(BaseModel):
         """
         for doc in self.corpus.docs:
             VectorModel.__calculate_tf(
-                doc.terms, self.tfs, doc)
+                doc.terms, self.tfs, doc.doc_id)
 
     def __calculate_idf(self):
         """
             Calculation of the IDF vector of the corpus document set.
         """
         term_docs = Dict()
-        for doc in self.corpus.docs:
+        for doc in self.corpus:
             marked = Dict()
             for t in doc:
-                if not t in term_docs and marked[t] == 0: 
+                if marked[t] == 0: 
                     term_docs[t] += 1
                     marked[t] = 1
 
@@ -108,13 +114,13 @@ class VectorModel(BaseModel):
             Calculation of the weights of each term in each document.
         """
         self.__calculate_tfs()
+        for k in self.tfs:
+            print(k, self.tfs[k])
         self.__calculate_idf()
 
-        self.weights = Dict()
-        self.norms = Dict()
-
-        for doc in self.corpus.docs:
+        for doc in self.corpus:
             for term in doc:
-                self.weights[doc,term] = self.tfs[doc,term] * self.idfs[term]
-                self.norms[doc] += self.weights[doc,term] ** 2
-            self.norms[doc] = (self.norms[doc]) ** (1/2)
+                self.weights[doc.doc_id,term] = self.tfs[doc.doc_id,term] * self.idfs[term]
+                # print(f"{self.tfs[doc.doc_id,term] * self.idfs[term]} = {self.tfs[doc.doc_id,term]} * {self.idfs[term]}")
+                self.norms[doc.doc_id] += self.weights[doc.doc_id,term] ** 2
+            self.norms[doc.doc_id] = self.norms[doc.doc_id] ** (1/2)

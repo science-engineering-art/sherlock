@@ -24,11 +24,11 @@ class Corpus:
     def __getitem__(self, key):
 
         if isinstance(key, Tuple[Document]):
-            print('it is a document')
+            # print('it is a document')
             return self.docs[key]
 
         if isinstance(key, Tuple[str, Document]):
-            print('it is a tuple of str-doc')
+            # print('it is a tuple of str-doc')
             term, doc = key
             return self.docs[doc][term]
 
