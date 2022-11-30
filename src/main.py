@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from models.corpus import Corpus
+from models.corpus import Corpus, CorpusWithOnlyNouns
 from models.vector_model import VectorModel
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -13,7 +13,7 @@ class DocumentDto(BaseModel):
     score: float | None
 
 
-corpus = Corpus('cranfield')
+corpus = CorpusWithOnlyNouns('cranfield')
 model = VectorModel(corpus)
 
 app = FastAPI()
@@ -31,9 +31,9 @@ app.add_middleware(
 @app.get("/search")
 async def root(query: str):
     return {
-        "results": [ DocumentDto(doc_id=tuple[1].doc_id, 
-                    title=tuple[1].title, author=tuple[1].author, 
-                    text=tuple[1].text, score=tuple[0])
+        "results": [ DocumentDto(doc_id=tuple[1]._doc_id, 
+                    title='', author='', 
+                    text='', score=tuple[0])
                     for tuple in model.search(query)]
     }
 

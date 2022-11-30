@@ -3,7 +3,7 @@ from math import log
 from models.dict import Dict
 from typing import List, Tuple
 from collections import Counter
-from models.corpus import Corpus
+from models.corpus import CorpusWithOnlyNouns
 from models.document import Document
 from models.base_model import BaseModel
 
@@ -11,13 +11,13 @@ NLP = spacy.load('en_core_web_sm')
 
 class VectorModel(BaseModel):
 
-    def __init__(self, corpus: Corpus):
+    def __init__(self, corpus: CorpusWithOnlyNouns):
         super().__init__(corpus)
         
         # matrix of the TF of each term in each document
-        self.tfs: Dict = {}
+        self.tfs: Dict = Dict()
         # IDF vector
-        self.idfs: Dict = {}
+        self.idfs: Dict = Dict()
         
         # weight of each term in each document
         self.weights: Dict = Dict()
@@ -35,7 +35,8 @@ class VectorModel(BaseModel):
         
         # build the query vector
         query_vector = Dict(Counter([ word.lemma_ for word in NLP(query) 
-                        if word.pos_ == 'NOUN']))
+                        if not word.is_stop and not word.is_punct 
+                        and not word.is_quote]))
 
         # calculation of the TF of the query vector
         tf = Dict(); a = 0.4
@@ -51,22 +52,15 @@ class VectorModel(BaseModel):
 
         # cosine similarity calculation
         sims = []
-        for doc in self.corpus:
+        for doc_id in self.corpus:
             sim = 0 
-            n = self.norms[doc.doc_id] * norm            
+            n = self.norms[doc_id] * norm            
             
             if n == 0: continue
             
             for term in query_vector:
-                # if self.weights[doc,term] != 0 and weights[term] != 0:
-                    # print(doc.title)
-                    # print(doc.text)
-                    # for t in doc.terms:
-                    #     print(t,doc.terms[t])
-                    # print(f'weigths {self.weights[doc,term]} -- {weights[term]}')
-                    # print(f'tfs {self.tfs[doc,term]} idf {self.idfs[term]}')
-                sim += self.weights[doc.doc_id, term] * weights[term] / n
-            sims.append((sim, doc))
+                sim += self.weights[doc_id, term] * weights[term] / n
+            sims.append((sim, self.corpus[doc_id]))
 
         return [i for i in sorted(sims, key=lambda x: x[0], reverse=True)]
 
@@ -90,18 +84,18 @@ class VectorModel(BaseModel):
             Calculation of the TFs of each term in all the documents 
             of the corpus.
         """
-        for doc in self.corpus.docs:
+        for doc_id in self.corpus:
             VectorModel.__calculate_tf(
-                doc.terms, self.tfs, doc.doc_id)
+                self.corpus[doc_id], self.tfs, doc_id)
 
     def __calculate_idf(self):
         """
             Calculation of the IDF vector of the corpus document set.
         """
         term_docs = Dict()
-        for doc in self.corpus:
+        for doc_id in self.corpus:
             marked = Dict()
-            for t in doc:
+            for t in self.corpus[doc_id]:
                 if marked[t] == 0: 
                     term_docs[t] += 1
                     marked[t] = 1
@@ -115,12 +109,9 @@ class VectorModel(BaseModel):
         """
         self.__calculate_tfs()
         self.__calculate_idf()
-        for k in self.tfs:
-            print(k, self.tfs[k])
 
-        for doc in self.corpus:
-            for term in doc:
-                self.weights[doc.doc_id,term] = self.tfs[doc.doc_id,term] * self.idfs[term]
-                # print(f"{self.tfs[doc.doc_id,term] * self.idfs[term]} = {self.tfs[doc.doc_id,term]} * {self.idfs[term]}")
-                self.norms[doc.doc_id] += self.weights[doc.doc_id,term] ** 2
-            self.norms[doc.doc_id] = self.norms[doc.doc_id] ** (1/2)
+        for doc_id in self.corpus:
+            for term in self.corpus[doc_id]:
+                self.weights[doc_id,term] = self.tfs[doc_id,term] * self.idfs[term]
+                self.norms[doc_id] += self.weights[doc_id,term] ** 2
+            self.norms[doc_id] = self.norms[doc_id] ** (1/2)

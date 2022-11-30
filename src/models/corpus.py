@@ -1,39 +1,30 @@
 import ir_datasets
-from typing import List, Tuple
+from typing import List
 from models.dict import Dict
-from models.document import Document
+from models.document import Document, DocumentWithOnlyNouns
 
 
-class Corpus:
+class Corpus(Dict):
+
+    def __new__(cls, _):
+        return super().__new__(cls)
 
     def __init__(self, dataset):
-        ir_dataset = ir_datasets.load(dataset)
-        self.dataset = dataset
-        self.docs: List[Document] = [ Document(doc) 
-            for doc in ir_dataset.docs_iter()]
-        # count = 0
-        # self.docs = []
-        # for doc in ir_dataset.docs_iter():
-        #     self.docs.append(Document(doc))
-        #     print(count)
-        #     count += 1
-        #     if count == 10000:
-        #         break
-        self.docs = Dict({ doc: doc for doc in self.docs })
-    
-    def __getitem__(self, key):
+        self._dataset = dataset
+        self.__dict__.update({ doc._doc_id: doc for doc in self.get_documents })
 
-        if isinstance(key, Tuple[Document]):
-            # print('it is a document')
-            return self.docs[key]
-
-        if isinstance(key, Tuple[str, Document]):
-            # print('it is a tuple of str-doc')
-            term, doc = key
-            return self.docs[doc][term]
-
-    def __len__(self):
-        return len(self.docs)
+    @property
+    def get_documents(self) -> List[Document]:
+        ir_dataset = ir_datasets.load(self._dataset)
+        return [ Document(doc) for doc in ir_dataset.docs_iter()]
 
     def __iter__(self):
-        return self.docs.__iter__()
+        for k in self.__dict__:
+            if k[0] != '_': yield k
+
+class CorpusWithOnlyNouns(Corpus):
+
+    @property
+    def get_documents(self) -> List[Document]:
+        ir_dataset = ir_datasets.load(self._dataset)
+        return [ DocumentWithOnlyNouns(doc) for doc in ir_dataset.docs_iter()]

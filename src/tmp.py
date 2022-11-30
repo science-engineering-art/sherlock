@@ -67,7 +67,7 @@ terms = Dict(Counter(terms))
 
 print(text)
 for t in terms:
-    print(t, terms[t])
+  print(t, terms[t])
 
 # terms = [ unidecode(word.lower()) for word in 
 #             re.findall(r"[\w]+", "La muchacHÁ 33 también fue..") 
