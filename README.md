@@ -43,7 +43,7 @@ cd src
 uvicorn main:app --reload
 ```
 
-and run this in another terminal.
+Also run this in another terminal.
 
 ```shell
 cd src/client
