@@ -1,13 +1,43 @@
 from typing import List
+import dictdatabase as ddb
 from abc  import abstractmethod
 from models.corpus import Corpus
 from models.document import Document
-
 
 class BaseModel:
 
     def __init__(self, corpus: Corpus):
         self.corpus = corpus
+        dataset = self.corpus._dataset.__dict__['_constituents']\
+            [0].__dict__['_dataset_id']
+        json = f'{dataset}_{self.__class__.__name__}'
+        
+        if not ddb.at(json).exists():
+            self.preprocessing()
+            self.secure_storage()
+        else:
+            self.secure_loading()
+
+    @abstractmethod
+    def preprocessing(self):
+        """
+            Preprocessing that is performed before using the model employed.
+        """
+        pass
+
+    @abstractmethod
+    def secure_loading(self):
+        """
+            Secure loading of pre-calculated data.
+        """
+        pass
+
+    @abstractmethod
+    def secure_storage(self):
+        """
+            Secure storage of pre-calculated information.
+        """
+        pass
 
     @abstractmethod
     def search(self, query: str) -> List[Document]: 

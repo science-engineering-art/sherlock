@@ -1,4 +1,3 @@
-import ir_datasets
 from fastapi import FastAPI
 from pydantic import BaseModel
 from models.corpus import CorpusWithOnlyNouns
@@ -33,9 +32,10 @@ async def root(dataset: str, query: str):
     result = []    
 
     for tuple in model.search(query):
-        doc = corpus[dataset].get_doc(tuple[1])
-        result.append(DocumentDto(doc_id=doc['doc_id'], 
-            title=doc['title'], author=doc['author'], 
-            text=doc['text'], score=tuple[0]))
+        if tuple[0] > 0:
+            doc = corpus[dataset].get_doc(tuple[1])
+            result.append(DocumentDto(doc_id=doc['doc_id'], 
+                title=doc['title'], author=doc['author'], 
+                text=doc['text'], score=tuple[0]))
 
     return { "results": result }

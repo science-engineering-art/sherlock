@@ -1,5 +1,6 @@
 import spacy
 from math import log
+import dictdatabase as ddb
 from models.dict import Dict
 from typing import List, Tuple
 from collections import Counter
@@ -11,9 +12,10 @@ NLP = spacy.load('en_core_web_sm')
 
 class VectorModel(BaseModel):
 
-    def __init__(self, corpus: CorpusWithOnlyNouns):
-        super().__init__(corpus)
-        
+    def preprocessing(self):  
+        # load docs of the corpus
+        self.corpus.load_docs()
+
         # matrix of the TF of each term in each document
         self.tfs: Dict = Dict()
         # IDF vector
@@ -26,7 +28,50 @@ class VectorModel(BaseModel):
         
         # calculation of the weights of each term in each document
         self.__calculate_weights()
+
+        # clean corpus
+        self.corpus.clean()
     
+    def secure_storage(self):
+        
+        dataset = self.corpus._dataset.__dict__['_constituents']\
+            [0].__dict__['_dataset_id']
+        json = f'{dataset}_{self.__class__.__name__}'
+        s = ddb.at(json)
+        
+        if not s.exists():
+            s.create({
+                "weights": { }, 
+                "norms": self.norms.__dict__,
+                "idfs": self.idfs.__dict__
+            })
+
+            with ddb.at(json, key="weights").session() as (session, weights):
+            
+                for doc_id, term in self.weights:
+                    if not doc_id in weights:
+                        weights[doc_id] = {}
+                    weights[doc_id][term] = self.weights[doc_id,term]
+            
+                session.write()
+    
+    def secure_loading(self):
+        
+        dataset = self.corpus._dataset.__dict__['_constituents']\
+            [0].__dict__['_dataset_id']
+        json = f'{dataset}_{self.__class__.__name__}'
+        s = ddb.at(json)
+        
+        if s.exists():
+            json = s.read()
+            self.norms = Dict(json['norms'])
+            self.idfs = Dict(json['idfs'])
+            self.weights = Dict({
+                (doc_id, term): json['weights'][doc_id][term]
+                for doc_id in json['weights']
+                for term in json['weights'][doc_id]
+            })
+
     def search(self, query: str) -> List[Tuple[float, Document]]:
         """
             Search for the most relevant set of documents in the corpus and 
@@ -52,7 +97,8 @@ class VectorModel(BaseModel):
 
         # cosine similarity calculation
         sims = []
-        for doc_id in self.corpus:
+        for doc_id in range(1, len(self.norms) + 1):
+            doc_id = str(doc_id)
             sim = 0 
             n = self.norms[doc_id] * norm            
             
