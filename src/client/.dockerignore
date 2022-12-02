@@ -1,0 +1,11 @@
+node_modules
+npm-debug.log
+build
+.dockerignore
+.gitignore
+package-lock.json
+Dockerfile
+README.md
+**/.git
+**/.DS_Store
+**/node_modules

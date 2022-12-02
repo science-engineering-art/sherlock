@@ -4,7 +4,6 @@ import dictdatabase as ddb
 from models.dict import Dict
 from typing import List, Tuple
 from collections import Counter
-from models.corpus import CorpusWithOnlyNouns
 from models.document import Document
 from models.base_model import BaseModel
 

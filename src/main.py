@@ -6,10 +6,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 class DocumentDto(BaseModel):
     doc_id: str
-    title: str | None
-    author: str | None
-    text: str | None
-    score: float | None
+    title: str
+    author: str
+    text: str
+    score: float
 
 corpus = {
     "cranfield": CorpusWithOnlyNouns('cranfield')

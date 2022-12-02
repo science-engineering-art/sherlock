@@ -24,7 +24,8 @@ class Corpus(Dict):
         return [Document(doc) for doc in self._dataset.docs_iter()]
 
     def __iter__(self):
-        return self.get_documents.__iter__()
+        for doc in self.get_documents.__iter__():
+            yield doc._doc_id
     
     def get_doc(self, doc_id: str):
         doc = self._dataset.docs_store().get(doc_id)

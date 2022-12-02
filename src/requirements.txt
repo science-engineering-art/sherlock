@@ -1,0 +1,7 @@
+fastapi
+uvicorn[standard]
+unidecode
+ir_datasets
+dictdatabase
+spacy
+typing
