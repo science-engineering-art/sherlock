@@ -2,22 +2,8 @@
 
 ## Installation
 
-### Python
-
 ```shell
-pip install fastapi
-pip install "uvicorn[standard]"
-pip install unidecode
-pip install ir_datasets
-pip install dictdatabase
-pip install spacy
-```
-
-### React
-
-```shell
-cd src/client
-npm install
+make install
 ```
 
 ## Execution
