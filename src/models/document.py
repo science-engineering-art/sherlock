@@ -15,7 +15,10 @@ class Document(Dict):
     def __init__(self, doc):
         self._doc_id = doc.doc_id
         # tokenization and standardization 
-        self.__dict__.update(Counter(self.tokenizer(doc.text)))
+        if 'text' in doc._fields:
+            self.__dict__.update(Counter(self.tokenizer(doc.text)))
+        elif 'abstract' in doc._fields:
+            self.__dict__.update(Counter(self.tokenizer(doc.abstract)))
 
     def tokenizer(self, text) -> List[str]:
         return [ unidecode(word.lower()) for word in 

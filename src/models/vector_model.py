@@ -8,6 +8,7 @@ from models.document import Document
 from models.base_model import BaseModel
 
 NLP = spacy.load('en_core_web_sm')
+# ddb.config.use_compression = True
 
 class VectorModel(BaseModel):
 
@@ -96,8 +97,7 @@ class VectorModel(BaseModel):
 
         # cosine similarity calculation
         sims = []
-        for doc_id in range(1, len(self.norms) + 1):
-            doc_id = str(doc_id)
+        for doc_id in self.corpus:
             sim = 0 
             n = self.norms[doc_id] * norm            
             
@@ -107,7 +107,8 @@ class VectorModel(BaseModel):
                 sim += self.weights[doc_id, term] * weights[term] / n
             sims.append((sim, doc_id))
 
-        return [i for i in sorted(sims, key=lambda x: x[0], reverse=True)]
+        return [i for i in sorted(sims, key=lambda x: x[0], reverse=True) 
+                if i[0] > 0]
 
     def __calculate_tf(
             terms, 

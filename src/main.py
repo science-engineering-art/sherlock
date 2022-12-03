@@ -12,10 +12,12 @@ class DocumentDto(BaseModel):
     score: float
 
 corpus = {
-    "cranfield": CorpusWithOnlyNouns('cranfield')
+    "cranfield": CorpusWithOnlyNouns('cranfield'),
+    "vaswani": CorpusWithOnlyNouns('vaswani'),
+    "cord19/trec-covid/round1": CorpusWithOnlyNouns('cord19/trec-covid/round1')
 }
 
-model = VectorModel(corpus['cranfield'])
+model = VectorModel(corpus['vaswani'])
 
 app = FastAPI()
 origins = ["*"]
@@ -32,10 +34,9 @@ async def root(dataset: str, query: str):
     result = []    
 
     for tuple in model.search(query):
-        if tuple[0] > 0:
-            doc = corpus[dataset].get_doc(tuple[1])
-            result.append(DocumentDto(doc_id=doc['doc_id'], 
-                title=doc['title'], author=doc['author'], 
-                text=doc['text'], score=tuple[0]))
+        doc = corpus['vaswani'].get_doc(tuple[1])
+        result.append(DocumentDto(doc_id=doc['doc_id'], 
+            title=doc['title'], author=doc['author'], 
+            text=doc['text'], score=tuple[0]))
 
     return { "results": result }

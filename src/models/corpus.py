@@ -29,7 +29,7 @@ class Corpus(Dict):
     
     def get_doc(self, doc_id: str):
         doc = self._dataset.docs_store().get(doc_id)
-        result = { 'doc_id': '', 'title': '', 'author': '', 'text': ''}
+        result = { 'doc_id': '', 'title': '', 'author': '', 'text': '', 'abstract': ''}
         
         for field in result:
             if field in doc._fields:
