@@ -25,6 +25,8 @@ class BooleanModel(BaseModel):
 
         # dictionary of document collection represented as a boolean vector of its terms
         self.docs_inverted_index = {}
+         
+
 
         # Indexing all terms in corpus
         for doc in self.corpus.docs:
@@ -49,7 +51,7 @@ class BooleanModel(BaseModel):
     def search(self, query: str) -> List[Document]:
 
         # processing query
-        processed_query = self.__process_query(query)
+        processed_query = self.process_query(query)
         print(f"Processed query: {processed_query}")
 
         doc_matches = self.get_docs_matches_to_query(processed_query, self.docs_inverted_index, self.dict_terms)
@@ -57,7 +59,7 @@ class BooleanModel(BaseModel):
 
         return [[1, self.dict_docs[i]] for i in doc_matches]
 
-    def __process_query(self, query: str) -> TypeError | list[str]:
+    def process_query(self, query: str) -> TypeError | list[str]:
 
         # set to lowercase and remove unnecessary blank spaces from query
         query = " ".join(query.split()).lower()
@@ -97,7 +99,6 @@ class BooleanModel(BaseModel):
 
         # convert query expression into disjunctive normal form, and then convert back to string
         query_dnf = str(to_dnf(expression))
-
         # remove parenthesis from query
         query_dnf = query_dnf.replace("(", "")
         query_dnf = query_dnf.replace(")", "")

@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from traitlets import FuzzyEnum
 from models.corpus import Corpus
 from models.vector_model import VectorModel
 from models.boolean_model import BooleanModel
+from models.fuzzy_model import FuzzyModel
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -15,8 +17,9 @@ class DocumentDto(BaseModel):
 
 
 corpus = Corpus('cranfield')
-#model = VectorModel(corpus)
-model = BooleanModel(corpus)
+# model = VectorModel(corpus)
+# model = BooleanModel(corpus)
+model = FuzzyModel(corpus)
 
 app = FastAPI()
 
