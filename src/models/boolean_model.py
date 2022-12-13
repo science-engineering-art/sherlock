@@ -17,6 +17,10 @@ class BooleanModel(BaseModel):
                           "or": "|",
                           "not": "~"}
 
+        self.keywords = ["as", "assert", "break", "class", "continue", "def", "del", "elif", "else", "else",
+            "except", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda",
+            "nonlocal", "pass", "raise", "return", "try", "while", "with", "yield", "false", "true"]
+
         # list containing all terms in corpus
         self.dict_terms = []
 
@@ -69,6 +73,11 @@ class BooleanModel(BaseModel):
         # remove unwanted characters
         query = re.findall(r"[\w()|&~']+", query)
 
+        # decorate keywords
+        for i in range(0, len(query)):
+            if query[i] in self.keywords:
+                query[i] = "kw_" + query[i]
+
         # convert logical operands to '&', '|' or '~' (the ones sympy uses) if necessary
         # and add '&' between words with no operand between them
         i = 0
@@ -97,6 +106,9 @@ class BooleanModel(BaseModel):
 
         # convert query expression into disjunctive normal form, and then convert back to string
         query_dnf = str(to_dnf(expression))
+
+        # remove decoration in keywords
+        query_dnf = query_dnf.replace("kw_", "")
 
         # remove parenthesis from query
         query_dnf = query_dnf.replace("(", "")

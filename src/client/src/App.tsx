@@ -21,7 +21,7 @@ function App() {
           setShowResults(show);
         } }
       />
-      {/*!showResults && <Loading />*/}
+      {/*\!showResults && <Loading />*/}
       {showResults && <DocumentDtos items={documentDtos}/>}
     </div>
   )
