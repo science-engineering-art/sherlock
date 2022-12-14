@@ -34,6 +34,7 @@ async def root(dataset: str, query: str):
     result = []    
 
     for tuple in model.search(query):
+        if abs(tuple[0]) < 1e-16: break
         doc = corpus['vaswani'].get_doc(tuple[1])
         result.append(DocumentDto(doc_id=doc['doc_id'], 
             title=doc['title'], author=doc['author'], 

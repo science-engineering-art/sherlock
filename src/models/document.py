@@ -26,10 +26,13 @@ class Document(Dict):
 
     def __iter__(self):
         for k in self.__dict__:
-            if k[0] != '_': yield k
+            if len(k) > 0 and k[0] != '_': yield k
 
 
 class DocumentWithOnlyNouns(Document):
 
     def tokenizer(self, text) -> List[str]:
-        return [ word.lemma_ for word in NLP(text) if word.pos_ == 'NOUN']
+        return [ word.lemma_ for word in NLP(text) 
+            if not word.is_stop and not word.conjuncts 
+            and not word.is_punct and not word.is_quote
+            and not word.is_space ]

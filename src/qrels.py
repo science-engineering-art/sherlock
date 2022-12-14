@@ -2,14 +2,14 @@ from abc import abstractmethod
 import ir_datasets
 import dictdatabase as ddb
 from models.vector_model import VectorModel
-from models.corpus import CorpusWithOnlyNouns
+from models.corpus import Corpus
 
 
 class QRels:
 
     def __init__(self, dataset) -> None:
         
-        self.corpus = CorpusWithOnlyNouns(dataset)
+        self.corpus = Corpus(dataset)
         self.model = VectorModel(self.corpus)
         self.dataset = ir_datasets.load(dataset)
         
@@ -29,16 +29,24 @@ class QRels:
         self.REL = self.rels['rels']
         self.IREL = self.rels['irels']
         self.qrels = self.rels['qrels']
-            
+
+    @abstractmethod
+    def get_query(self, query):
+        pass
 
     def build_qresults(self):
         searchs = {}
+        query_id = 1
 
         for query in self.dataset.queries_iter():
-            searchs[query.query_id] = {} 
-            for score, doc_id in self.model.search(query.text):
-                searchs[query.query_id][doc_id] = score
-            print(f'query {query.query_id}')
+            searchs[str(query_id)] = {} 
+
+            for score, doc_id in self.model.search(self.get_query(query)):
+                searchs[str(query_id)][doc_id] = score
+            
+            print(f'QUERY: {query_id} !!!!')
+            print(query)
+            query_id += 1
 
         return searchs
 
@@ -62,6 +70,15 @@ class QRels:
             "irels": IREL,
             "qrels": qrels
         } 
+
+    def get_results(self, query_id):
+        if query_id not in self.results: yield
+
+        queries = [ (rel, doc_id) for doc_id, rel 
+            in self.results[query_id].items() ]
+        
+        for _, doc_id in sorted(queries, key=lambda x: x[0], reverse=True):
+            yield doc_id
 
     @abstractmethod
     def relevancy_criterion(relevance: int):

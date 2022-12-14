@@ -1,8 +1,10 @@
+import re
 import spacy
 from math import log
 import dictdatabase as ddb
 from models.dict import Dict
 from typing import List, Tuple
+from unidecode import unidecode
 from collections import Counter
 from models.document import Document
 from models.base_model import BaseModel
@@ -79,9 +81,8 @@ class VectorModel(BaseModel):
         """
         
         # build the query vector
-        query_vector = Dict(Counter([ word.lemma_ for word in NLP(query) 
-                        if not word.is_stop and not word.is_punct 
-                        and not word.is_quote]))
+        query_vector = Dict(Counter([ unidecode(word.lower()) for word in 
+            re.findall(r"[\w']+", query) ]))
 
         # calculation of the TF of the query vector
         tf = Dict(); a = 0.4
@@ -107,8 +108,7 @@ class VectorModel(BaseModel):
                 sim += self.weights[doc_id, term] * weights[term] / n
             sims.append((sim, doc_id))
 
-        return [i for i in sorted(sims, key=lambda x: x[0], reverse=True) 
-                if i[0] > 0]
+        return [i for i in sorted(sims, key=lambda x: x[0], reverse=True) ]
 
     def __calculate_tf(
             terms, 
