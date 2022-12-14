@@ -19,7 +19,8 @@ class BooleanModel(BaseModel):
 
         self.keywords = ["as", "assert", "break", "class", "continue", "def", "del", "elif", "else", "else",
             "except", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda",
-            "nonlocal", "pass", "raise", "return", "try", "while", "with", "yield", "false", "true"]
+            "nonlocal", "pass", "raise", "return", "try", "while", "with", "yield", "false", "true", "input",
+                         "output"]
 
         # list containing all terms in corpus
         self.dict_terms = []
@@ -53,7 +54,7 @@ class BooleanModel(BaseModel):
     def search(self, query: str) -> List[Document]:
 
         # processing query
-        processed_query = self.__process_query(query)
+        processed_query = self.process_query(query)
         print(f"Processed query: {processed_query}")
 
         doc_matches = self.get_docs_matches_to_query(processed_query, self.docs_inverted_index, self.dict_terms)
@@ -61,7 +62,7 @@ class BooleanModel(BaseModel):
 
         return [[1, self.dict_docs[i]] for i in doc_matches]
 
-    def __process_query(self, query: str) -> TypeError | list[str]:
+    def process_query(self, query: str) -> TypeError | list[str]:
 
         # set to lowercase and remove unnecessary blank spaces from query
         query = " ".join(query.split()).lower()
