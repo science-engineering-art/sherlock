@@ -114,6 +114,9 @@ venv.bak/
 .spyderproject
 .spyproject
 
+#databases
+/src/ddb_storage
+
 # Rope project settings
 .ropeproject
 

@@ -19,7 +19,7 @@ class DocumentDto(BaseModel):
 corpus = Corpus('cranfield')
 # model = VectorModel(corpus)
 # model = BooleanModel(corpus)
-model = FuzzyModel(corpus)
+model = FuzzyModel(corpus, 'cranfield')
 
 app = FastAPI()
 

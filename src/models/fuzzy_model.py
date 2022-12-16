@@ -10,10 +10,11 @@ from models.base_model import BaseModel
 from sympy.logic.boolalg import to_dnf
 from sympy import product, sympify, true
 import re
+import dictdatabase as ddb
 
 class FuzzyModel(BooleanModel):
 
-    def __init__(self, corpus : Corpus):
+    def __init__(self, corpus : Corpus, corpuse_name):
 
 
         self.corpus = corpus
@@ -32,9 +33,17 @@ class FuzzyModel(BooleanModel):
             for term in doc.terms:
                 self.docs_dict[doc].add(term)
 
+        s = ddb.at(f'{corpuse_name}_FuzyModelPrecalculus')
+        if s.exists():
+            data = s.read()
+            self.keyword_conex = data['keyword_conex']
+            self.keyword_conex_precalculated = True
+        else:
+            self.precalculateConex()
+            s.create({'keyword_conex' : self.keyword_conex})
+        # self.precalculateMembershipDegree()
 
-        self.precalculateConex()
-        self.precalculateMembershipDegree()
+
 
         print('done precalculus')                                                   #Debugging
 
@@ -87,10 +96,10 @@ class FuzzyModel(BooleanModel):
         return membership
 
     def __calculateCorrelationFactor(self, term_i, term_l) -> float:
-        if self.keyword_conex.get((term_i,term_l)) != None:
-            return self.keyword_conex.get((term_i,term_l))
-        if self.keyword_conex.get((term_l,term_i))  != None:
-            return self.keyword_conex.get((term_l,term_i))
+        if self.keyword_conex.get("".join([term_i, ' ',term_l])) != None:
+            return self.keyword_conex.get("".join([term_i, ' ',term_l]))
+        if self.keyword_conex.get("".join([term_l, ' ',term_i]))  != None:
+            return self.keyword_conex.get("".join([term_l, ' ',term_i]))
         
         if self.keyword_conex_precalculated == True:
             return 0.0
@@ -111,7 +120,7 @@ class FuzzyModel(BooleanModel):
             if term_i in terms and term_l in terms:
                 n_i_l +=1
         c_i_l = float(n_i_l)/(n_i + n_l - n_i_l)
-        self.keyword_conex[(term_i, term_l)] = c_i_l
+        self.keyword_conex["".join([term_i, ' ',term_l])] = c_i_l
 
         # print('c_i_l', c_i_l)                         #Debugging
         return c_i_l
@@ -136,7 +145,7 @@ class FuzzyModel(BooleanModel):
             n_j = term_freq[term_j]
             # if term_i == term_j and term_i == 'remaining':               #Debugging
             #     print(n_i_j, n_i, n_j)
-            self.keyword_conex[(term_i, term_j)] = float(n_i_j) / (n_i + n_j - n_i_j)
+            self.keyword_conex[("".join([term_i, ' ',term_j]))] = float(n_i_j) / (n_i + n_j - n_i_j)
 
         self.keyword_conex_precalculated = True
 
