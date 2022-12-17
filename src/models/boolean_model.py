@@ -1,9 +1,11 @@
 import re
+
+import dictdatabase as ddb
 from sympy import sympify
 from sympy.logic.boolalg import to_dnf
+
 from models.base_model import BaseModel
 from models.dict import Dict
-import dictdatabase as ddb
 
 
 class BooleanModel(BaseModel):
