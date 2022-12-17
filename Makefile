@@ -1,6 +1,9 @@
 
+install:
+	pip install -r src/requirements.txt; cd src/client; npm  install
+
 python:
-	cd src; python -m uvicorn main:app --reload
+	cd src; uvicorn main:app --reload
 
 react:
 	cd src/client; npm start

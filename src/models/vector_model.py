@@ -1,37 +1,79 @@
 import re
+import spacy
 from math import log
+import dictdatabase as ddb
+from models.dict import Dict
+from typing import List, Tuple
 from unidecode import unidecode
-from models.corpus import Corpus
-from typing import Dict, List, Tuple
+from collections import Counter
 from models.document import Document
 from models.base_model import BaseModel
 
+NLP = spacy.load('en_core_web_sm')
+# ddb.config.use_compression = True
 
 class VectorModel(BaseModel):
 
-    def __init__(self, corpus: Corpus):
-        super().__init__(corpus)
-        
-        # dictionary of term to index of matrices
-        self.dict_terms = {}
-        # dictionary of doc to index of matrices
-        self.dict_docs = {}
-        # matrix of the frequency of each term in each document
-        self.frequency: List[List[int]] = []
-        
+    def preprocessing(self):  
+        # load docs of the corpus
+        self.corpus.load_docs()
+
         # matrix of the TF of each term in each document
-        self.tfs: List[List[float]] = []
+        self.tfs: Dict = Dict()
         # IDF vector
-        self.idf: List[float] = []
+        self.idfs: Dict = Dict()
         
         # weight of each term in each document
-        self.weights: List[List[float]] = []
+        self.weights: Dict = Dict()
         # document vector norms
-        self.norms = []
+        self.norms: Dict = Dict()
         
         # calculation of the weights of each term in each document
         self.__calculate_weights()
+
+        # clean corpus
+        self.corpus.clean()
     
+    def secure_storage(self):
+        
+        dataset = self.corpus.dataset.__dict__['_constituents']\
+            [0].__dict__['_dataset_id']
+        json = f'{dataset}_{self.__class__.__name__}'
+        s = ddb.at(json)
+        
+        if not s.exists():
+            s.create({
+                "weights": { }, 
+                "norms": self.norms.dict,
+                "idfs": self.idfs.dict
+            })
+
+            with ddb.at(json, key="weights").session() as (session, weights):
+            
+                for doc_id, term in self.weights:
+                    if not doc_id in weights:
+                        weights[doc_id] = {}
+                    weights[doc_id][term] = self.weights[doc_id,term]
+            
+                session.write()
+    
+    def secure_loading(self):
+        
+        dataset = self.corpus.dataset.__dict__['_constituents']\
+            [0].__dict__['_dataset_id']
+        json = f'{dataset}_{self.__class__.__name__}'
+        s = ddb.at(json)
+        
+        if s.exists():
+            json = s.read()
+            self.norms = Dict(json['norms'])
+            self.idfs = Dict(json['idfs'])
+            self.weights = Dict({
+                (doc_id, term): json['weights'][doc_id][term]
+                for doc_id in json['weights']
+                for term in json['weights'][doc_id]
+            })
+
     def search(self, query: str) -> List[Tuple[float, Document]]:
         """
             Search for the most relevant set of documents in the corpus and 
@@ -39,124 +81,83 @@ class VectorModel(BaseModel):
         """
         
         # build the query vector
-        query_vector: List[str] = [ unidecode(word.lower()) for word in 
-                                   re.findall(r"[\w']+", query) ]
+        query_vector = Dict(Counter([ unidecode(word.lower()) for word in 
+            re.findall(r"[\w']+", query) ]))
 
         # calculation of the TF of the query vector
-        dict_terms = {}; frequency = []; tf = []; a = 0.4
-        VectorModel.__calculate_tf(
-            text=query_vector,
-            dict_terms=dict_terms,
-            frequency=frequency,
-            tf=tf)
+        tf = Dict(); a = 0.4
+        VectorModel.__calculate_tf(query_vector, tf)
 
         # calculation of the weights of the query vector
-        weights = [0 for _ in range(0, len(frequency))]
+        weights = Dict()
         norm = 0
-        for word in query_vector:
-            i = dict_terms[word]
-            if not word in self.dict_terms:
-                continue
-            weights[i] = (a + (1-a)*tf[i]) * self.idf[self.dict_terms[word]]
-            norm += weights[i] ** 2
-        norm = (norm) ** (1/2)
+        for t in query_vector:
+            weights[t] = (a + (1-a)*tf[-1, t]) * self.idfs[t]
+            norm += weights[t] ** 2
+        norm = norm ** (1/2)
 
         # cosine similarity calculation
         sims = []
-        for i in range(0, len(self.corpus.docs)):
+        for doc in self.corpus.dataset.docs_iter():
             sim = 0 
-            n = self.norms[i] * norm
+            n = self.norms[doc.doc_id] * norm            
             
-            for word in dict_terms:
-                if n == 0: break
-                if word in self.dict_terms:
-                    j = self.dict_terms[word]  
-                    sim += self.weights[i][j] * weights[dict_terms[word]] / n
-            sims.append(sim)
+            if n == 0: continue
+            
+            for term in query_vector:
+                sim += self.weights[doc.doc_id, term] * weights[term] / n
+            sims.append((sim, doc.doc_id))
 
-        return [i for i in sorted(zip(sims, self.corpus.docs), 
-                key=lambda x: x[0], reverse=True)]
+        return [i for i in sorted(sims, key=lambda x: x[0], reverse=True) ]
 
     def __calculate_tf(
-            text: List[str], 
-            dict_terms: Dict[str, int] = {},
-            frequency: List[int] = [],
-            tf: List[float] = []
+            terms, 
+            tfs, 
+            doc_id = -1
         ):
         """
             Calculation of TF for each term in a document.
         """
-        amount_terms = len(frequency)
         max_freq = -1
+        for t in terms:
+            max_freq = max(max_freq, terms[t])
 
-        for word in text:
-            if not word in dict_terms:
-                frequency.append(0)
-                dict_terms[word] = amount_terms
-                amount_terms += 1
-                
-            frequency[dict_terms[word]] += 1
-            max_freq = max(max_freq, frequency[dict_terms[word]])
-
-        for j in range(0, amount_terms):
-            tf.append(frequency[j] / max_freq)
+        for t in terms:
+            tfs[doc_id, t] = terms[t] / max_freq
 
     def __calculate_tfs(self):
         """
             Calculation of the TFs of each term in all the documents 
             of the corpus.
         """
-
-        amount_terms = 0; amount_docs = 0
-
-        for doc in self.corpus.docs:
-
-            self.dict_docs[doc] = amount_docs
-            self.frequency.append([0 for _ in range(0, amount_terms)])
-            self.tfs.append([])
-
+        for doc_id in self.corpus:
             VectorModel.__calculate_tf(
-                doc.terms,
-                self.dict_terms,
-                self.frequency[amount_docs],
-                self.tfs[amount_docs]
-            )
-            amount_terms = len(self.frequency[amount_docs])
-            amount_docs += 1
-
-        for i in range(0, len(self.frequency)):
-            while len(self.frequency[i]) < amount_terms:
-                self.frequency[i].append(0)
-                self.tfs[i].append(0)
+                self.corpus[doc_id], self.tfs, doc_id)
 
     def __calculate_idf(self):
         """
             Calculation of the IDF vector of the corpus document set.
         """
-       
-        amount_docs = len(self.corpus.docs); amount_terms = len(self.frequency[0])
+        term_docs = Dict()
+        for doc_id in self.corpus:
+            marked = Dict()
+            for t in self.corpus[doc_id]:
+                if marked[t] == 0: 
+                    term_docs[t] += 1
+                    marked[t] = 1
 
-        for i in range(0, amount_terms):
-            n = 0
-            for j in range(0, amount_docs):
-                if self.frequency[j][i] != 0:
-                    n+=1
-            self.idf.append(log(amount_docs / n, 2))
+        for t in term_docs:
+            self.idfs[t] = log(len(self.corpus) / term_docs[t], 2)
 
     def __calculate_weights(self):
         """
             Calculation of the weights of each term in each document.
         """
-
         self.__calculate_tfs()
         self.__calculate_idf()
 
-        self.weights = [[0.0 for _ in range(0, len(self.frequency[0]))] 
-                           for _ in range(0, len(self.corpus.docs))]        
-
-        for i in range(0, len(self.corpus.docs)):
-            self.norms.append(0)
-            for j in range(0, len(self.frequency[0])):
-                self.weights[i][j] = self.tfs[i][j] * self.idf[j]
-                self.norms[i] += self.weights[i][j] ** 2
-            self.norms[i] = (self.norms[i]) ** (1/2)
+        for doc_id in self.corpus:
+            for term in self.corpus[doc_id]:
+                self.weights[doc_id,term] = self.tfs[doc_id,term] * self.idfs[term]
+                self.norms[doc_id] += self.weights[doc_id,term] ** 2
+            self.norms[doc_id] = self.norms[doc_id] ** (1/2)

@@ -13,7 +13,6 @@ function QueryBar(props: QueryBarProps) {
   const [query, setQuery] = useState('');
 
   return (
-
         <div className="search">
             <input
             type="text"
@@ -28,7 +27,7 @@ function QueryBar(props: QueryBarProps) {
             type="submit"
             className="searchButton"
             onClick={async () => {
-              await axios.get('http://localhost:8000/search?query=' +
+              await axios.get('http://localhost:8000/search?dataset=cranfield&query=' +
                 encodeURIComponent(query))
                 .then((resp) => {
                   props.setDocumentDtos(resp.data.results);
@@ -39,7 +38,6 @@ function QueryBar(props: QueryBarProps) {
             <i className="fa fa-search"></i>
             </button>
         </div>
-
   );
 }
 

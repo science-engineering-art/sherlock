@@ -1,34 +1,26 @@
 import re
-from typing import List, final
-
-import ir_datasets
+from typing import List
 from unidecode import unidecode
+from collections import Counter
+from models.dict import Dict
 
 
 class Document:
-    
-    def __init__(self, doc):
+    def __init__(self, doc):        
         self.doc_id = doc.doc_id
-        self.text = ''
-        self.title = ''
-        self.author = ''
-        try:
-            self.text = doc.text
-        except:
-            pass
-        try:
-            self.text = doc.body.text
-        except:
-            pass
-        try:
-            self.title = doc.title
-        except:
-            pass
-        try:
-            self.author = doc.author
-        except:
-            pass
 
         # tokenization and standardization 
-        self.terms = [ unidecode(word.lower()) for word in 
-            re.findall(r"[\w']+", self.text) ]
+        if 'text' in doc._fields:
+            self.dict = Dict(Counter(self.tokenizer(doc.text)))
+        elif 'abstract' in doc._fields:
+            self.dict = Dict(Counter(self.tokenizer(doc.abstract)))
+
+    def tokenizer(self, text) -> List[str]:
+        return [ unidecode(word.lower()) for word in 
+            re.findall(r"[\w']+", text) ]
+    
+    def __getitem__(self, key):
+        return self.dict[key]
+
+    def __iter__(self):
+        return iter(self.dict)

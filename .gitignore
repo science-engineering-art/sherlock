@@ -9,6 +9,11 @@ src\ddb_storage\
 # C extensions
 *.so
 
+irs_vs/
+src/tmp.py
+.vscode/
+ddb_storage/
+
 # Distribution / packaging
 .Python
 build/
