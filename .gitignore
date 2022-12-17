@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# databases
+src\ddb_storage\
+
 # C extensions
 *.so
 
@@ -132,3 +135,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+src/ddb_storage/cranfield_FuzyModelPrecalculus.json
+src/ddb_storage/vaswani_FuzyModelPrecalculus.json

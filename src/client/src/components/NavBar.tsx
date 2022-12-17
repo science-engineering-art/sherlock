@@ -1,13 +1,16 @@
 import '../styles/globals.css';
+import logo from './img/logo.png'
+import './NavBar.css'
 
 function NavBar() {
 
   return (
       <div>
-        <h1 id='name-engine' className='text-center font-mono font-bold h-30 
-          text-9xl my-20'>
-          Sherlock!🔍
-        </h1>
+          <img
+            className='name-engine'
+            src={logo}
+            alt="Logo and name of search engine"
+          />
       </div>
   )
 }

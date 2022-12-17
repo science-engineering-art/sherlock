@@ -1,5 +1,6 @@
 import '../styles/globals.css';
 import { DocumentDto, DocumentIl } from './DocumentIl';
+import { useState } from 'react';
 
 interface DocumentDtosProps {
     items: DocumentDto[]
@@ -7,7 +8,9 @@ interface DocumentDtosProps {
 
 export function DocumentDtos(props: DocumentDtosProps) {
 
-    return ( 
+const [isThereDocs, setIsThereDocs] = useState(true);
+
+    return (
         <div>
             {props.items.map((item) => {
                 return (
@@ -18,6 +21,7 @@ export function DocumentDtos(props: DocumentDtosProps) {
                     text={item.text}
                     score={item.score} />
             );})}
+            {isThereDocs && <p> Sorry, no matches for your query. </p>}
         </div> 
     );
 }

@@ -1,8 +1,12 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
-from models.corpus import Corpus
-from models.vector_model import VectorModel
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from traitlets import FuzzyEnum
+
+from models.boolean_model import BooleanModel
+from models.corpus import Corpus
+from models.fuzzy_model import FuzzyModel
+from models.vector_model import VectorModel
 
 class DocumentDto(BaseModel):
     doc_id: str
