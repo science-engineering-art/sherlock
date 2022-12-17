@@ -30,15 +30,6 @@ class FuzzyModel(BooleanModel):
     
     #     print('done precalculus')                                                   #Debugging
 
-    def preprocessing(self):
-        return super().preprocessing()
-    
-    def secure_storage(self):
-        return super().secure_storage()
-    
-    def secure_loading(self):
-        return super().secure_loading()
-
     def search(self, query: str):
         # print('here')                                                 #Debugging
         # time_1 = time()                                         #Debugging
