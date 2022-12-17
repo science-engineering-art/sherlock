@@ -78,6 +78,8 @@ class BooleanModel(BaseModel):
         # remove unwanted characters
         query = re.findall(r"\)|\(|\||&|~|[\w]+", query)
 
+        special_symbols = ['&', '~', '|']
+
         # decorate all words but important ones
         for i in range(0, len(query)):
             if query[i] not in ['(', ')', '|', '&', '~']:
@@ -86,6 +88,7 @@ class BooleanModel(BaseModel):
         query = " ".join(query)
 
         # remove spaces between parenthesis and its content
+        query = query.replace("~ ", "~")
         query = query.replace("( ", "(")
         query = query.replace(" )", ")")
 
@@ -101,8 +104,8 @@ class BooleanModel(BaseModel):
                     query[i - 1] += "&" + query[i]
                     query.__delitem__(i)
                 i += 1
-            elif i != len(query) - 1 and query[i] not in self.operators.values() and \
-                    query[i + 1] not in self.operators.keys() and query[i + 1] not in self.operators.values() \
+            elif i != len(query) - 1 and query[i] not in special_symbols and \
+                    query[i + 1] not in self.operators.keys() and query[i + 1] not in special_symbols \
                     and not (query[i + 1].startswith("|") or query[i + 1].startswith("&")):
                 query[i] += "&" + query[i + 1]
                 query.__delitem__(i + 1)
@@ -110,6 +113,7 @@ class BooleanModel(BaseModel):
                 i += 1
                 
         query = " ".join(query)
+        print('query: ', query)
         # we use try except here, in case the logical expression of the query was not a valid one
         try:
             # sympify converts a string into a logical expression

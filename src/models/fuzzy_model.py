@@ -1,3 +1,4 @@
+import operator
 import re
 from statistics import correlation
 from time import time
@@ -165,9 +166,13 @@ class FuzzyModel(BooleanModel):
         json = f'{dataset}_{self.__class__.__name__}'
         s = ddb.at(json)
         
+        self.postprocessing()
+        
         data = s.read()
         self.keyword_conex = data['keyword_conex']
-        self.docs_dict = data['docs_dict']
+        self.docs_dict  = data['docs_dict']
+        for doc_id in self.docs_dict:
+            self.docs_dict[doc_id] = set(self.docs_dict[doc_id])
         self.keyword_conex_precalculated = True
     
     def secure_storage(self):
@@ -176,22 +181,37 @@ class FuzzyModel(BooleanModel):
         json = f'{dataset}_{self.__class__.__name__}'
         s = ddb.at(json)
         
+        doc_lists = {}
+        for doc_id in self.docs_dict:
+            list = []
+            list.extend(self.docs_dict[doc_id])
+            doc_lists[doc_id] = list
+
+        
         if not s.exists():
             s.create({
                 "keyword_conex": self.keyword_conex, 
-                "docs_dict": self.docs_dict
+                "docs_dict": doc_lists
             })
 
         
     def preprocessing(self):
+        
+        self.postprocessing()
+        
         self.docs_dict = {}
-        self.membership_degree= {}
         self.keyword_conex = {}
         self.keyword_conex_precalculated = False
-
-        self.precalculateConex()
 
         for doc_id in self.corpus:
             self.docs_dict[doc_id] = set()
             for term in self.corpus[doc_id]:
                 self.docs_dict[doc_id].add(term)
+                
+        self.precalculateConex()
+        
+        print('end preprocessing')              #debugging
+        
+    def postprocessing(self):
+        self.operators = {}
+        self.membership_degree= {}
