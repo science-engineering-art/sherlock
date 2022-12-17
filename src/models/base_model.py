@@ -9,7 +9,7 @@ class BaseModel:
 
     def __init__(self, corpus: Corpus):
         self.corpus = corpus
-        dataset = self.corpus._dataset.__dict__['_constituents']\
+        dataset = self.corpus.dataset.__dict__['_constituents']\
             [0].__dict__['_dataset_id']
         json = f'{dataset}_{self.__class__.__name__}'
         

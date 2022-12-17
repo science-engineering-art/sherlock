@@ -36,7 +36,7 @@ class VectorModel(BaseModel):
     
     def secure_storage(self):
         
-        dataset = self.corpus._dataset.__dict__['_constituents']\
+        dataset = self.corpus.dataset.__dict__['_constituents']\
             [0].__dict__['_dataset_id']
         json = f'{dataset}_{self.__class__.__name__}'
         s = ddb.at(json)
@@ -44,8 +44,8 @@ class VectorModel(BaseModel):
         if not s.exists():
             s.create({
                 "weights": { }, 
-                "norms": self.norms.__dict__,
-                "idfs": self.idfs.__dict__
+                "norms": self.norms.dict,
+                "idfs": self.idfs.dict
             })
 
             with ddb.at(json, key="weights").session() as (session, weights):
@@ -59,7 +59,7 @@ class VectorModel(BaseModel):
     
     def secure_loading(self):
         
-        dataset = self.corpus._dataset.__dict__['_constituents']\
+        dataset = self.corpus.dataset.__dict__['_constituents']\
             [0].__dict__['_dataset_id']
         json = f'{dataset}_{self.__class__.__name__}'
         s = ddb.at(json)
@@ -98,15 +98,15 @@ class VectorModel(BaseModel):
 
         # cosine similarity calculation
         sims = []
-        for doc_id in self.corpus:
+        for doc in self.corpus.dataset.docs_iter():
             sim = 0 
-            n = self.norms[doc_id] * norm            
+            n = self.norms[doc.doc_id] * norm            
             
             if n == 0: continue
             
             for term in query_vector:
-                sim += self.weights[doc_id, term] * weights[term] / n
-            sims.append((sim, doc_id))
+                sim += self.weights[doc.doc_id, term] * weights[term] / n
+            sims.append((sim, doc.doc_id))
 
         return [i for i in sorted(sims, key=lambda x: x[0], reverse=True) ]
 

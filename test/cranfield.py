@@ -1,5 +1,4 @@
 import ir_datasets
-from src.models.corpus import CorpusWithOnlyNouns
 # from src.models.vector_model import VectorModel
 
 # corpus = CorpusWithOnlyNouns('cranfield')

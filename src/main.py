@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from models.corpus import CorpusWithOnlyNouns
+from models.corpus import Corpus
 from models.vector_model import VectorModel
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -12,12 +12,12 @@ class DocumentDto(BaseModel):
     score: float
 
 corpus = {
-    "cranfield": CorpusWithOnlyNouns('cranfield'),
-    "vaswani": CorpusWithOnlyNouns('vaswani'),
-    "cord19/trec-covid/round1": CorpusWithOnlyNouns('cord19/trec-covid/round1')
+    "cranfield": Corpus('cranfield'),
+    "vaswani": Corpus('vaswani'),
+    "cord19/trec-covid/round1": Corpus('cord19/trec-covid/round1')
 }
 
-model = VectorModel(corpus['vaswani'])
+model = VectorModel(corpus['cranfield'])
 
 app = FastAPI()
 origins = ["*"]
@@ -34,10 +34,10 @@ async def root(dataset: str, query: str):
     result = []    
 
     for tuple in model.search(query):
-        if abs(tuple[0]) < 1e-16: break
-        doc = corpus['vaswani'].get_doc(tuple[1])
+        #if abs(tuple[0]) < 1e-16: break
+        doc = corpus['cranfield'].get_doc(tuple[1])
         result.append(DocumentDto(doc_id=doc['doc_id'], 
             title=doc['title'], author=doc['author'], 
             text=doc['text'], score=tuple[0]))
-
+    
     return { "results": result }

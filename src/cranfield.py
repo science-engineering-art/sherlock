@@ -12,27 +12,6 @@ class CranfieldQRels(QRels):
         if relevance in (2, 3, 4):
             return True
         return False
-    
-    def build_qrels(self):
-
-        REL = IREL = 0
-        qrels = {}
-
-        for qrel in self.dataset.qrels_iter():
-            if not qrel.query_id in qrels:
-                qrels[qrel.query_id] = {}
-            qrels[qrel.query_id][qrel.doc_id] = qrel.relevance
-            if self.relevancy_criterion(qrel.relevance):
-                REL += 1
-            else:
-                IREL += 1
-
-        return {
-            "rels": REL,
-            "irels": IREL,
-            "qrels": qrels
-        } 
-
 
 cranfield = CranfieldQRels()
 
@@ -40,15 +19,15 @@ max = (-1,-1)
 searchs = {}
 k_rank_F1 = {}
 
-for adj in range(1, 10000):
-    RR = RI = 0
-    count = 0
+for k in range(1, 1401):
+    RR = RI = 0    
 
-    for query_id in range(1, 256):
+    for query_id in range(1, 226):
+        count = 0
         query_id = str(query_id)
 
         for doc_id in cranfield.get_results(query_id):
-            if count > adj: break
+            if count > k: break
 
             count += 1
             if doc_id in cranfield.qrels[query_id]:
@@ -56,8 +35,6 @@ for adj in range(1, 10000):
                     RI += 1
                 elif cranfield.qrels[query_id][doc_id] in (2, 3, 4):
                     RR += 1
-            # else:
-            #     RI += 1
 
     P = RR/(RR + RI)
     R = RR/(cranfield.REL)
@@ -67,10 +44,10 @@ for adj in range(1, 10000):
     F1 = 2/(1/P + 1/R) 
     
     if F1 > max[1]: 
-        max = (adj,F1)
+        max = (k,F1)
     print(f'RR: {RR} RI: {RI}')
-    print(f'iter: {adj} P: {P} R:{R} F1: {F1}')
-    k_rank_F1[str(adj)] = {
+    print(f'iter: {k} P: {P} R:{R} F1: {F1}')
+    k_rank_F1[str(k)] = {
         "P": P,
         "R": R,
         "F1": F1

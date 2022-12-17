@@ -1,23 +1,20 @@
 
-
 class Dict:
-
-    def __new__(cls, _dict = None):
-        result = object.__new__(cls)
-        if _dict:
-            result.__dict__.update(_dict)
-        return result
+    def __init__(self, _dict = None):
+        self.dict = {}
+        if _dict != None:
+            self.dict.update(_dict)
     
     def __getitem__(self, key):
-        if key in self.__dict__:
-            return self.__dict__[key]
+        if key in self.dict:
+            return self.dict[key]
         return 0
 
     def __setitem__(self, key, value):
-        self.__dict__[key] = value
+        self.dict[key] = value
 
     def __len__(self):
-        return len(self.__dict__)
+        return len(self.dict)
     
     def __iter__(self):
-        return self.__dict__.__iter__()
+        return self.dict.__iter__()
