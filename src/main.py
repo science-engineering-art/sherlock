@@ -22,6 +22,7 @@ corpus = {
 }
 
 model = VectorModel(corpus['cranfield'])
+model = BooleanModel(corpus['cranfield'])
 
 app = FastAPI()
 origins = ["*"]

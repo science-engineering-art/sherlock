@@ -15,9 +15,6 @@ NLP = spacy.load('en_core_web_sm')
 class VectorModel(BaseModel):
 
     def preprocessing(self):  
-        # load docs of the corpus
-        self.corpus.load_docs()
-
         # matrix of the TF of each term in each document
         self.tfs: Dict = Dict()
         # IDF vector
@@ -30,14 +27,10 @@ class VectorModel(BaseModel):
         
         # calculation of the weights of each term in each document
         self.__calculate_weights()
-
-        # clean corpus
-        self.corpus.clean()
     
     def secure_storage(self):
         
-        dataset = self.corpus.dataset.__dict__['_constituents']\
-            [0].__dict__['_dataset_id']
+        dataset = self.corpus.get_dataset_name
         json = f'{dataset}_{self.__class__.__name__}'
         s = ddb.at(json)
         
@@ -59,8 +52,7 @@ class VectorModel(BaseModel):
     
     def secure_loading(self):
         
-        dataset = self.corpus.dataset.__dict__['_constituents']\
-            [0].__dict__['_dataset_id']
+        dataset = self.corpus.get_dataset_name
         json = f'{dataset}_{self.__class__.__name__}'
         s = ddb.at(json)
         
