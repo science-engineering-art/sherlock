@@ -130,3 +130,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+src/ddb_storage/cranfield_FuzyModelPrecalculus.json
+src/ddb_storage/vaswani_FuzyModelPrecalculus.json
