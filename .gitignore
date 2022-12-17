@@ -6,6 +6,11 @@ __pycache__/
 # C extensions
 *.so
 
+irs_vs/
+src/tmp.py
+.vscode/
+ddb_storage/
+
 # Distribution / packaging
 .Python
 build/
