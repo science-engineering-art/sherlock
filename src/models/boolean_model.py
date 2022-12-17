@@ -70,11 +70,11 @@ class BooleanModel(BaseModel):
         query = " ".join(query.split()).lower()
 
         # remove unwanted characters
-        query = re.findall(r"\)|\(|\||&|[\w]+", query)
+        query = re.findall(r"\)|\(|\||&|~|[\w]+", query)
 
         # decorate all words but important ones
         for i in range(0, len(query)):
-            if query[i] not in ['or', 'and', '|', '&', '(', ')']:
+            if query[i] not in ['or', 'and', '|', '&', '(', ')', '~']:
                 query[i] = "kw_" + query[i]
 
         query = " ".join(query)

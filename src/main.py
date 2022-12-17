@@ -1,11 +1,12 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from traitlets import FuzzyEnum
-from models.corpus import Corpus
-from models.vector_model import VectorModel
+
 from models.boolean_model import BooleanModel
+from models.corpus import Corpus
 from models.fuzzy_model import FuzzyModel
-from fastapi.middleware.cors import CORSMiddleware
+from models.vector_model import VectorModel
 
 
 class DocumentDto(BaseModel):
@@ -16,8 +17,8 @@ class DocumentDto(BaseModel):
     score: float | None
 
 name_corpus = 'cranfield'
-# name_corpus = 'vaswani'
-# name_corpus = 'cord19/trec-covid/round1'
+name_corpus = 'vaswani'
+name_corpus = 'cord19/trec-covid/round1'
 corpus = Corpus(name_corpus)
 # model = VectorModel(corpus)
 # model = BooleanModel(corpus)

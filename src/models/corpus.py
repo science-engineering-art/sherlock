@@ -1,5 +1,7 @@
-import ir_datasets
 from typing import List
+
+import ir_datasets
+
 from models.document import Document
 
 
