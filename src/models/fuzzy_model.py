@@ -39,8 +39,8 @@ class FuzzyModel(BooleanModel):
         
         print(processed_query)                                                      #Debugging           
         recovered = []
-        for doc in self.docs_dict:
-            terms = self.docs_dict[doc]
+        for doc_id in self.docs_dict:
+            terms = self.docs_dict[doc_id]
             product = 1.0
             for cc in processed_query:      #foreach conjuntive component
                 # time_4 = time()                                  #Debugging
@@ -51,7 +51,7 @@ class FuzzyModel(BooleanModel):
                     if term_i[0] == '~':
                         negated = True
                         term_i = term_i[1:]
-                    membership = self.__get_membership(term_i, doc)
+                    membership = self.__get_membership(term_i, doc_id)
                     
                     if negated:
                         membership = 1.0 - membership
@@ -61,7 +61,7 @@ class FuzzyModel(BooleanModel):
                 # print('time foreach cc took: ', time_5 - time_4)         #Debugging
             sim = 1.0 - product
             # print(product)                                            #Debugging
-            recovered.append((sim, doc))
+            recovered.append((sim, doc_id))
         # time_3 = time()                                       #Debugging
         # print('fuzzy model query took: ', time_3 - time_2)                            #Debugging
 
@@ -69,16 +69,16 @@ class FuzzyModel(BooleanModel):
         return [i for i in sorted(recovered, 
                 key=lambda x: x[0], reverse=True)]
 
-    def __get_membership(self, term_i, doc):
+    def __get_membership(self, term_i, doc_id):
         '''calculate the membership degree of a document to 
         a term's fuzzy set'''
         
         #If previously calculated
-        if self.membership_degree.get((term_i,doc)) != None:
-            return self.membership_degree.get((term_i,doc))
+        if self.membership_degree.get((term_i,doc_id)) != None:
+            return self.membership_degree.get((term_i,doc_id))
         
         product = 1.0
-        terms = self.docs_dict[doc]
+        terms = self.docs_dict[doc_id]
         # print('aqui2')                                        #Debugging
         for term_l in terms:
             correlation = self.__calculateCorrelationFactor(term_i, term_l)
@@ -87,7 +87,7 @@ class FuzzyModel(BooleanModel):
         membership = 1.0 - product
 
         #memorize the result
-        self.membership_degree[(term_i, doc)] = membership
+        self.membership_degree[(term_i, doc_id)] = membership
 
         # print('membership', membership)                               #Debugging
 
@@ -133,8 +133,8 @@ class FuzzyModel(BooleanModel):
         
         pair_term_freq = {}
         term_freq = {str : int}
-        for doc in self.docs_dict:
-            terms = self.docs_dict[doc]
+        for doc_id in self.docs_dict:
+            terms = self.docs_dict[doc_id]
             for term in terms:
                 term_freq.setdefault(term, 0)
                 term_freq[term] += 1    #counts the frequency of each term
