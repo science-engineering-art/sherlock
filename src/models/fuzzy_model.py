@@ -18,42 +18,17 @@ from models.document import Document
 
 class FuzzyModel(BooleanModel):
 
-    def __init__(self, corpus : Corpus, corpuse_name):
+    # def __init__(self, corpus : Corpus, corpuse_name):
 
 
-        self.corpus = corpus
-        self.operators = {"and": "&",
-                          "or": "|",
-                          "not": "~"}
+    #     self.corpus = corpus
+    #     # self.operators = {"and": "&",
+    #     #                   "or": "|",
+    #     #                   "not": "~"}
 
-        self.docs_dict = {}
-        self.membership_degree= {}
-        self.keyword_conex = {}
-        self.keyword_conex_precalculated = False
-
-
-        for doc in corpus.docs:
-            self.docs_dict[doc] = set()
-            for term in doc.terms:
-                self.docs_dict[doc].add(term)
-
-
-        #to save in dictdatabase...
-        s = ddb.at(f'{corpuse_name}_FuzyModelPrecalculus')
-        if s.exists():
-            data = s.read()
-            self.keyword_conex = data['keyword_conex']
-            self.keyword_conex_precalculated = True
-        else:
-            self.precalculateConex()
-            s.create({'keyword_conex' : self.keyword_conex})
-        
-        
-        self.precalculateMembershipDegree()
-
-
-
-        print('done precalculus')                                                   #Debugging
+    #     self.precalculateMembershipDegree()
+    
+    #     print('done precalculus')                                                   #Debugging
 
     def search(self, query: str):
         # print('here')                                                 #Debugging
@@ -182,3 +157,41 @@ class FuzzyModel(BooleanModel):
 
     def precalculateMembershipDegree(self):
         pass
+
+
+    def secure_loading(self):
+        dataset = self.corpus.dataset.__dict__['_constituents']\
+            [0].__dict__['_dataset_id']
+        json = f'{dataset}_{self.__class__.__name__}'
+        s = ddb.at(json)
+        
+        data = s.read()
+        self.keyword_conex = data['keyword_conex']
+        self.docs_dict = data['docs_dict']
+        self.keyword_conex_precalculated = True
+    
+    def secure_storage(self):
+        dataset = self.corpus.dataset.__dict__['_constituents']\
+            [0].__dict__['_dataset_id']
+        json = f'{dataset}_{self.__class__.__name__}'
+        s = ddb.at(json)
+        
+        if not s.exists():
+            s.create({
+                "keyword_conex": self.keyword_conex, 
+                "docs_dict": self.docs_dict
+            })
+
+        
+    def preprocessing(self):
+        self.docs_dict = {}
+        self.membership_degree= {}
+        self.keyword_conex = {}
+        self.keyword_conex_precalculated = False
+
+        self.precalculateConex()
+
+        for doc_id in self.corpus:
+            self.docs_dict[doc_id] = set()
+            for term in self.corpus[doc_id]:
+                self.docs_dict[doc_id].add(term)
