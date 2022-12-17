@@ -14,7 +14,9 @@ class BaseModel:
         json = f'{dataset}_{self.__class__.__name__}'
         
         if not ddb.at(json).exists():
+            self.corpus.load_docs()
             self.preprocessing()
+            self.corpus.clean()
             self.secure_storage()
         else:
             self.secure_loading()

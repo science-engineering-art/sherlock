@@ -15,6 +15,10 @@ class Corpus:
     def clean(self):
         self.dict = Dict()
     
+    @property
+    def get_dataset_name(self) -> str:
+        return self.dataset.__dict__['_constituents'][0].__dict__['_dataset_id']
+
     def __getitem__(self, key):
         return self.dict[key]
 
