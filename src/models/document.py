@@ -1,6 +1,6 @@
 import re
 import ir_datasets
-from typing import List
+from typing import List, final
 from unidecode import unidecode
 
 class Document:
@@ -8,8 +8,16 @@ class Document:
     def __init__(self, doc):
         self.doc_id = doc.doc_id
         self.text = doc.text
-        self.title = doc.title or None
-        self.author = doc.author or None
+        self.title = ''
+        self.author = ''
+        try:
+            self.title = doc.title
+        except:
+            pass
+        try:
+            self.author = doc.author
+        except:
+            pass
 
         # tokenization and standardization 
         self.terms = [ unidecode(word.lower()) for word in 

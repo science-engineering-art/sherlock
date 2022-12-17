@@ -1,11 +1,13 @@
-from unidecode import unidecode
-from models.corpus import Corpus
-from typing import Dict, List, Tuple
-from models.document import Document
-from models.base_model import BaseModel
-from sympy.logic.boolalg import to_dnf
-from sympy import sympify
 import re
+from typing import Dict, List, Tuple
+
+from sympy import sympify
+from sympy.logic.boolalg import to_dnf
+from unidecode import unidecode
+
+from models.base_model import BaseModel
+from models.corpus import Corpus
+from models.document import Document
 
 
 class BooleanModel(BaseModel):
@@ -16,26 +18,27 @@ class BooleanModel(BaseModel):
         self.operators = {"and": "&",
                           "or": "|",
                           "not": "~"}
-
         self.keywords = ["as", "assert", "break", "class", "continue", "def", "del", "elif", "else", "else",
-            "except", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda",
-            "nonlocal", "pass", "raise", "return", "try", "while", "with", "yield", "false", "true", "input",
-                         "output"]
+                        "except", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda",
+                        "nonlocal", "pass", "raise", "return", "try", "while", "with", "yield", "false", "true", "input",
+                         "output", "with", "of", "so", "composite", "reduced", "re-entry", "re"]
 
+       
         # list containing all terms in corpus
-        self.dict_terms = []
+        self.dict_terms = set()
 
         # dictionary int -> Document of all documents in corpus
         self.dict_docs = {}
 
         # dictionary of document collection represented as a boolean vector of its terms
         self.docs_inverted_index = {}
+         
+
 
         # Indexing all terms in corpus
         for doc in self.corpus.docs:
             for word in doc.terms:
-                if word not in self.dict_terms:
-                    self.dict_terms.append(word)
+                self.dict_terms.add(word)
 
         # print(f"Corpus terms: {self.dict_terms}")
 
@@ -43,15 +46,12 @@ class BooleanModel(BaseModel):
         amount_docs = 0
         for doc in self.corpus.docs:
             self.dict_docs[amount_docs] = doc
-            self.docs_inverted_index[amount_docs] = []
-            for term in self.dict_terms:
-                if term in doc.terms:
-                    self.docs_inverted_index[amount_docs] += [1]
-                else:
-                    self.docs_inverted_index[amount_docs] += [0]
+            self.docs_inverted_index[amount_docs] = set()
+            for term in doc.terms:
+                self.docs_inverted_index[amount_docs].add(term)
             amount_docs += 1
 
-    def search(self, query: str) -> List[Document]:
+    def search(self, query: str):
 
         # processing query
         processed_query = self.process_query(query)
@@ -62,22 +62,28 @@ class BooleanModel(BaseModel):
 
         return [[1, self.dict_docs[i]] for i in doc_matches]
 
-    def process_query(self, query: str) -> TypeError | list[str]:
+    def process_query(self, query: str):
+
+        print('raw query:', query)          #debugging
 
         # set to lowercase and remove unnecessary blank spaces from query
         query = " ".join(query.split()).lower()
+
+        # remove unwanted characters
+        query = re.findall(r"\)|\(|\||&|[\w]+", query)
+
+        # decorate all words but important ones
+        for i in range(0, len(query)):
+            if query[i] not in ['or', 'and', '|', '&', '(', ')']:
+                query[i] = "kw_" + query[i]
+
+        query = " ".join(query)
 
         # remove spaces between parenthesis and its content
         query = query.replace("( ", "(")
         query = query.replace(" )", ")")
 
-        # remove unwanted characters
-        query = re.findall(r"[\w()|&~']+", query)
-
-        # decorate keywords
-        for i in range(0, len(query)):
-            if query[i] in self.keywords:
-                query[i] = "kw_" + query[i]
+        query = query.split(" ")
 
         # convert logical operands to '&', '|' or '~' (the ones sympy uses) if necessary
         # and add '&' between words with no operand between them
@@ -96,7 +102,8 @@ class BooleanModel(BaseModel):
                 query.__delitem__(i + 1)
             else:
                 i += 1
-        query = "".join(query)
+                
+        query = " ".join(query)
 
         # we use try except here, in case the logical expression of the query was not a valid one
         try:
@@ -110,7 +117,6 @@ class BooleanModel(BaseModel):
 
         # remove decoration in keywords
         query_dnf = query_dnf.replace("kw_", "")
-
         # remove parenthesis from query
         query_dnf = query_dnf.replace("(", "")
         query_dnf = query_dnf.replace(")", "")
@@ -126,16 +132,15 @@ class BooleanModel(BaseModel):
 
     # matches a negated term of a conjunctive component to a document
     def match_neg_term(self, term, doc_vector, corpus_terms) -> bool:
-        for i in range(0, len(doc_vector)):
-            if doc_vector[i] == 1 and corpus_terms[i] == term[1:]:
-                return False
+        if term in doc_vector:
+            return False
         return True
+        
 
     # matches a simple term of a conjunctive component to a document
     def match_term(self, term, doc_vector, corpus_terms) -> bool:
-        for i in range(0, len(doc_vector)):
-            if doc_vector[i] == 1 and corpus_terms[i] == term:
-                return True
+        if term in doc_vector:
+            return True
         return False
 
     # matches a conjunctive component to a document

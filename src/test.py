@@ -1,15 +1,12 @@
 from sympy.logic.boolalg import to_dnf
 from sympy import sympify
 import re
-from abc import ABC
+from unidecode import unidecode
 
 operators = {"and" : "&",
               "or" : "|",
               "not" : "~"}
 
-keywords = ["as", "assert", "break", "class", "continue", "def", "del", "elif", "else", "else",
-            "except", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda",
-            "nonlocal", "pass", "raise", "return", "try", "while", "with", "yield", "false", "true"]
 
 def process_query(query):
     # set to lowercase and remove unwanted characters from query
@@ -17,14 +14,10 @@ def process_query(query):
     query = query.replace("( ", "(")
     query = query.replace(" )", ")")
 
-    query = re.findall(r"[\w()|&~'_]+", query)
+    query = re.findall(r"[\w()|&~']+", query)
 
     # convert logical operands to '&', '|' or '~' (the ones sympy uses)
     # in case they were written differently or remove blank spaces between operators and terms
-    for i in range(0, len(query)):
-        if query[i] in keywords:
-            query[i] = "kw_" + query[i]
-
     i = 0
     while i != len(query):
         if query[i] in operators.keys():
@@ -53,9 +46,6 @@ def process_query(query):
 
     # convert query expression into disjunctive normal form, and then convert back to string
     query_dnf = str(to_dnf(expression))
-
-    query_dnf = query_dnf.replace("kw_", "")
-    print(query_dnf)
 
     # remove parenthesis from query
     query_dnf = query_dnf.replace("(", "")
@@ -104,7 +94,7 @@ def get_docs_matches_to_query(processed_query, docs, corpus_terms):
     return matches
 
 
-q = "love is & true"
+q = "temperature laura riera y amigos f f f | s ~aaa"
 print(q)
 
 expression = process_query(q)
