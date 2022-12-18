@@ -3,7 +3,7 @@ from pydoc import doc
 from xml.etree.ElementInclude import DEFAULT_MAX_INCLUSION_DEPTH
 from matplotlib.font_manager import weight_dict
 from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, cluster_optics_dbscan
 from sklearn.metrics import silhouette_score
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -28,18 +28,55 @@ class VectorModelGetWeights(VectorModel):
     def __init__(self, corpus):
         super().__init__(corpus)
     
-        self.terms = set()
-        for _, term in self.weights:
+        sparse_matrix, dimension = model.Getweights()
+           
+        self.noClusters = self.get_best_k(sparse_matrix, dimension, 100, 100)
+        self.kmeans = self.Getkmeans(self.noClusters)
+        
+        self.clusters = [[] for _ in range(self.noClusters)]
+        for i in range(len(self.docs)):
+            self.clusters[self.kmeans.lebels_[i]].add(i)
+            
+    def Get_Docs_and_Terms(self):
+        
+        terms = set()
+        docs = set()
+        for doc_id, term in self.weights:
+            docs.add(doc_id)
             self.terms.add(term)
              
-        self.terms = [term for term in self.terms]
+        terms = [term for term in self.terms]
+        self.docs = [doc_id for doc_id in self.docs]
+        doc_postion = {}
+        term_postion = {}
+        
+        for i in range(len(self.terms)):
+            self.term_postion[self.terms[i]] = i
+            
+        docs = [doc for doc in docs]
+        for i in range(len(docs)):
+            self.doc_postion[docs[i]] = i
+    
+        return (terms, docs, doc_postion, term_postion)
+    
     
     def search(self, query: str):
         results =  super().search(query)
-        sparse_matrix, dimension = model.Getweights()
-        kmeans = self.Getkmeans(sparse_matrix, dimension, pos = 5, max = 5)
         query_vector = VectorModelGetWeights.GetQueryVector(self.idfs, self.terms, query)
+        
+        
+        query_distances = self.kmeans.transform([query_vector])
+        best_clusters = []
+        for i in range(self.noClusters):
+            best_clusters.append((query_distances[i], i))
+        best_clusters = sorted(best_clusters, key=lambda x: x[0], reverse=True) 
+        
+        results = sorted(results, key = lambda x : query_distances[self.kmeans.labels_[self.doc_postion[x[1]]]], reverse= True)
+        for x in results:
+            x[0] += query_distances[self.kmeans.labels_[self.doc_postion[x[1]]]]
+        
         print(query_vector)
+        return results
         
     def GetQueryVector(idfs, terms, query):
         
@@ -67,37 +104,31 @@ class VectorModelGetWeights(VectorModel):
         
         dataset = self.corpus.dataset.__dict__['_constituents']\
             [0].__dict__['_dataset_id']
-        json = f'{self.__class__.__name__}/{dataset}/sparse_matrix'
+        json = f'{self.__class__.__name__}/{dataset}/other_properties'
         s = ddb.at(json)
         if not s.exists():
+            self.terms, self.docs, self.doc_postion, self.term_postion = self.Get_Docs_and_Terms()
             sm, dimension = self.Arrange_matrix()
             s.create(
                 {'sm' : sm ,
-                 'dimension' : dimension}
+                 'dimension' : dimension,
+                 'terms' : self.terms,
+                 'docs' : self.docs,
+                 'doc_postion' : self.doc_postion,
+                 'term_postion' : self.term_postion}
             )
             return (sm, dimension)
         else:
             data = s.read()
+            self.terms, self.docs, self.doc_postion, self.term_postion = data['terms'],data['docs'],data['doc_postion'],data['term_postion']
             return (data['sm'], data['dimension'])
       
     def Arrange_matrix(self):
-        docs = set()
-        for doc_id, term in self.weights:
-            docs.add(doc_id)
-             
-        doc_postion = {}
-        term_postion = {}
-        sparse_matrix = [[0.0 for _ in range(len(self.terms))] for _ in range(len(docs))]
         
-        for i in range(len(self.terms)):
-            term_postion[self.terms[i]] = i
-            
-        docs = [doc for doc in docs]
-        for i in range(len(docs)):
-            doc_postion[docs[i]] = i
+        sparse_matrix = [[0.0 for _ in range(len(self.terms))] for _ in range(len(self.docs))]
         
         for doc_id, term in self.weights:
-            sparse_matrix[doc_postion[doc_id]][term_postion[term]] = self.weights[doc_id, term]
+            sparse_matrix[self.doc_postion[doc_id]][self.term_postion[term]] = self.weights[doc_id, term]
                 
         return (sparse_matrix, len(self.terms))
     
@@ -142,11 +173,17 @@ class VectorModelGetWeights(VectorModel):
         print(best_k)
         return (best_k, bests)
     
-    def Getkmeans(self, sparse_matrix, dimension, pos = 19, max = 20):
-        k = self.get_best_k(sparse_matrix, dimension, pos, max)
+    def Getkmeans(self, k):
         kmeans = KMeans(n_clusters=k, n_init= 10, init="k-means++")
         return kmeans
     
+    
+class KMEANS():
+    def __init__(self, kmeans):
+        self.kmeans = kmeans
+        
+    
+        
 corpus = Corpus('cranfield')
 model = VectorModelGetWeights(corpus)
 model.search('marcos y tony')
