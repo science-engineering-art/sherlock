@@ -13,7 +13,7 @@ class BaseModel:
         self.corpus = corpus
         dataset = self.corpus.dataset.__dict__['_constituents']\
             [0].__dict__['_dataset_id']
-        json = f'{dataset}_{self.__class__.__name__}'
+        json = f'{self.__class__.__name__}/{dataset}/preprocessing'
         
         if not ddb.at(json).exists():
             self.corpus.load_docs()

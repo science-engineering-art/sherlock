@@ -113,7 +113,8 @@ class QRels:
                     else:
                         RI += 1
                 
-                P += RR/(RR + RI)
+                if RR + RI != 0:
+                    P += RR/(RR + RI)
 
                 if self.qrels[query_id]['rels'] != 0:
                     R += RR/(self.qrels[query_id]['rels'])

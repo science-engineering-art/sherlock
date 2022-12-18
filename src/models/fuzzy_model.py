@@ -1,4 +1,5 @@
 import dictdatabase as ddb
+from time import time
 from models.boolean_model import BooleanModel
 
 
@@ -22,14 +23,12 @@ class FuzzyModel(BooleanModel):
         processed_query = super().process_query(query)
         # time_2 = time()                                                             #Debugging
         # print('process query took: ', time_2 - time_1)                                            #Debugging
-        
+        maxtime = 0
         print(processed_query)                                                      #Debugging           
         recovered = []
         for doc_id in self.docs_dict:
-            terms = self.docs_dict[doc_id]
             product = 1.0
             for cc in processed_query:      #foreach conjuntive component
-                # time_4 = time()                                  #Debugging
                 factor_cc = 1.0
                 for term_i in cc:       
                     negated = False
@@ -37,17 +36,19 @@ class FuzzyModel(BooleanModel):
                     if term_i[0] == '~':
                         negated = True
                         term_i = term_i[1:]
+                    time_4 = time()                                  #Debugging
                     membership = self.__get_membership(term_i, doc_id)
-                    
+                    time_5 = time()                                     #Debugging
+                    maxtime = max(maxtime, time_5 - time_4)
                     if negated:
                         membership = 1.0 - membership
                     factor_cc *= membership
                 product *= (1 - factor_cc)
-                # time_5 = time()                                     #Debugging
                 # print('time foreach cc took: ', time_5 - time_4)         #Debugging
             sim = 1.0 - product
             # print(product)                                            #Debugging
             recovered.append((sim, doc_id))
+        # print(f'time __get_membership took \n\n\n\n\n{maxtime}\n\n\n\n\n\n: ')         #Debugging
         # time_3 = time()                                       #Debugging
         # print('fuzzy model query took: ', time_3 - time_2)                            #Debugging
 
