@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+#storage
+/src/ddb_storage
+/ddb_storage
+
 # C extensions
 *.so
 
