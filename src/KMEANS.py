@@ -24,7 +24,7 @@ import re
 from models.vector_model import VectorModel
 # from symbols import term
 
-class VectorModelGetWeights(VectorModel):
+class VectorModelKMEANS(VectorModel):
     
     def __init__(self, corpus):
         super().__init__(corpus)
@@ -63,7 +63,7 @@ class VectorModelGetWeights(VectorModel):
     
     def search(self, query: str):
         results =  super().search(query)
-        query_vector = VectorModelGetWeights.GetQueryVector(self.idfs, self.terms, query)
+        query_vector = VectorModelKMEANS.GetQueryVector(self.idfs, self.terms, query)
         
         print(self.kmeans.predict([query_vector]))
         query_distances = self.kmeans.transform([query_vector])[0]
@@ -189,7 +189,7 @@ class KMEANS():
     
         
 corpus = Corpus('cranfield')
-model = VectorModelGetWeights(corpus)
+model = VectorModelKMEANS(corpus)
 model.search('I need to use a good query')
 
      

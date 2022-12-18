@@ -1,7 +1,9 @@
+from msilib.schema import Verb
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from traitlets import FuzzyEnum
+from KMEANS import  VectorModelKMEANS
 
 from models.boolean_model import BooleanModel
 from models.corpus import Corpus
@@ -24,6 +26,7 @@ corpus = {
 
 # model = VectorModel(corpus['cranfield'])
 model = BooleanModel(corpus['cranfield'])
+model = VectorModelKMEANS(corpus['cranfield'])
 # model = FuzzyModel(corpus['cranfield'])
 
 app = FastAPI()
