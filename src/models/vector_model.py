@@ -31,7 +31,7 @@ class VectorModel(BaseModel):
     def secure_storage(self):
         
         dataset = self.corpus.get_dataset_name
-        json = f'{dataset}_{self.__class__.__name__}'
+        json = f'{self.__class__.__name__}/{dataset}/preprocessing'
         s = ddb.at(json)
         
         if not s.exists():
@@ -53,7 +53,7 @@ class VectorModel(BaseModel):
     def secure_loading(self):
         
         dataset = self.corpus.get_dataset_name
-        json = f'{dataset}_{self.__class__.__name__}'
+        json = f'{self.__class__.__name__}/{dataset}/preprocessing'
         s = ddb.at(json)
         
         if s.exists():
@@ -73,8 +73,9 @@ class VectorModel(BaseModel):
         """
         
         # build the query vector
+        print(query)
         query_vector = Dict(Counter([ unidecode(word.lower()) for word in 
-            re.findall(r"[\w']+", query) ]))
+            re.findall(r"[\w]+", query) ]))
 
         # calculation of the TF of the query vector
         tf = Dict(); a = 0.4

@@ -19,7 +19,7 @@ class BooleanModel(BaseModel):
 
     def secure_storage(self):
         dataset = self.corpus.get_dataset_name
-        json = f'{dataset}_{self.__class__.__name__}'
+        json = f'{self.__class__.__name__}/{dataset}/preprocessing'
         s = ddb.at(json)
         
         if not s.exists():
@@ -40,7 +40,7 @@ class BooleanModel(BaseModel):
 
     def secure_loading(self):
         dataset = self.corpus.get_dataset_name
-        json = f'{dataset}_{self.__class__.__name__}'
+        json = f'{self.__class__.__name__}/{dataset}/preprocessing'
         s = ddb.at(json)
         
         if s.exists():
