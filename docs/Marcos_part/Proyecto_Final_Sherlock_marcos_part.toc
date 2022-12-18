@@ -10,4 +10,5 @@
 \contentsline {subsection}{\numberline {3.2}Recuperación de documentos}{2}{}%
 \contentsline {section}{\numberline {4}Modelo Fuzzy}{2}{}%
 \contentsline {subsection}{\numberline {4.1}Descripci\'on del modelo usado}{3}{}%
-\contentsline {section}{\numberline {5}Conclusiones}{3}{}%
+\contentsline {subsection}{\numberline {4.2}Implementaci\'on.}{4}{}%
+\contentsline {section}{\numberline {5}Conclusiones}{5}{}%

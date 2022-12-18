@@ -128,7 +128,7 @@
 		\begin{defn} (\cite[Section~2.6.1]{B2}) Un conjunto difuso $A$ de un universo de discurso $U$ est\'a caracterizado por una funci\'on de membres\'ia $\mu_A : U \rightarrow [0,1]$ que asocia a cada elemento $u \in U$ un n\'umero $\mu_A(u)$ en el intervalo $[0,1].$
 		\end{defn}
 		Las tres operaciones m\'as usadas de conjuntos difusos se definen a continuaci\'on.
-		\begin{defn}(\cite[Section~2.6.1]{B2})
+		\begin{defn} \label{def2} (\cite[Section~2.6.1]{B2})
 			Sea $U$ el universo de discurso, $A$ y $B$ dos conjuntos difusos de $U$ y $\overline{A}$ el complemento de $A$ en $U$. Sea adem\'as un elemento $u \in U$. Entonces, 
 			\begin{align*}
 				\mu_{\overline{A}}(u) &= 1- \mu_A(u) \\
@@ -141,7 +141,33 @@
 	
 	\subsection{Descripci\'on del modelo usado}
 	
-	El modelo fuzzy que se seleccion\'o para su implementaci\'on fue propueto por Ogawa, Morita y Kobayashi en \cite{B5}. En este los autores se basan en el uso de la relaci\'on entre t\'erminos para expandir los t\'erminos de las consultas, de forma que se encuentren m\'as documentos que sean relevantes a las necesidades del usuario. Para expandir las consultas se opta por el uso de la matriz de correlaci\'on t\'ermino-t\'ermino. 
+	El modelo fuzzy que se seleccion\'o para su implementaci\'on fue propueto por Ogawa, Morita y Kobayashi en \cite{B5}. En este los autores se basan en el uso de la relaci\'on entre t\'erminos para expandir los t\'erminos de las consultas, de forma que se encuentren m\'as documentos que sean relevantes a las necesidades del usuario. Para expandir las consultas se opta por el uso de la matriz de conexi\'on de t\'erminos clave (keyword connection matrix). En esta matriz se encuentra la correlaci\'on normalizada entre cualesquiera dos t\'erminos $k_i$ y $k_j$ definida como
+	\[
+		c_{i,j} = \frac{n_{i,j}}{n_i + n_j - n_{i,j}},
+	\]
+	donde $n_i$ (respectivamente $n_j$) es el n\'umero de documentos que contienen a $k_i$ (respectivamente $k_j$) y $n_{i,j}$ es el n\'umero de documentos que los contienen a ambos. Esta correlaci\'on se basa en la idea de que si dos palabras est\'an relacionadas aparecer\'an, con frecuencia, juntas en un mismo documento.
+	
+	Definimos entonces la pertenencia de un documento $d_j$ al conjunto difuso relativo al t\'ermino $k_i$ como
+	\[ \mu_{i,j} =  1 - \prod_{k_l \in d_j} (1 - c_{i,l}).\]
+	Como podemos ver, luego de expandir el producto de la derecha, esta f\'ormula lo que computa es cierta suma algebraica de la correlaci\'on entre $k_l$ y todos los t\'erminos del documento $d_j$. Se observa que esta expresi\'on no es exactamente la suma directa de los $c_{i,l}$ para cada $k_l$, sino que es una suma suavizada. La expresi\'on resultante de expandir es similar a un principio de inclusi\'on exclusi\'on. Esto da la idea de que la relaci\'on entre $d_j$ y $k_i$ no es la suma de las correlaciones entre cada $k_l \in d_j$ y  $k_i$, sino que tiene en cuenta la relaci\'on conjunta con $k_i$ de los subconjuntos de t\'erminos de $d_j$, ya que puede que varios $k_l$ diferentes est\'en muy relacionados entre s\'i, y a $k_i$, y su aporte a la suma este siendo sobre valorado. 
+	
+	Aun con lo expuesto antes, cuando un t\'ermino  $k_l \in d_j$ est\'a muy relacionado con $k_i$ (es decir $c_{i,l} \approx 1$), entonces $\mu_{i,j} \approx 1$, lo cual dice que $d_j$ tiene un grado de pertenencia alto al conjunto difuso de $k_i$. Lo opuesto sucede cuando todos los t\'erminos $k_l \in d_j$ est\'an vagamente relacionados con $k_i$, en cuyo caso $c_{i,l} \approx 0$. Por tanto se mantiene el objetivo de la relaci\'on, aun cuando la suma usada no es la usual.
+	
+	Las consultas del usuario en este modelo vienen dadas de la misma forma que en el modelo booleano. Estamos hablando de una expresi\'on l\'ogica que se convierte luego a forma normal disyuntiva. Supongamos entonces que una consulta $q$ se descompone en las $n$ componentes conjuntivas $cc_1, cc_2 , \dots, cc_n$. Sea $\mu_{cc_t,j}$ el grado de pertenencia del documento $d_j$ al conjunto de documentos relevantes para la forma normal disyuntiva $c_t$. Este se calcula como sigue
+	\[
+	\mu_{cc_t,j} = \prod_{k_i \in cc_t} \mu'_{i,j}, 
+	\]
+	donde $\mu'_{i,j} = 1 - \mu_{i,j}$ si $k_i$ aparece negado en $cc_t$ y $\mu'_{i,j} =  \mu_{i,j}$ en otro caso. Entonces si denotamos $\mu_{q,j}$ como el grado de pertenencia del documento $d_j$ al conjunto de documentos relevantes a la consulta $q$, este se podr\'ia calcular como
+	\[
+	\mu_{q,j} = 1 - \prod_{t=1}^n (1 - \mu_{cc_t,j}).
+	\]
+	
+	Seg\'un la Definici\'on~\ref{def2}, el valor $\mu_{cc_t,j}$ (el grado de pertenencia a una conjunto difuso conjuntivo) y $\mu_{q,j}$ (el grado de pertenencia a un conjunto difuso disyuntivo) deber\'ian ser calculados tomando el m\'inimo y el m\'aximo de las variables que intervienen respectivamente. Sin embargo se opta en este caso por usar producto y suma algebraica, respectivamente, para suavizar los resultados.
+	
+	\subsection{Implementaci\'on.}
+		Para implementar el modelo descrito los autores del presente se basaron en el procesamiento de los documentos y consultas que se expusieron en el modelo booleano, ya que estas adoptan la misma forma. Se modifica entonces el m\'etodo que computa el resultado de una consulta, asignando en esta ocasi\'on una puntuaci\'on a cada documento  $d_j$ respecto a la consulta $q$, correspondiente a $\mu_{q,j}$. Los documentos ser\'an recuperados estableciendo un orden seg\'un este valor.
+		
+		Para calcular los valores en cada consulta de $\mu_{q,j}$ simplemente computamos las f\'ormulas descritas antes. La correlaci\'on entre t\'erminos, sin embargo, se calcula una sola vez para el total de pares de t\'erminos que aparecen en todos los documentos, y se guarda en el almacenamiento f\'isico de la computadora. Esto se hace para no tener que recalcular todos estos valores m\'as de una vez, ya que constituye un costo alto en tiempo.
 	
 	\section{Conclusiones}
 	
