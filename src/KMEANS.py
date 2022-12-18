@@ -32,6 +32,7 @@ class VectorModelGetWeights(VectorModel):
                 {'sm' : sm ,
                  'dimension' : dimension}
             )
+            return (sm, dimension)
         else:
             data = s.read()
             return (data['sm'], data['dimension'])
@@ -60,25 +61,48 @@ class VectorModelGetWeights(VectorModel):
                 
         return (sparse_matrix, len(terms))
     
-def kmeans(sparse_matrix, dimension):
-    best_RSS = 1e9
-    k = 2
-    best_k = 2
+    def get_best_k(self, sparse_matrix, dimension, pos = -1, max = 20):
+        dataset = model.corpus.dataset.__dict__['_constituents']\
+                [0].__dict__['_dataset_id']
+        json = f'{self.__class__.__name__}/{dataset}/best_k'
+        
+        s = ddb.at(json)
+        if not s.exists():
+            best_k, bests = self.calculate_best_k(sparse_matrix, dimension, max)
+            s.create(
+                {'best_k' : best_k,
+                 'bests' : bests}
+            )
+            return best_k
+        else:
+            data = s.read()
+            if pos == -1 or pos > data['cant']:
+                return data['best_k']
+            return data['bests'][pos]
     
-    while k < 20:
-        kmeans = KMeans(n_clusters=k, init="k-means++")
-        kmeans.fit(sparse_matrix)
-        RSS = kmeans.inertia_
-        if RSS < best_RSS:
-            best_RSS = RSS
-            best_k = k
-        k+=1
-            
-    print(best_k)
+    def calculate_best_k(self, sparse_matrix, dimension, max):
+        best_RSS = 1e9
+        k = 2
+        best_k = 2
+        
+        bests = {}
+        while k <= max:
+            kmeans = KMeans(n_clusters=k, n_init= 10, init="k-means++")
+            kmeans.fit(sparse_matrix)
+            RSS = kmeans.inertia_
+            if RSS < best_RSS:
+                best_RSS = RSS
+                best_k = k
+            bests[str(k)] = best_k
+            print('best k: ', best_k)
+            k+=1
+                
+        print(best_k)
+        return (best_k, bests)
     
-cranfield = Corpus('cranfield')
-model = VectorModelGetWeights(cranfield)
+corpus = Corpus('cranfield')
+model = VectorModelGetWeights(corpus)
 weights, dimension = model.Getweights()
-kmeans(weights, dimension )
+model.get_best_k(weights, dimension, 19, 5)
     
      
