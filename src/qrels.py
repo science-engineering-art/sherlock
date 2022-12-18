@@ -95,7 +95,7 @@ class QRels:
         max = (-1,-1)
         k_rank_F1 = {}
 
-        for k in range(1, amount_docs + 1):
+        for k in range(1, amount_docs + 1, 10):
             P = R = 0
 
             for query_id in range(1, amount_queries + 1):
@@ -113,7 +113,8 @@ class QRels:
                     else:
                         RI += 1
                 
-                P += RR/(RR + RI)
+                if RR + RI != 0:
+                    P += RR/(RR + RI)
 
                 if self.qrels[query_id]['rels'] != 0:
                     R += RR/(self.qrels[query_id]['rels'])
