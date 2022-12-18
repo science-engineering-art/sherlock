@@ -101,12 +101,10 @@ class QRels:
             for query_id in range(1, amount_queries + 1):
                 RR = RI = count = 0
                 query_id = str(query_id)
-
                 for doc_id in self.get_results(query_id):
                     if count == k: break
-                    # print(f'iteration: {count}')
-
                     count += 1
+
                     if doc_id in self.qrels[query_id]:
                         if self.relevancy_criterion(self.qrels[query_id][doc_id]):
                             RR += 1
@@ -115,15 +113,12 @@ class QRels:
                     else:
                         RI += 1
                 
-                #print(f'RR: {RR} RI: {RI}')
-                
-                # if RR + RI != 0:
                 P += RR/(RR + RI)
 
                 if self.qrels[query_id]['rels'] != 0:
                     R += RR/(self.qrels[query_id]['rels'])
 
-            # if P == 0 or R == 0: continue
+            if P == 0 or R == 0: continue
             
             P /= amount_queries
             R /= amount_queries

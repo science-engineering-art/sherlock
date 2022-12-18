@@ -146,9 +146,8 @@ class FuzzyModel(BooleanModel):
 
 
     def secure_loading(self):
-        dataset = self.corpus.dataset.__dict__['_constituents']\
-            [0].__dict__['_dataset_id']
-        json = f'{dataset}_{self.__class__.__name__}'
+        dataset = self.corpus.get_dataset_name
+        json = f'{self.__class__.__name__}/{dataset}/preprocessing'
         s = ddb.at(json)
         
         self.postprocessing()
@@ -161,9 +160,8 @@ class FuzzyModel(BooleanModel):
         self.keyword_conex_precalculated = True
     
     def secure_storage(self):
-        dataset = self.corpus.dataset.__dict__['_constituents']\
-            [0].__dict__['_dataset_id']
-        json = f'{dataset}_{self.__class__.__name__}'
+        dataset = self.corpus.get_dataset_name
+        json = f'{self.__class__.__name__}/{dataset}/preprocessing'
         s = ddb.at(json)
         
         doc_lists = {}
