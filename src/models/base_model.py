@@ -1,6 +1,8 @@
+from abc import abstractmethod
 from typing import List
+
 import dictdatabase as ddb
-from abc  import abstractmethod
+
 from models.corpus import Corpus
 from models.document import Document
 

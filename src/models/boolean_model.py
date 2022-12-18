@@ -1,9 +1,11 @@
 import re
+
+import dictdatabase as ddb
 from sympy import sympify
 from sympy.logic.boolalg import to_dnf
+
 from models.base_model import BaseModel
 from models.dict import Dict
-import dictdatabase as ddb
 
 
 class BooleanModel(BaseModel):
@@ -11,6 +13,8 @@ class BooleanModel(BaseModel):
     def preprocessing(self):        
         self.doc_terms = Dict()
 
+        self.operators = {} 
+        
         for doc_id in self.corpus:
             self.doc_terms[doc_id] = Dict()
 
@@ -74,6 +78,8 @@ class BooleanModel(BaseModel):
         # remove unwanted characters
         query = re.findall(r"\)|\(|\||&|~|[\w]+", query)
 
+        special_symbols = ['&', '~', '|']
+
         # decorate all words but important ones
         for i in range(0, len(query)):
             if query[i] not in ['(', ')', '|', '&', '~']:
@@ -81,6 +87,33 @@ class BooleanModel(BaseModel):
 
         query = " ".join(query)
 
+        # remove spaces between parenthesis and its content
+        query = query.replace("~ ", "~")
+        query = query.replace("( ", "(")
+        query = query.replace(" )", ")")
+
+        query = query.split(" ")
+
+        # convert logical operands to '&', '|' or '~' (the ones sympy uses) if necessary
+        # and add '&' between words with no operand between them
+        i = 0
+        while i != len(query):
+            if query[i] in self.operators.keys():
+                query[i] = self.operators[query[i]]
+                if query[i].startswith("~") and not (query[i - 1].endswith("&") or query[i - 1].endswith("|")):
+                    query[i - 1] += "&" + query[i]
+                    query.__delitem__(i)
+                i += 1
+            elif i != len(query) - 1 and query[i] not in special_symbols and \
+                    query[i + 1] not in self.operators.keys() and query[i + 1] not in special_symbols \
+                    and not (query[i + 1].startswith("|") or query[i + 1].startswith("&")):
+                query[i] += "&" + query[i + 1]
+                query.__delitem__(i + 1)
+            else:
+                i += 1
+                
+        query = " ".join(query)
+        print('query: ', query)
         # we use try except here, in case the logical expression of the query was not a valid one
         try:
             # sympify converts a string into a logical expression
