@@ -31,7 +31,7 @@ class VectorModel(BaseModel):
     def secure_storage(self):
         
         dataset = self.corpus.get_dataset_name
-        json = f'{dataset}_{self.__class__.__name__}'
+        json = f'{self.__class__.__name__}/{dataset}/preprocessing'
         s = ddb.at(json)
         
         if not s.exists():
@@ -53,7 +53,7 @@ class VectorModel(BaseModel):
     def secure_loading(self):
         
         dataset = self.corpus.get_dataset_name
-        json = f'{dataset}_{self.__class__.__name__}'
+        json = f'{self.__class__.__name__}/{dataset}/preprocessing'
         s = ddb.at(json)
         
         if s.exists():
@@ -66,28 +66,21 @@ class VectorModel(BaseModel):
                 for term in json['weights'][doc_id]
             })
 
-    def search(self, query: str) -> List[Tuple[float, Document]]:
+    def search(self, query: str) -> List[Tuple[float, str]]:
         """
             Search for the most relevant set of documents in the corpus and 
             their ranking, given a specific query.
+        """      
+        query_vector, weights, norm = self.__query_preprocessing(query)
+
+        return self.__calculate_similarity(query_vector, weights, norm)
+
+    def __calculate_similarity(self, query_vector: Dict, 
+        weights: Dict, norm: int ) -> List[Tuple[float, str]]:
         """
-        
-        # build the query vector
-        query_vector = Dict(Counter([ unidecode(word.lower()) for word in 
-            re.findall(r"[\w']+", query) ]))
-
-        # calculation of the TF of the query vector
-        tf = Dict(); a = 0.4
-        VectorModel.__calculate_tf(query_vector, tf)
-
-        # calculation of the weights of the query vector
-        weights = Dict()
-        norm = 0
-        for t in query_vector:
-            weights[t] = (a + (1-a)*tf[-1, t]) * self.idfs[t]
-            norm += weights[t] ** 2
-        norm = norm ** (1/2)
-
+            Calculate the similarity between the query vector and the document 
+            vectors.
+        """
         # cosine similarity calculation
         sims = []
         for doc in self.corpus.dataset.docs_iter():
@@ -101,6 +94,28 @@ class VectorModel(BaseModel):
             sims.append((sim, doc.doc_id))
 
         return [i for i in sorted(sims, key=lambda x: x[0], reverse=True) ]
+
+    def __query_preprocessing(self, query: str) -> Tuple[Dict, Dict, int]:
+        """
+            Build the query vector, its weight and norm.
+        """
+        # build the query vector
+        query_vector = Dict(Counter([ unidecode(word.lower()) for word in 
+            re.findall(r"[\w]+", query) ]))
+
+        # calculation of the TF of the query vector
+        tf = Dict(); a = 0.4
+        VectorModel.__calculate_tf(query_vector, tf)
+
+        # calculation of the weights of the query vector
+        weights = Dict()
+        norm = 0
+        for t in query_vector:
+            weights[t] = (a + (1-a)*tf[-1, t]) * self.idfs[t]
+            norm += weights[t] ** 2
+        norm = norm ** (1/2)
+
+        return query_vector, weights, norm
 
     def __calculate_tf(
             terms, 

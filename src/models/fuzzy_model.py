@@ -1,68 +1,21 @@
-import re
-from statistics import correlation
-from time import time
-from typing import Dict, List, Tuple
-
 import dictdatabase as ddb
-from pyparsing import null_debug_action
-from sympy import product, sympify, true
-from sympy.logic.boolalg import to_dnf
-from traitlets import default
-from unidecode import unidecode
-
-from models.base_model import BaseModel
+from time import time
 from models.boolean_model import BooleanModel
-from models.corpus import Corpus
-from models.document import Document
 
 
 class FuzzyModel(BooleanModel):
 
-    def __init__(self, corpus : Corpus, corpuse_name):
+    # def __init__(self, corpus : Corpus, corpuse_name):
 
 
-        self.corpus = corpus
-        self.operators = {"and": "&",
-                          "or": "|",
-                          "not": "~"}
+    #     self.corpus = corpus
+    #     # self.operators = {"and": "&",
+    #     #                   "or": "|",
+    #     #                   "not": "~"}
 
-        self.docs_dict = {}
-        self.membership_degree= {}
-        self.keyword_conex = {}
-        self.keyword_conex_precalculated = False
-
-
-        for doc in corpus.docs:
-            self.docs_dict[doc] = set()
-            for term in doc.terms:
-                self.docs_dict[doc].add(term)
-
-
-        #to save in dictdatabase...
-        s = ddb.at(f'{corpuse_name}_FuzyModelPrecalculus')
-        if s.exists():
-            data = s.read()
-            self.keyword_conex = data['keyword_conex']
-            self.keyword_conex_precalculated = True
-        else:
-            self.precalculateConex()
-            s.create({'keyword_conex' : self.keyword_conex})
-        
-        
-        self.precalculateMembershipDegree()
-
-
-
-        print('done precalculus')                                                   #Debugging
-
-    def preprocessing(self):
-        return super().preprocessing()
+    #     self.precalculateMembershipDegree()
     
-    def secure_storage(self):
-        return super().secure_storage()
-    
-    def secure_loading(self):
-        return super().secure_loading()
+    #     print('done precalculus')                                                   #Debugging
 
     def search(self, query: str):
         # print('here')                                                 #Debugging
@@ -70,14 +23,12 @@ class FuzzyModel(BooleanModel):
         processed_query = super().process_query(query)
         # time_2 = time()                                                             #Debugging
         # print('process query took: ', time_2 - time_1)                                            #Debugging
-        
+        maxtime = 0
         print(processed_query)                                                      #Debugging           
         recovered = []
-        for doc in self.docs_dict:
-            terms = self.docs_dict[doc]
+        for doc_id in self.docs_dict:
             product = 1.0
             for cc in processed_query:      #foreach conjuntive component
-                # time_4 = time()                                  #Debugging
                 factor_cc = 1.0
                 for term_i in cc:       
                     negated = False
@@ -85,17 +36,19 @@ class FuzzyModel(BooleanModel):
                     if term_i[0] == '~':
                         negated = True
                         term_i = term_i[1:]
-                    membership = self.__get_membership(term_i, doc)
-                    
+                    time_4 = time()                                  #Debugging
+                    membership = self.__get_membership(term_i, doc_id)
+                    time_5 = time()                                     #Debugging
+                    maxtime = max(maxtime, time_5 - time_4)
                     if negated:
                         membership = 1.0 - membership
                     factor_cc *= membership
                 product *= (1 - factor_cc)
-                # time_5 = time()                                     #Debugging
                 # print('time foreach cc took: ', time_5 - time_4)         #Debugging
             sim = 1.0 - product
             # print(product)                                            #Debugging
-            recovered.append((sim, doc))
+            recovered.append((sim, doc_id))
+        # print(f'time __get_membership took \n\n\n\n\n{maxtime}\n\n\n\n\n\n: ')         #Debugging
         # time_3 = time()                                       #Debugging
         # print('fuzzy model query took: ', time_3 - time_2)                            #Debugging
 
@@ -103,16 +56,16 @@ class FuzzyModel(BooleanModel):
         return [i for i in sorted(recovered, 
                 key=lambda x: x[0], reverse=True)]
 
-    def __get_membership(self, term_i, doc):
+    def __get_membership(self, term_i, doc_id):
         '''calculate the membership degree of a document to 
         a term's fuzzy set'''
         
         #If previously calculated
-        if self.membership_degree.get((term_i,doc)) != None:
-            return self.membership_degree.get((term_i,doc))
+        if self.membership_degree.get((term_i,doc_id)) != None:
+            return self.membership_degree.get((term_i,doc_id))
         
         product = 1.0
-        terms = self.docs_dict[doc]
+        terms = self.docs_dict[doc_id]
         # print('aqui2')                                        #Debugging
         for term_l in terms:
             correlation = self.__calculateCorrelationFactor(term_i, term_l)
@@ -121,7 +74,7 @@ class FuzzyModel(BooleanModel):
         membership = 1.0 - product
 
         #memorize the result
-        self.membership_degree[(term_i, doc)] = membership
+        self.membership_degree[(term_i, doc_id)] = membership
 
         # print('membership', membership)                               #Debugging
 
@@ -167,8 +120,8 @@ class FuzzyModel(BooleanModel):
         
         pair_term_freq = {}
         term_freq = {str : int}
-        for doc in self.docs_dict:
-            terms = self.docs_dict[doc]
+        for doc_id in self.docs_dict:
+            terms = self.docs_dict[doc_id]
             for term in terms:
                 term_freq.setdefault(term, 0)
                 term_freq[term] += 1    #counts the frequency of each term
@@ -191,3 +144,58 @@ class FuzzyModel(BooleanModel):
 
     def precalculateMembershipDegree(self):
         pass
+
+
+    def secure_loading(self):
+        dataset = self.corpus.get_dataset_name
+        json = f'{self.__class__.__name__}/{dataset}/preprocessing'
+        s = ddb.at(json)
+        
+        self.postprocessing()
+        
+        data = s.read()
+        self.keyword_conex = data['keyword_conex']
+        self.docs_dict  = data['docs_dict']
+        for doc_id in self.docs_dict:
+            self.docs_dict[doc_id] = set(self.docs_dict[doc_id])
+        self.keyword_conex_precalculated = True
+    
+    def secure_storage(self):
+        dataset = self.corpus.get_dataset_name
+        json = f'{self.__class__.__name__}/{dataset}/preprocessing'
+        s = ddb.at(json)
+        
+        doc_lists = {}
+        for doc_id in self.docs_dict:
+            list = []
+            list.extend(self.docs_dict[doc_id])
+            doc_lists[doc_id] = list
+
+        
+        if not s.exists():
+            s.create({
+                "keyword_conex": self.keyword_conex, 
+                "docs_dict": doc_lists
+            })
+
+        
+    def preprocessing(self):
+        
+        self.postprocessing()
+        
+        self.docs_dict = {}
+        self.keyword_conex = {}
+        self.keyword_conex_precalculated = False
+
+        for doc_id in self.corpus:
+            self.docs_dict[doc_id] = set()
+            for term in self.corpus[doc_id]:
+                self.docs_dict[doc_id].add(term)
+                
+        self.precalculateConex()
+        
+        print('end preprocessing')              #debugging
+        
+    def postprocessing(self):
+        self.operators = {}
+        self.membership_degree= {}

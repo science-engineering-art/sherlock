@@ -1,7 +1,9 @@
 import re
-from typing import List
-from unidecode import unidecode
 from collections import Counter
+from typing import List
+
+from unidecode import unidecode
+
 from models.dict import Dict
 
 

@@ -8,6 +8,7 @@ from models.corpus import Corpus
 from models.fuzzy_model import FuzzyModel
 from models.vector_model import VectorModel
 
+
 class DocumentDto(BaseModel):
     doc_id: str
     title: str
@@ -21,8 +22,9 @@ corpus = {
     "cord19/trec-covid/round1": Corpus('cord19/trec-covid/round1')
 }
 
-model = VectorModel(corpus['cranfield'])
+# model = VectorModel(corpus['cranfield'])
 model = BooleanModel(corpus['cranfield'])
+# model = FuzzyModel(corpus['cranfield'])
 
 app = FastAPI()
 origins = ["*"]

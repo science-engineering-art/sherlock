@@ -1,9 +1,11 @@
 import re
+
+import dictdatabase as ddb
 from sympy import sympify
 from sympy.logic.boolalg import to_dnf
+
 from models.base_model import BaseModel
 from models.dict import Dict
-import dictdatabase as ddb
 
 
 class BooleanModel(BaseModel):
@@ -11,6 +13,8 @@ class BooleanModel(BaseModel):
     def preprocessing(self):        
         self.doc_terms = Dict()
 
+        self.operators = {} 
+        
         for doc_id in self.corpus:
             self.doc_terms[doc_id] = Dict()
 
@@ -19,7 +23,7 @@ class BooleanModel(BaseModel):
 
     def secure_storage(self):
         dataset = self.corpus.get_dataset_name
-        json = f'{dataset}_{self.__class__.__name__}'
+        json = f'{self.__class__.__name__}/{dataset}/preprocessing'
         s = ddb.at(json)
         
         if not s.exists():
@@ -40,7 +44,7 @@ class BooleanModel(BaseModel):
 
     def secure_loading(self):
         dataset = self.corpus.get_dataset_name
-        json = f'{dataset}_{self.__class__.__name__}'
+        json = f'{self.__class__.__name__}/{dataset}/preprocessing'
         s = ddb.at(json)
         
         if s.exists():
@@ -63,7 +67,37 @@ class BooleanModel(BaseModel):
         doc_matches = self.get_docs_matches_to_query(processed_query)
         print(f"Matches: {doc_matches}")
 
-        return [(1, doc_id) for doc_id in doc_matches]
+        result = [(1, doc.doc_id) if doc.doc_id in doc_matches else (0, doc.doc_id) \
+                    for doc in self.corpus.dataset.docs_iter() ]
+        result = sorted(result, key=lambda x: x[0], reverse=True)
+        if len(doc_matches) != 0:
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print(result)
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        return result
+
 
     def process_query(self, query: str):
 
@@ -74,6 +108,8 @@ class BooleanModel(BaseModel):
         # remove unwanted characters
         query = re.findall(r"\)|\(|\||&|~|[\w]+", query)
 
+        special_symbols = ['&', '~', '|']
+
         # decorate all words but important ones
         for i in range(0, len(query)):
             if query[i] not in ['(', ')', '|', '&', '~']:
@@ -81,6 +117,33 @@ class BooleanModel(BaseModel):
 
         query = " ".join(query)
 
+        # remove spaces between parenthesis and its content
+        query = query.replace("~ ", "~")
+        query = query.replace("( ", "(")
+        query = query.replace(" )", ")")
+
+        query = query.split(" ")
+
+        # convert logical operands to '&', '|' or '~' (the ones sympy uses) if necessary
+        # and add '&' between words with no operand between them
+        i = 0
+        while i != len(query):
+            if query[i] in self.operators.keys():
+                query[i] = self.operators[query[i]]
+                if query[i].startswith("~") and not (query[i - 1].endswith("&") or query[i - 1].endswith("|")):
+                    query[i - 1] += "&" + query[i]
+                    query.__delitem__(i)
+                i += 1
+            elif i != len(query) - 1 and query[i] not in special_symbols and \
+                    query[i + 1] not in self.operators.keys() and query[i + 1] not in special_symbols \
+                    and not (query[i + 1].startswith("|") or query[i + 1].startswith("&")):
+                query[i] += "&" + query[i + 1]
+                query.__delitem__(i + 1)
+            else:
+                i += 1
+                
+        query = " ".join(query)
+        print('query: ', query)
         # we use try except here, in case the logical expression of the query was not a valid one
         try:
             # sympify converts a string into a logical expression
@@ -124,7 +187,6 @@ class BooleanModel(BaseModel):
 
         for doc_id in self.doc_terms:
             # checks if the document matches any conjunctive components
-            print(processed_query)
             for cc in processed_query:
                 if doc_matches_cc(cc, self.doc_terms[doc_id]):
                     matches.append(doc_id)

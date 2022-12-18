@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+proof.py
 
 # databases
 src\ddb_storage\

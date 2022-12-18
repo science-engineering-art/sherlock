@@ -1,6 +1,8 @@
-from typing import List
+from abc import abstractmethod
+from typing import List, Tuple
+
 import dictdatabase as ddb
-from abc  import abstractmethod
+
 from models.corpus import Corpus
 from models.document import Document
 
@@ -11,7 +13,7 @@ class BaseModel:
         self.corpus = corpus
         dataset = self.corpus.dataset.__dict__['_constituents']\
             [0].__dict__['_dataset_id']
-        json = f'{dataset}_{self.__class__.__name__}'
+        json = f'{self.__class__.__name__}/{dataset}/preprocessing'
         
         if not ddb.at(json).exists():
             self.corpus.load_docs()
@@ -43,7 +45,7 @@ class BaseModel:
         pass
 
     @abstractmethod
-    def search(self, query: str) -> List[Document]: 
+    def search(self, query: str) -> List[Tuple[float, str]]: 
         """
             Search for the most relevant set of documents in the corpus, 
             given a specific query.

@@ -11,7 +11,7 @@ class QRels:
         self.dataset = ir_datasets.load(dataset)
         self.model = model
         
-        s = ddb.at(f'{dataset}_QRels')
+        s = ddb.at(f'{model.__class__.__name__}/{dataset}/QRels')
         if s.exists():
             queries = s.read()
             self.results = queries['results']
@@ -29,7 +29,7 @@ class QRels:
         self.qrels = self.rels['qrels']
 
     @abstractmethod
-    def get_query(self, query):
+    def get_query(query):
         pass
 
     def build_qresults(self):
@@ -42,12 +42,11 @@ class QRels:
             for score, doc_id in self.model.search(self.get_query(query)):
                 searchs[str(query_id)][doc_id] = score
             
-            print(f'QUERY: {query_id} - {query.query_id} -- {query.text} !!!!')
+            print(f'QUERY: {query_id} !!!!')
             print(query)
             query_id += 1
 
         return searchs
-
 
     def build_qrels(self):
 
@@ -56,10 +55,11 @@ class QRels:
 
         for qrel in self.dataset.qrels_iter():
             if not qrel.query_id in qrels:
-                qrels[qrel.query_id] = {}
+                qrels[qrel.query_id] = { 'rels': 0 }
             print(qrel.query_id)
             qrels[qrel.query_id][qrel.doc_id] = qrel.relevance
             if self.relevancy_criterion(qrel.relevance):
+                qrels[qrel.query_id]['rels'] += 1
                 REL += 1
             else:
                 IREL += 1
@@ -83,38 +83,51 @@ class QRels:
     def relevancy_criterion(relevance: int):
         pass
 
-    def precision_measurements(self, amount_docs: int, amount_queries: int):
+    def precision_measurements(self, amount_docs: int, amount_queries: int, step_size: int = 1):
+
+        s = ddb.at(f'{self.model.__class__.__name__}/'
+            + f'{self.model.corpus.get_dataset_name}/'
+            + 'k_Rank')
+        
+        if s.exists():
+            return
 
         max = (-1,-1)
         k_rank_F1 = {}
 
-        for k in range(1, amount_docs + 1):
-            RR = RI = 0    
+        for k in range(1, amount_docs + 1, step_size):
+            P = R = 0
 
             for query_id in range(1, amount_queries + 1):
-                count = 0
+                RR = RI = count = 0
                 query_id = str(query_id)
-
                 for doc_id in self.get_results(query_id):
-                    if count > k: break
-
+                    if count >= k: break
                     count += 1
+
                     if doc_id in self.qrels[query_id]:
                         if self.relevancy_criterion(self.qrels[query_id][doc_id]):
                             RR += 1
                         else:
                             RI += 1
+                    else:
+                        RI += 1
+                
+                if RR + RI != 0:
+                    P += RR/(RR + RI)
 
-            P = RR/(RR + RI)
-            R = RR/(self.REL)
+                if self.qrels[query_id]['rels'] != 0:
+                    R += RR/(self.qrels[query_id]['rels'])
 
             if P == 0 or R == 0: continue
-    
+            
+            P /= amount_queries
+            R /= amount_queries
+   
             F1 = 2/(1/P + 1/R) 
     
             if F1 > max[1]: 
                 max = (k,F1)
-            print(f'RR: {RR} RI: {RI}')
             print(f'iter: {k} P: {P} R:{R} F1: {F1}')
             k_rank_F1[str(k)] = {
                 "P": P,
@@ -129,5 +142,4 @@ class QRels:
             "F1": F1
         }
 
-        ddb.at(f'k_rank_F1_{self.model.corpus.get_dataset_name}')\
-            .create(k_rank_F1)
+        s.create(k_rank_F1)
