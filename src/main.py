@@ -23,8 +23,8 @@ corpus = {
 }
 
 # model = VectorModel(corpus['cranfield'])
-# model = BooleanModel(corpus['cranfield'])
-model = FuzzyModel(corpus['cranfield'])
+model = BooleanModel(corpus['cranfield'])
+# model = FuzzyModel(corpus['cranfield'])
 
 app = FastAPI()
 origins = ["*"]

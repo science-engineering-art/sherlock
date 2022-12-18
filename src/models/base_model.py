@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import List
+from typing import List, Tuple
 
 import dictdatabase as ddb
 
@@ -45,7 +45,7 @@ class BaseModel:
         pass
 
     @abstractmethod
-    def search(self, query: str) -> List[Document]: 
+    def search(self, query: str) -> List[Tuple[float, str]]: 
         """
             Search for the most relevant set of documents in the corpus, 
             given a specific query.
