@@ -79,7 +79,7 @@ class VectorModelKMEANS(VectorModel):
             x = results[i]
             
             #Is assigned to each document a score depending on the corresponding cluster for the document
-            x2 = x[0]*1e-6 + 1/query_distances[self.kmeans.labels_[self.doc_postion[x[1]]]]
+            x2 = float(x[0]*1e-6 + 1/query_distances[self.kmeans.labels_[self.doc_postion[x[1]]]])
             results[i] = (x2,x[1])
             
             
