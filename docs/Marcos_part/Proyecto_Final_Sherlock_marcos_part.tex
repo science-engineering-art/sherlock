@@ -169,6 +169,47 @@
 		
 		Para calcular los valores en cada consulta de $\mu_{q,j}$ simplemente computamos las f\'ormulas descritas antes. La correlaci\'on entre t\'erminos, sin embargo, se calcula una sola vez para el total de pares de t\'erminos que aparecen en todos los documentos, y se guarda en el almacenamiento f\'isico de la computadora. Esto se hace para no tener que recalcular todos estos valores m\'as de una vez, ya que constituye un costo alto en tiempo.
 	
+	\section{Agrupamiento}
+	
+	Los algoritmos de agrupamiento, como su nombre lo indica, agrupan un conjunto de documentos en subconjuntos o clústeres. Los grupos formados deben tener un alto grado de asociación entre los documentos de un mismo grupo, es decir, deben ser lo m\'as similares posibles, y un bajo grado entre miembros de diferentes grupos. Es la forma más común de \textit{aprendizaje no supervisado}, es decir no hay ningún experto humano que haya asignado documentos a clases. Es la distribución y composición de los datos lo que determinará la pertenencia al clúster. 
+	
+	Se presenta a continuaci\'on la hip\'otesis en que se basan los algoritmos de agrupamiento, que fue tomada de \cite[Secci\'on 16.1]{B1}.
+	
+	\vspace{1em}
+	\textbf{Hip\'otesis de agrupamiento:}\footnote{Las ideas de esta introducci\'on a la secci\'on fueron tomada de \cite{B6} de los propios autores de este informe.} \textit{Los documentos en el mismo grupo se comportan de manera similar con respecto a la relevancia para las necesidades de información.}
+	
+	\vspace{0.3em}
+	La hipótesis establece que si hay un documento de un grupo que es relevante a una solicitud de búsqueda, entonces es probable que otros documentos del mismo clúster también sean relevantes. 
+	\vspace{1em}
+	
+	\subsection{K-means}
+		En este trabajo se opt\'o por usar uno de los algoritmos de agrupamiento m\'as importantes, conocido como K-means. Este algoritmo se ejecuta sobre un conjunto espacio de documentos representados como vectores dimensionales. El mismo fija inicialmente de forma aleatoria los centroides de los cl\'usteres y en cada iteraci\'on los va moviendo de forma que se disminuya en cada paso la suma de los cuadrados de las distancias de cada documento a su cl\'uster m\'as cercano (RSS).
+		
+		Se define el centroide de un cl\'uster formalmente como 
+		\[
+		\overrightarrow{\mu}(w_k) = \frac{1}{|w|}\sum_{x \in w_k} \overrightarrow{x},
+		\]
+		donde $w_k$ es el cl\'uster y $\overrightarrow{x}$ es un vector que representa a un documento que pertenece a $w$. Se define RSS como 
+		\[
+			RSS = \sum_{i = 1}^K \sum_{\overrightarrow{x} \in w_k} |\overrightarrow{x} - \overrightarrow{\mu}(w_k)|^2,
+		\]
+		donde $K$ es el n\'umero de cl\'usteres.
+	
+	\subsection{Objetivo perseguido}
+	
+	Se decidi\'o usar este algoritmo de agrupamiento para mejorar la recuperaci\'on de documentos en el modelo vectorial. La idea perseguida es que seg\'un la hip\'otesis de agrupamiento se espera que documentos en \'el cl\'uster m\'as cercano al vector de la consulta debe contener con mayor probabilidad documentos similares a la consulta. Entonces reordenamos y reasignamos reasignamos puntuaciones de relevancia a los documentos, de forma que sean m\'as relevantes aquellos que pertenezcan a cl\'usteres m\'as cercanos a la consulta, manteniendo el orden relativo que ten\'ian antes aquellos documentos en el mismo cl\'uster. Adem\'as, podemos presentar al usuario los documentos agrupados en los cl\'usteres, siendo m\'as f\'acil escanear algunos grupos
+	coherentes que muchos documentos individuales. Esto es particularmente \'util
+	si un t\'ermino de b\'usqueda tiene diferentes significados.
+	 
+	\subsection{Implementaci\'on}
+	Para poner en pr\'actica la idea perseguida, se implement\'o un nuevo modelo de recuperaci\'on de la informaci\'on que se sustenta en el modelo vectorial antes explicado. Este modifica el m\'etodo de recuperaci\'on de documentos a una consulta para a\~nadir el criterio por cl\'usteres descrito. Los autores se auxiliaron de la biblioteca de python \emph{sk-learn}.
+
+	 Una de las decisiones de implementaci\'on que se tuvo que tomar fue la elecci\'on de un n\'umero $k$ de cl\'usteres adecuados. Se implement\'o primero el conocido m\'etodo del codo que toma la decisi\'on en funci\'on de la gr\'afica de los valores de RSS para cada elecci\'on de $k$ considerada. Sin embargo este m\'etodo no arroj\'o ninguna luz en el conjunto de datos de \emph{Cranfield} el cual se us\'o para implementar este modelo. Entonces se opt\'o por una decisi\'on en funci\'on de minimizar los RSS, pero penalizando el n\'umero de cl\'usteres usados. La expresi\'on que se utiliz\'o fue la siguiente
+	 \[
+		k = \argmin_{k \in \mathbb{N}} (RSS_k + \lambda * k),
+	 \]
+	 donde $\lambda$ se tomo como $0.08$ multiplicado por la cantidad de documentos del corpus.
+	 
 	\section{Conclusiones}
 	
 	Este trabajo presenta una propuesta para la modelaci\'on del problema de recuperaci\'on de informaci\'on. Se detallaron aspectos generales del modelo vectorial cl\'asico, as\'i como decisiones de dise\~no espec\'ificas de la propia interpretaci\'on del problema.
@@ -180,6 +221,9 @@
 		\bibitem{B4} Documentaci\'on oficial: \emph{https://docs.python.org/3/library/re.html}
 		
 		\bibitem{B5} Y. Ogawa, T. Morita y K. Kobayashi. A fuzzy document retrieval system using the keyword connection matrix and a learning method. Fuzzy Sets and Systems, 39:163-179, 1991.
+		
+		\bibitem{B6} Laura Riera P\'erez y Marcos Tirador del Riego. Aplicaciones del
+		agrupamiento y de la clasificación en la recuperaci\'on	de informaci\'on en la Web.
 	\end{thebibliography}
 	
 \end{document}
