@@ -83,7 +83,7 @@ class QRels:
     def relevancy_criterion(relevance: int):
         pass
 
-    def precision_measurements(self, amount_docs: int, amount_queries: int):
+    def precision_measurements(self, amount_docs: int, amount_queries: int, step_size: int = 1):
 
         s = ddb.at(f'{self.model.__class__.__name__}/'
             + f'{self.model.corpus.get_dataset_name}/'
@@ -95,14 +95,14 @@ class QRels:
         max = (-1,-1)
         k_rank_F1 = {}
 
-        for k in range(1, amount_docs + 1, 10):
+        for k in range(1, amount_docs + 1, step_size):
             P = R = 0
 
             for query_id in range(1, amount_queries + 1):
                 RR = RI = count = 0
                 query_id = str(query_id)
                 for doc_id in self.get_results(query_id):
-                    if count == k: break
+                    if count >= k: break
                     count += 1
 
                     if doc_id in self.qrels[query_id]:
