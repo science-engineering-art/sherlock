@@ -30,7 +30,7 @@ class VectorModelKMEANS(VectorModel):
     def __init__(self, corpus):
         super().__init__(corpus)
     
-        sparse_matrix, _ = self.Getweights()
+        sparse_matrix, _ = self.AssignFields()
            
         self.noClusters = self.get_best_k(sparse_matrix, len(self.docs), 8, 20)
         self.kmeans = self.Getkmeans(self.noClusters, sparse_matrix)
@@ -40,6 +40,7 @@ class VectorModelKMEANS(VectorModel):
             self.clusters[self.kmeans.labels_[i]].append(i)
             
     def Get_Docs_and_Terms(self):
+        '''Compute documents and terms as lists and stores it positions in a dictionary'''
         
         terms = set()
         docs = set()
@@ -72,9 +73,12 @@ class VectorModelKMEANS(VectorModel):
             best_clusters.append((query_distances[i], i))
         best_clusters = sorted(best_clusters, key=lambda x: x[0], reverse=False) 
         
+        #we sort this time based in nearest clusters
         results = sorted(results, key = lambda x : x[0]*1e-6 + 1/query_distances[self.kmeans.labels_[self.doc_postion[x[1]]]], reverse = True)
         for i in range(len(results)):
             x = results[i]
+            
+            #Is assigned to each document a score depending on the corresponding cluster for the document
             x2 = x[0]*1e-6 + 1/query_distances[self.kmeans.labels_[self.doc_postion[x[1]]]]
             results[i] = (x2,x[1])
             
@@ -82,6 +86,7 @@ class VectorModelKMEANS(VectorModel):
         return results
         
     def GetQueryVector(idfs, terms, query):
+        '''Obtains the query in the form of a vector of the same space as the documents'''
         
         query_vector = Dict(Counter([ unidecode(word.lower()) for word in 
             re.findall(r"[\w]+", query) ]))
@@ -102,7 +107,8 @@ class VectorModelKMEANS(VectorModel):
         return query_vector_result
         
         
-    def Getweights(self):
+    def AssignFields(self):
+        '''Restore or save the necesary properties in local storage'''
         
         dataset = self.corpus.dataset.__dict__['_constituents']\
             [0].__dict__['_dataset_id']
@@ -126,6 +132,9 @@ class VectorModelKMEANS(VectorModel):
             return (data['sm'], data['dimension'])
       
     def Arrange_matrix(self):
+        '''calculate the matrix necessary for the kmenas method, i.e. the matrix
+        where each row represents the vector corresponding to a document in the 
+        space of dimension len(terms)'''
         
         sparse_matrix = [[0.0 for _ in range(len(self.terms))] for _ in range(len(self.docs))]
         
@@ -135,6 +144,9 @@ class VectorModelKMEANS(VectorModel):
         return (sparse_matrix, len(self.terms))
     
     def get_best_k(self, sparse_matrix, dimension, pos = -1, max = 20):
+        '''get from local storage or calculate and save the best amount of clusters
+        in dependency of the max amount of clusters we desire to have '''
+        
         dataset = self.corpus.dataset.__dict__['_constituents']\
                 [0].__dict__['_dataset_id']
         json = f'{self.__class__.__name__}/{dataset}/best_k'
@@ -156,6 +168,9 @@ class VectorModelKMEANS(VectorModel):
             return data['bests'][str(pos)]
     
     def calculate_best_k(self, sparse_matrix, dimension, max):
+        '''Iterates from 2 to max to find the best amount of clusters
+        based on the RSS + penality'''
+        
         best_RSS = 1e9
         k = 2
         best_k = 2
