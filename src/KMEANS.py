@@ -20,6 +20,7 @@ from unidecode import unidecode
 import dictdatabase as ddb
 import numpy as np
 import re
+import matplotlib.pyplot as plt
 
 from models.vector_model import VectorModel
 # from symbols import term
@@ -31,7 +32,7 @@ class VectorModelKMEANS(VectorModel):
     
         sparse_matrix, dimension = self.Getweights()
            
-        self.noClusters = self.get_best_k(sparse_matrix, dimension, 100, 100)
+        self.noClusters = self.get_best_k(sparse_matrix, len(self.docs), 8, 20)
         self.kmeans = self.Getkmeans(self.noClusters, sparse_matrix)
         
         self.clusters = [[] for _ in range(self.noClusters)]
@@ -161,13 +162,14 @@ class VectorModelKMEANS(VectorModel):
         best_RSS = 1e9
         k = 2
         best_k = 2
+        lambda_0 = 0.08 * dimension
         
         bests = {}
         while k <= max:
             kmeans = KMeans(n_clusters=k, n_init= 10, init="k-means++")
             kmeans.fit(sparse_matrix)
             RSS = kmeans.inertia_
-            if RSS + 2 * k * dimension < best_RSS + 2 * best_k * dimension :
+            if RSS + lambda_0 * k < best_RSS + lambda_0 * best_k  :
                 best_RSS = RSS
                 best_k = k
             bests[str(k)] = best_k
@@ -181,15 +183,32 @@ class VectorModelKMEANS(VectorModel):
         kmeans = KMeans(n_clusters=k, n_init= 10, init="k-means++").fit(sparse_matrix)
         return kmeans
     
-    
-class KMEANS():
-    def __init__(self, kmeans):
-        self.kmeans = kmeans
+    def ElbowMethod(sparse_matrix, min, max):
+        k = min
+        points = []
         
+        while k <= max:
+            kmeans = KMeans(n_clusters=k, n_init= 10, init="k-means++")
+            kmeans.fit(sparse_matrix)
+            RSS = kmeans.inertia_
+            points.append([k,RSS])
+            k+=1
+                
+        VectorModelKMEANS.plot_results(points)
+    
+    def plot_results(inertials):
+        x, y = zip(*[inertia for inertia in inertials])
+        plt.plot(x, y, 'ro-', markersize=8, lw=2)
+        plt.grid(True)
+        plt.xlabel('Num Clusters')
+        plt.ylabel('Inertia')
+        plt.show()
+    
     
         
 corpus = Corpus('cranfield')
 model = VectorModelKMEANS(corpus)
 model.search('I need to use a good query')
-
+# sparse_matrix, _ = model.Getweights()
+# VectorModelKMEANS.ElbowMethod(sparse_matrix, 100,105)
      
