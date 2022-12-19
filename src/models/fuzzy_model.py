@@ -5,26 +5,10 @@ from models.boolean_model import BooleanModel
 
 class FuzzyModel(BooleanModel):
 
-    # def __init__(self, corpus : Corpus, corpuse_name):
-
-
-    #     self.corpus = corpus
-    #     # self.operators = {"and": "&",
-    #     #                   "or": "|",
-    #     #                   "not": "~"}
-
-    #     self.precalculateMembershipDegree()
-    
-    #     print('done precalculus')                                                   #Debugging
 
     def search(self, query: str):
-        # print('here')                                                 #Debugging
-        # time_1 = time()                                         #Debugging
         processed_query = super().process_query(query)
-        # time_2 = time()                                                             #Debugging
-        # print('process query took: ', time_2 - time_1)                                            #Debugging
         maxtime = 0
-        print(processed_query)                                                      #Debugging           
         recovered = []
         for doc_id in self.docs_dict:
             product = 1.0
@@ -36,23 +20,17 @@ class FuzzyModel(BooleanModel):
                     if term_i[0] == '~':
                         negated = True
                         term_i = term_i[1:]
-                    time_4 = time()                                  #Debugging
+                    time_4 = time()                              
                     membership = self.__get_membership(term_i, doc_id)
-                    time_5 = time()                                     #Debugging
+                    time_5 = time()                                   
                     maxtime = max(maxtime, time_5 - time_4)
                     if negated:
                         membership = 1.0 - membership
                     factor_cc *= membership
                 product *= (1 - factor_cc)
-                # print('time foreach cc took: ', time_5 - time_4)         #Debugging
             sim = 1.0 - product
-            # print(product)                                            #Debugging
             recovered.append((sim, doc_id))
-        # print(f'time __get_membership took \n\n\n\n\n{maxtime}\n\n\n\n\n\n: ')         #Debugging
-        # time_3 = time()                                       #Debugging
-        # print('fuzzy model query took: ', time_3 - time_2)                            #Debugging
 
-        # print('hereeeee')                                     #Debugging
         return [i for i in sorted(recovered, 
                 key=lambda x: x[0], reverse=True)]
 
@@ -66,7 +44,6 @@ class FuzzyModel(BooleanModel):
         
         product = 1.0
         terms = self.docs_dict[doc_id]
-        # print('aqui2')                                        #Debugging
         for term_l in terms:
             correlation = self.__calculateCorrelationFactor(term_i, term_l)
             product*= (1.0 - correlation)
@@ -76,7 +53,6 @@ class FuzzyModel(BooleanModel):
         #memorize the result
         self.membership_degree[(term_i, doc_id)] = membership
 
-        # print('membership', membership)                               #Debugging
 
         return membership
 
@@ -93,9 +69,7 @@ class FuzzyModel(BooleanModel):
         if self.keyword_conex_precalculated == True:
             return 0.0
         
-        # print('corrrelation factor', term_i, term_l)                            #Debugging
-        
-        #If not previously calculated. Calcule it..
+        #If no previously calculated. Calcule it..
         n_i_l = 0
         n_i = 0
         n_l = 0
@@ -111,12 +85,10 @@ class FuzzyModel(BooleanModel):
         c_i_l = float(n_i_l)/(n_i + n_l - n_i_l)
         self.keyword_conex["".join([term_i, ' ',term_l])] = c_i_l #store the calculated result
 
-        # print('c_i_l', c_i_l)                         #Debugging
         return c_i_l
 
     def precalculateConex(self):
         '''Precalculate the correlation between any pair of words in the corpus'''
-        # print('corrrelation factor')                   #Debugging
         
         pair_term_freq = {}
         term_freq = {str : int}
@@ -133,8 +105,6 @@ class FuzzyModel(BooleanModel):
             n_i_j = pair_term_freq[(term_i, term_j)]
             n_i = term_freq[term_i]
             n_j = term_freq[term_j]
-            # if term_i == term_j and term_i == 'remaining':               #Debugging
-            #     print(n_i_j, n_i, n_j)
             self.keyword_conex[("".join([term_i, ' ',term_j]))] = float(n_i_j) / (n_i + n_j - n_i_j)
 
         self.keyword_conex_precalculated = True
@@ -193,8 +163,6 @@ class FuzzyModel(BooleanModel):
                 self.docs_dict[doc_id].add(term)
                 
         self.precalculateConex()
-        
-        print('end preprocessing')              #debugging
         
     def postprocessing(self):
         self.operators = {}
