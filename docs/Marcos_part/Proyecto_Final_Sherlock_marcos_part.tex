@@ -169,6 +169,16 @@
 		
 		Para calcular los valores en cada consulta de $\mu_{q,j}$ simplemente computamos las f\'ormulas descritas antes. La correlaci\'on entre t\'erminos, sin embargo, se calcula una sola vez para el total de pares de t\'erminos que aparecen en todos los documentos, y se guarda en el almacenamiento f\'isico de la computadora. Esto se hace para no tener que recalcular todos estos valores m\'as de una vez, ya que constituye un costo alto en tiempo.
 	
+	\section{Evaluaci\'on de los modelos}
+	
+	\subsection{Modelo Fuzzy}
+	
+	Al ser un modelo que extiende el modelo booleano, aunque resuelve muchas de las dificultades del anterior, este aun acarrea las dificultades del mismo. Una de estas principales dificultades es que el lenguaje de consultas es complejo para inexpertos. Las conjuntos de consultas de prueba tanto de \emph{Cranfield} como de \emph{Vaswani} no est\'an pensadas para aplicarlas sobre un modelo booleano. Esto se puede apreciar del simple hecho de que las mismas constituyen oraciones y no expresiones l\'ogicas.
+	
+	 Sin embargo, si se puede apreciar una ligera mejor\'ia respecto al modelo booleano (en el caso de \emph{Crenfield} se obtiene un valor de la F-medida casi cuatro veces mayor). Este resultado es de esperar ya que este modelo mejora algunas de las dificultades del anterior, como por ejemplo que en este caso la coincidencia de los documentos no tiene que ser exacta, se crea un ranking, se adiciona cierta sem\'antica a los t\'erminos analizando cierta correlaci\'on entre los pares de ellos y adem\'as, de esto \'ultimo se puede inferir que no todos los t\'erminos seguir\'an siendo igual de importantes.
+	 
+	 En el caso del conjunto de datos \emph{cord19} este no pudo usarse en el modelo fuzzy ya que la gran cantidad de documentos y t\'erminos que posee este, es muy grande, lo que hace que calcular la correlaci\'on entre cada par de t\'erminos incurra en un uso de recursos muy elevado. Si dicha correlaci\'on se precalcula, har\'ian falta m\'as de $20 GB$ de RAM seg\'un los c\'alculos hechos (que no se presentan pues son aproximaciones poco formales). Si en cambio se hace en el momento de cada consulta solo para los t\'erminos de la consulta, ejecutar cada consulta tomar\'ia m\'as de $5$ minutos. Adem\'as, el modelo fuzzy no has sido extensamente probado en experimentos con colecciones grandes de documentos\footnote{Se tom\'o de \cite{B2}, p\'agina $38$.}.
+	
 	\section{Agrupamiento}
 	
 	Los algoritmos de agrupamiento, como su nombre lo indica, agrupan un conjunto de documentos en subconjuntos o clústeres. Los grupos formados deben tener un alto grado de asociación entre los documentos de un mismo grupo, es decir, deben ser lo m\'as similares posibles, y un bajo grado entre miembros de diferentes grupos. Es la forma más común de \textit{aprendizaje no supervisado}, es decir no hay ningún experto humano que haya asignado documentos a clases. Es la distribución y composición de los datos lo que determinará la pertenencia al clúster. 
@@ -208,11 +218,21 @@
 	 \[
 		k = \argmin_{k \in \mathbb{N}} (RSS_k + \lambda * k),
 	 \]
-	 donde $\lambda$ se tomo como $0.08$ multiplicado por la cantidad de documentos del corpus.
+	 donde $\lambda$ se tomo como $0.08$ multiplicado por la cantidad de documentos del corpus. Seg\'un esta expresi\'on un buen n\'umero de cl\'usteres (inferior a $10$ porque para valores mucho m\'as grandes el algoritmo tomaba mucho tiempo en ejecutarse) es $k=5$, y este es el utilizado.
+	 
+	 Para determinar la nueva puntuaci\'on de cada documento respecto a una consulta se toma 
+	 \[score_d =  \frac{oldscore_d}{10^6} + \frac{1}{|\overrightarrow{q} - \overrightarrow{\mu_d}|},\]
+	 donde $\overrightarrow{q}$ es el vector consulta y $\overrightarrow{\mu}$ es el centroide al que pertenece el documento $d$. De esta forma siempre obtienen mejor puntuaci\'on los documentos de los cl\'usteres m\'as cercanos a la consulta y se mantiene el orden relativo que ten\'ian los documentos de un mismo cl\'uster seg\'un el modelo vectorial.
+	 
+	 \subsection{Resultados}
+	 
+	 En su aplicaci\'on en el conjunto de datos de \emph{Cranfield}, y su evaluaci\'on, este modelo tuvo resultados muy similares a los del modelo vectorial. Por tanto, una conclusi\'on a la que arribamos es que la aplicaci\'on de K-means en la forma descrita no constituye una mejora del modelo vectorial. Estos resultados son coherentes con la idea intuitiva de que si los documentos recuperados con el nuevo modelo son todos de un mismo cl\'uster, entonces son cercanos entre s\'i, y por tanto cercanos al vector consulta, por lo que deber\'ian ser recuperados tambi\'en en el modelo vectorial cl\'asico.
+	 
+	 Sin embargo, se tienen otras ideas de como aplicar este algoritmo al mismo modelo, sobre la base del mismo c\'odigo, que se seguir\'an probando en busca de mejorar los resultados.
 	 
 	\section{Conclusiones}
 	
-	Este trabajo presenta una propuesta para la modelaci\'on del problema de recuperaci\'on de informaci\'on. Se detallaron aspectos generales del modelo vectorial cl\'asico, as\'i como decisiones de dise\~no espec\'ificas de la propia interpretaci\'on del problema.
+	Este trabajo presenta una propuesta para la modelaci\'on del problema de recuperaci\'on de informaci\'on. Se detallaron aspectos generales del modelo vectorial cl\'asico, as\'i como decisiones de dise\~no espec\'ificas de la propia interpretaci\'on del problema. 
 	
 	\begin{thebibliography}{20}
 		\bibitem{B1} Maning C. D.: \emph{An Introduction To Information Retrieval} (2009).

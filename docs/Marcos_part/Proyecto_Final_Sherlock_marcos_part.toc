@@ -11,8 +11,11 @@
 \contentsline {section}{\numberline {4}Modelo Fuzzy}{2}{}%
 \contentsline {subsection}{\numberline {4.1}Descripci\'on del modelo usado}{3}{}%
 \contentsline {subsection}{\numberline {4.2}Implementaci\'on.}{4}{}%
-\contentsline {section}{\numberline {5}Agrupamiento}{5}{}%
-\contentsline {subsection}{\numberline {5.1}K-means}{5}{}%
-\contentsline {subsection}{\numberline {5.2}Objetivo perseguido}{6}{}%
-\contentsline {subsection}{\numberline {5.3}Implementaci\'on}{6}{}%
-\contentsline {section}{\numberline {6}Conclusiones}{6}{}%
+\contentsline {section}{\numberline {5}Evaluaci\'on de los modelos}{5}{}%
+\contentsline {subsection}{\numberline {5.1}Modelo Fuzzy}{5}{}%
+\contentsline {section}{\numberline {6}Agrupamiento}{5}{}%
+\contentsline {subsection}{\numberline {6.1}K-means}{6}{}%
+\contentsline {subsection}{\numberline {6.2}Objetivo perseguido}{6}{}%
+\contentsline {subsection}{\numberline {6.3}Implementaci\'on}{7}{}%
+\contentsline {subsection}{\numberline {6.4}Resultados}{7}{}%
+\contentsline {section}{\numberline {7}Conclusiones}{8}{}%
