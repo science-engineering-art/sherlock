@@ -25,7 +25,7 @@ corpus = {
 }
 
 # model = VectorModel(corpus['cranfield'])
-model = BooleanModel(corpus['cranfield'])
+# model = BooleanModel(corpus['cranfield'])
 model = VectorModelKMEANS(corpus['cranfield'])
 # model = FuzzyModel(corpus['cranfield'])
 

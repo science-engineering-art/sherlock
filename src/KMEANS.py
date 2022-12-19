@@ -30,7 +30,7 @@ class VectorModelKMEANS(VectorModel):
     def __init__(self, corpus):
         super().__init__(corpus)
     
-        sparse_matrix, dimension = self.Getweights()
+        sparse_matrix, _ = self.Getweights()
            
         self.noClusters = self.get_best_k(sparse_matrix, len(self.docs), 8, 20)
         self.kmeans = self.Getkmeans(self.noClusters, sparse_matrix)
@@ -66,7 +66,6 @@ class VectorModelKMEANS(VectorModel):
         results =  super().search(query)
         query_vector = VectorModelKMEANS.GetQueryVector(self.idfs, self.terms, query)
         
-        print(self.kmeans.predict([query_vector]))
         query_distances = self.kmeans.transform([query_vector])[0]
         best_clusters = []
         for i in range(self.noClusters):
@@ -80,7 +79,6 @@ class VectorModelKMEANS(VectorModel):
             results[i] = (x2,x[1])
             
             
-        # print(query_vector)
         return results
         
     def GetQueryVector(idfs, terms, query):
@@ -94,7 +92,6 @@ class VectorModelKMEANS(VectorModel):
 
         # calculation of the weights of the query vector
         weights = Dict()
-        norm = 0
         for t in query_vector:
             weights[t] = (a + (1-a)*tf[-1, t]) * idfs[t]
 
@@ -176,7 +173,6 @@ class VectorModelKMEANS(VectorModel):
             print('best k: ', best_k)
             k+=1
                 
-        print(best_k)
         return (best_k, bests)
     
     def Getkmeans(self, k, sparse_matrix):
@@ -205,10 +201,3 @@ class VectorModelKMEANS(VectorModel):
         plt.show()
     
     
-        
-corpus = Corpus('cranfield')
-model = VectorModelKMEANS(corpus)
-model.search('I need to use a good query')
-# sparse_matrix, _ = model.Getweights()
-# VectorModelKMEANS.ElbowMethod(sparse_matrix, 100,105)
-     
