@@ -24,7 +24,7 @@ class VectorModel(BaseModel):
         self.weights: Dict = Dict()
         # document vector norms
         self.norms: Dict = Dict()
-        
+
         # calculation of the weights of each term in each document
         self.__calculate_weights()
     

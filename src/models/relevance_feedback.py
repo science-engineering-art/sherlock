@@ -4,7 +4,7 @@ from models.vector_model import VectorModel
 class RelevanceFeedback:
 
     def __init__(self, model: VectorModel, 
-        alpha: int = 1, beta: int =0.75, ganma: int =0.15):
+        alpha: int = 1, beta: int = 0.75, ganma: int = 0.15):
 
         self.model = model
 
@@ -40,6 +40,11 @@ class RelevanceFeedback:
             self.queries[query]['query_vector'] = query_vector
             self.queries[query]['weights'] = weights
             self.queries[query]['norm'] = norm
+
+            for term in self.model.idfs:
+                self.queries[query]['query_vector'][term] = 0
+                self.queries[query]['weights'][term] = 0
+
         elif doc_id in self.queries[query]['doc_rel'] or \
             doc_id in self.queries[query]['doc_nrel']: return
 
@@ -51,7 +56,7 @@ class RelevanceFeedback:
         self.rocchio_algorithm(query)
 
     def rocchio_algorithm(self, query: str):
-        
+
         if len(self.queries[query]['doc_rel']) > 0:
 
             for term in self.queries[query]['weights']:
@@ -66,7 +71,7 @@ class RelevanceFeedback:
                         ]
                     )
                 )
-            
+
         if len(self.queries[query]['doc_nrel']) > 0:
 
             for term in self.queries[query]['weights']:
