@@ -1,3 +1,5 @@
+from sqlite3 import SQLITE_CREATE_TRIGGER
+from unittest import result
 from sklearn.cluster import KMeans
 from models.OurKmeans import OurKmeans
 from models.dict import Dict
@@ -69,8 +71,14 @@ class VectorModelKMEANS(VectorModel):
             x2 = float(x[0]*1e-6 + 1/query_distances[self.kmeans.labels_[self.doc_postion[x[1]]]])
             results[i] = (x2,x[1])
             
-            
-        return results
+    def searchSplitedByClusters(self, query : str):
+        results = self.search(query)
+        
+        results_by_cluster = []
+        for score, doc_id in results:
+            results_by_cluster.append((self.kmeans.labels_[self.doc_postion[doc_id]], score, doc_id))
+        
+        return results_by_cluster
         
     def GetQueryVector(idfs, terms, query):
         '''Obtains the query in the form of a vector of the same space as the documents'''
