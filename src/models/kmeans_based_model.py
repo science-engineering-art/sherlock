@@ -1,4 +1,5 @@
 from sklearn.cluster import KMeans
+from models.OurKmeans import OurKmeans
 from models.dict import Dict
 from models.vector_model import VectorModel
 from collections import Counter
@@ -7,21 +8,32 @@ import dictdatabase as ddb
 import re
 import matplotlib.pyplot as plt
 from models.vector_model import VectorModel
-from sklearn import KMeans
+from sklearn.cluster import KMeans
 
 class VectorModelKMEANS(VectorModel):
     
     def __init__(self, corpus):
         super().__init__(corpus)
-    
-        sparse_matrix, _ = self.AssignFields()
+        print('Done with basee init')
            
-        self.noClusters = self.get_best_k(sparse_matrix, len(self.docs), 10, 10)
+        self.terms, docs, self.doc_postion, self.term_postion = self.Get_Docs_and_Terms()   
+        sparse_matrix, _ = self.Arrange_matrix(docs)
+        print('Done with assign fileds')
+           
+        self.noClusters = self.get_best_k(sparse_matrix, len(self.doc_postion), 10, 10)
+        # sparse_matrix.clear()
+        print('Done with get_best_k')
+        print(".....Creating clusters.......")
         self.kmeans = self.Getkmeans(self.noClusters, sparse_matrix)
+        print(".....Clusters created.......")
         
         self.clusters = [[] for _ in range(self.noClusters)]
-        for i in range(len(self.docs)):
+        for i in self.doc_postion.values():
             self.clusters[self.kmeans.labels_[i]].append(i)
+            
+        print('exiting init')
+        # while True:
+        #     continue  
             
     def Get_Docs_and_Terms(self):
         '''Compute documents and terms as lists and stores it positions in a dictionary'''
@@ -51,7 +63,7 @@ class VectorModelKMEANS(VectorModel):
         results =  super().search(query)
         query_vector = VectorModelKMEANS.GetQueryVector(self.idfs, self.terms, query)
         
-        query_distances = self.kmeans.transform([query_vector])[0]
+        query_distances = self.kmeans.transform([query_vector])
         best_clusters = []
         for i in range(self.noClusters):
             best_clusters.append((query_distances[i], i))
@@ -91,7 +103,7 @@ class VectorModelKMEANS(VectorModel):
         return query_vector_result
         
         
-    def AssignFields(self):
+    def AssignFieldsWithStorage(self):
         '''Restore or save the necesary properties in local storage'''
         
         dataset = self.corpus.dataset.__dict__['_constituents']\
@@ -105,22 +117,22 @@ class VectorModelKMEANS(VectorModel):
                 {'sm' : sm ,
                  'dimension' : dimension,
                  'terms' : self.terms,
-                 'docs' : self.docs,
                  'doc_postion' : self.doc_postion,
                  'term_postion' : self.term_postion}
             )
             return (sm, dimension)
         else:
             data = s.read()
-            self.terms, self.docs, self.doc_postion, self.term_postion = data['terms'],data['docs'],data['doc_postion'],data['term_postion']
+            self.terms,  self.doc_postion, self.term_postion = data['terms'],data['doc_postion'],data['term_postion']
+            print('here')
             return (data['sm'], data['dimension'])
       
-    def Arrange_matrix(self):
+    def Arrange_matrix(self, docs):
         '''calculate the matrix necessary for the kmenas method, i.e. the matrix
         where each row represents the vector corresponding to a document in the 
         space of dimension len(terms)'''
         
-        sparse_matrix = [[0.0 for _ in range(len(self.terms))] for _ in range(len(self.docs))]
+        sparse_matrix = [[0.0 for _ in range(len(self.terms))] for _ in range(len(docs))]
         
         for doc_id, term in self.weights:
             sparse_matrix[self.doc_postion[doc_id]][self.term_postion[term]] = self.weights[doc_id, term]
@@ -175,8 +187,28 @@ class VectorModelKMEANS(VectorModel):
         return (best_k, bests)
     
     def Getkmeans(self, k, sparse_matrix):
-        kmeans = KMeans(n_clusters=k, n_init= 10, init="k-means++").fit(sparse_matrix)
-        return kmeans
+        '''Load from storage the centroids and labels if 
+        kmeans is stored or otherwise calculate it and store it'''
+        
+        dataset = self.corpus.dataset.__dict__['_constituents']\
+                [0].__dict__['_dataset_id']
+        json = f'{self.__class__.__name__}/{dataset}/Kmeans_object'
+        
+        s = ddb.at(json)
+        if not s.exists():
+            kmeans = KMeans(n_clusters=k, n_init= 10, init="k-means++").fit(sparse_matrix)
+            kmeans2 = OurKmeans(kmeans.cluster_centers_, kmeans.labels_)
+            s.create(
+                {
+                    'labels_' : kmeans2.labels_,
+                    'cluster_centers_' : kmeans2.cluster_centers_,
+                }
+            )
+        else:
+            data = s.read()
+            kmeans2 = OurKmeans(data['cluster_centers_'],  data['labels_'])
+    
+        return kmeans2
     
     def ElbowMethod(sparse_matrix, min, max):
         k = min
@@ -198,5 +230,4 @@ class VectorModelKMEANS(VectorModel):
         plt.xlabel('Num Clusters')
         plt.ylabel('Inertia')
         plt.show()
-    
     

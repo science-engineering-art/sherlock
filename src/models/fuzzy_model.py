@@ -125,6 +125,8 @@ class FuzzyModel(BooleanModel):
         for doc_id in self.docs_dict:
             self.docs_dict[doc_id] = set(self.docs_dict[doc_id])
         self.keyword_conex_precalculated = True
+        
+        print('......Precalculations not needed.....')
     
     def secure_storage(self):
         dataset = self.corpus.get_dataset_name
@@ -147,6 +149,8 @@ class FuzzyModel(BooleanModel):
         
     def preprocessing(self):
         
+        print('......Doing precalculations.....')
+        
         self.postprocessing()
         
         self.docs_dict = {}
@@ -159,6 +163,7 @@ class FuzzyModel(BooleanModel):
                 self.docs_dict[doc_id].add(term)
                 
         self.precalculateConex()
+        print('......Done with precalculations.....')
         
     def postprocessing(self):
         self.operators = {}
