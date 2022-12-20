@@ -71,18 +71,18 @@
 	\pagenumbering{gobble}
 	\selectlanguage{spanish} 
 	\begin{abstract}
-		Se abordan los aspectos principales de una posible implementaci\'on del modelo vectorial cl\'asico.
+		A medida que aumenta el poder de cómputo y disminuye el costo de almacenamiento, la cantidad de datos que manejamos día a día crece exponencialmente. Pero sin una forma de recuperar la información y poder consultarla, la información que recopilamos se desperdicia. Con el inmenso crecimiento del internet, se convierte en un reto cada vez mayor el manejo de la información, su recuperaci\'on y la extracci\'on de conocimiento de ella. Por esto, es de especial interes\'es la creaci\'on de algoritmos que ayuden a su manipulaci\'on. En el presente trabajo se implement\'o un sistema de recuperaci\'on de informaci\'on mediante el motor de b\'usqueda "Sherlock". Se utilizaron tres colecciones de textos y se implementaron tres modelos de recuperaci\'on  de informaci\'on: el booleano y el vectorial cl\'asicos, y el fuzzy. Se realiz\'o una evaluaci\'on de los resultados obtenidos en cada uno de los modelos compar\'andolos con los de las colecciones de prueba. Adem\'as se a\~nadieron funcionalidades de retroalimentaci\'on, expansi\'on de consultas y agrupamiento. 
 		
 		\vspace{1em}
-		\keywords{recuperaci\'on de informaci\'on (RI) \textbf{$\cdot$} modelo vectorial}
+		\keywords{recuperaci\'on de informaci\'on (RI) \textbf{$\cdot$} motor de b\'usequeda \textbf{$\cdot$} modelo vectorial \textbf{$\cdot$} modelo booleano \textbf{$\cdot$} modelo fuzzy \textbf{$\cdot$} retroalimentaci\'on de Rocchio \textbf{$\cdot$} agrupamiento}
 	\end{abstract} 
 	
 	\selectlanguage{english} 
 	\begin{abstract}
-		Se abordan los aspectos principales de una posible implementaci\'on del modelo vectorial cl\'asico.
+		As computing power increases and the cost of storage decreases, the amount of day-to-day data we deal with is growing exponentially. However, without a way to retrieve the information and be able to query it, the data we collect most likely goes to waste. With the immense growth of the Internet, managing information, retrieving it, and extracting knowledge from it becomes an ever-increasing challenge. Therefore, it is of special interest the creation of algorithms that help its manipulation. In the present work, an information retrieval system was implemented through the "Sherlock" search engine. Three collections of texts were used and three information retrieval models were implemented: the classic Boolean and Vector models, and the Fuzzy model. An evaluation of the results obtained in each of the models was carried out, comparing them with those of the test collections. In addition, feedback, query expansion, and clustering features were added.
 		
 		\vspace{1em}
-		\enkeywords{recuperaci\'on de informaci\'on (RI) \textbf{$\cdot$} modelo vectorial}
+		\enkeywords{information retrieval (IR) \textbf{$\cdot$} search engine \textbf{$\cdot$} vector model \textbf{$\cdot$} boolean model \textbf{$\cdot$} fuzzy model \textbf{$\cdot$} Rocchio feedback \textbf{$\cdot$} clustering}
 	\end{abstract} 
 	\thispagestyle{empty}
 	
@@ -97,8 +97,19 @@
 	
 	\section{Introducci\'on}
 	
-	En la actualidad, con el inmenso crecimiento del internet, se convierte en un reto cada vez mayor el manejo de la información, su recuperaci\'on y la extracci\'on de conocimiento de ella. Por esto, es de especial interes\'es la creaci\'on de algoritmos que ayuden a su manipulaci\'on. En este informe se expondr\'an algunas ideas importantes seguidas a la hora de implementar un modelo de recuperaci\'on de informaci\'on cl\'asico: el modelo vectorial.
+	Un sistema de informaci\'on es un conjunto de componentes interrelacionados que permiten capturar, procesar, almacenar y distribuir la informaci\'on para apoyar la toma de decisiones y el control en una organizaci\'on. \todo{referenciar conferencia 1}
+	Por otro lado, la recuperación de información se ocupa de la localizaci\'on  de materiales de naturaleza no estructurada en grandes repositorios de datos (generalmente documentos de texto).
+	Se cree que la recuperación de información es la forma dominante de acceso a la información. 
 	
+	Actualmente, cientos de millones de personas utilizan la recuperaci\'on de informaci\'on todos los días cuando usan motores de búsqueda web. El sistema de recuperaci\'on de informaci\'on ayuda a los usuarios a encontrar la información que necesitan, notificando sobre la existencia y ubicación de documentos que pudieran constar de la información requerida.
+	
+	Un modelo de Recuperación de Información selecciona y clasifica el documento que el usuario ha solicitado en forma de consulta. Los documentos y las consultas se representan de manera similar, de modo que la selección y clasificación de documentos se puede formalizar mediante una función de coincidencia que devuelve un valor de similitud para cada documento de la colección. Muchos de los sistemas de Recuperación de Información representan el contenido de los documentos mediante un conjunto de términos, pertenecientes a un vocabulario.
+	
+	Los sistemas de recuperación de información son muy importantes para dar sentido a los datos. La información no es conocimiento sin sistemas de recuperación de información.
+	
+	En el presente trabajo se implement\'o un sistema de recuperaci\'on de informaci\'on mediante el motor de b\'usqueda web "Sherlock". Se utilizaron tres colecciones de textos y se implementaron tres modelos de recuperaci\'on  de informaci\'on: el booleano y el vectorial cl\'asicos, y el fuzzy. Se realiz\'o una evaluaci\'on de los resultados obtenidos en cada uno de los modelos compar\'andolos con los de las colecciones de prueba. Adem\'as se a\~nadieron funcionalidades de retroalimentaci\'on, expansi\'on de consultas y agrupamiento. 
+	
+	\todo{P\'arrafo con estructura del doc ???}
 	\section{Dise\~no del sistema}
 	
 	\subsection{Documentos}
@@ -124,9 +135,34 @@
 	
 	\section{Modelo Booleano}
 	
-	\subsection{Descripci\'on}
+	El modelo booleano cl\'asico expuesto en \cite[Secci\'on 2.2.5]{B2} es un modelo simple de Recuperaci\'on de Informaci\'on basado en teor\'ia de conjuntos y \'algebra booleana. Las consultas son expresiones booleanas que utilizan los operadores l\'ogicos AND, OR y NOT, y s\'olo se recuperan los documentos que tengan coincidencias exactas a las mismas. Es un modelo eficiente y formal, de f\'acil comprensi\'on e implementaci\'on, recomendado para el trabajo con expertos sobre un tema espec\'ifico.
+	
+	\subsection{Descripci\'on del modelo}
+	
+	Para el modelo booleano, los pesos de los t\'erminos indexados son binarios, es decir, $ w_{ij} \in \{0,1\} $.
+	
+	\begin{defn}
+		\cite{B2}
+		Sea $ q $ una consulta (expresi\'on booleana convencional), $ q_{fnd} $ la forma normal disyuntiva de la consulta $ q $. Además, sea $ q_{cc} $ cualquiera de los componentes conjuntivos de $ q_{fnd} $. La similitud de un documento $ d_{j} $ con la consulta $ q $ se define como:
+		
+		\begin{equation}
+			sim(d_{j}, q)=
+			\begin{cases}
+				1, & \text{si}\ \exists  q_{cc} | (q_{cc} \in q_{fnd}) \wedge (\forall k_{i}, g_{i}(d_{j}) = g_{i}(q_{cc})) \\
+				0, & \text{en otro caso}
+			\end{cases}
+		\end{equation}
+		
+		Si $ sim(dj, q) = 1 $, entonces el modelo booleano predice que el documento $ dj $ es relevante a la consulta $ q $ (podría no ser). De lo contrario, la predicción es que el documento no es relevante y este no es devuelto.
+	\end{defn}
 	
 	\subsection{Implementaci\'on}
+
+	La consulta debe ser una expresi\'on booleana convencional, donde se utilizan los s\'imbolos $ \& $, $ | $ y $ \sim $  para representar las operaciones AND, OR y NOT respectivamente. En caso de que no aparezca ning\'un operador se asume que se desea que todas las palabras aparezcan en el documento y, por tanto, se toman con AND entre ellas. 
+	
+	Para procesar la consulta se eliminan de la misma todos los caracteres innecesarios, quedando solo letras, los s\'imbolos de los operadores y par\'entesis (para poder agrupar t\'erminos). Para convertir la consulta de string a expresi\'on y hallar entonces su forma normal disyuntiva se utilizan los m\'etodos sympify y to\_dfn de la biblioteca sympy. Finalmente, se tendr\'a una lista en donde en cada posici\'on se tiene otra lista con todos los t\'erminos de una componente conjuntiva.
+	
+	Para hallar las coincidencias a documentos simplemente se recorre cada componente conjuntiva y se a\~naden a la respuesta los documentos que contengan a todos los t\'erminos de la misma con un score igual a 1.  
 	
 	\section{Modelo Vectorial}
 	
@@ -257,7 +293,7 @@
 	 
 	 Sin embargo, se tienen otras ideas de como aplicar este algoritmo al mismo modelo, sobre la base del mismo c\'odigo, que se seguir\'an probando en busca de mejorar los resultados.
 	 
-	\section{Conclusiones}
+	\section{Conclusiones y trabajo futuro}
 	
 	Este trabajo presenta una propuesta para la modelaci\'on del problema de recuperaci\'on de informaci\'on. Se detallaron aspectos generales del modelo vectorial cl\'asico, as\'i como decisiones de dise\~no espec\'ificas de la propia interpretaci\'on del problema. 
 	
