@@ -21,7 +21,7 @@ const [isThereDocs, setIsThereDocs] = useState(true);
                     author={item.author}
                     text={item.text}
                     score={item.score} 
-                    setDocs={item.setDocs} />
+                    setDocs={props.setItems} />
             );})}
             {isThereDocs && <p> Sorry, no matches for your query. </p>}
         </div> 

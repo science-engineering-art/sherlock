@@ -59,7 +59,7 @@ function DocumentText(props: DocText) {
             '&dataset=' + encodeURIComponent(dataset) + '&query=' + encodeURIComponent(query) + 
             '&doc_id=' + encodeURIComponent(props.doc_id) + '&is_rel=' + encodeURIComponent(is_relevant))
             .then((resp) => {
-                props.setDocs(resp.data)
+                props.setDocs(resp.data.results)
             }).catch((err) => console.log(err.data));
     }
     

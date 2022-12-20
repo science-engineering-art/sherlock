@@ -54,9 +54,14 @@ app.add_middleware(
 
 @app.get("/search")
 async def root(model: str, dataset: str, query: str):
-    result = []    
+    result = []  
 
-    for tuple in models[model][dataset].search(query):
+    if query in feedback[model][dataset].queries:
+        ranking = feedback[model][dataset].search(query)
+    else:
+        ranking = models[model][dataset].search(query)
+
+    for tuple in ranking:
         doc = corpus[dataset].get_doc(tuple[1])
         result.append(DocumentDto(doc_id=doc['doc_id'], 
             title=doc['title'], author=doc['author'], 

@@ -14,6 +14,18 @@ class RelevanceFeedback:
         
         self.queries = {}
 
+    def search(self, query: str):
+        norm = 0
+        for term in self.queries[query]['weights']:
+            norm += self.queries[query]['weights'][term] ** 2
+        self.queries[query]['norm']= norm ** (1/2)
+
+        return self.model.calculate_similarity(
+            self.queries[query]['query_vector'],
+            self.queries[query]['weights'],
+            self.queries[query]['norm']
+        )        
+
     def add_relevance(self, query: str, doc_id: str, is_relevant: bool = True):
 
         if query not in self.queries:
@@ -38,22 +50,10 @@ class RelevanceFeedback:
 
         self.rocchio_algorithm(query)
 
-    def search(self, query: str):
-        norm = 0
-        for term in self.queries[query]['weights']:
-            norm += self.queries[query]['weights'][term] ** 2
-        self.queries[query]['norm']= norm ** (1/2)
-
-        return self.model.calculate_similarity(
-            self.queries[query]['query_vector'],
-            self.queries[query]['weights'],
-            self.queries[query]['norm']
-        )        
-
     def rocchio_algorithm(self, query: str):
-
+        
         if len(self.queries[query]['doc_rel']) > 0:
-            
+
             for term in self.queries[query]['weights']:
 
                 self.queries[query]['weights'][term] = (self.alpha 
@@ -63,11 +63,10 @@ class RelevanceFeedback:
                         [
                             self.model.weights[doc, term]
                             for doc in self.queries[query]['doc_rel']
-                            if self.model.weights[doc, term] != 0
                         ]
                     )
                 )
-
+            
         if len(self.queries[query]['doc_nrel']) > 0:
 
             for term in self.queries[query]['weights']:
@@ -79,9 +78,6 @@ class RelevanceFeedback:
                         [
                             self.model.weights[doc, term]
                             for doc in self.queries[query]['doc_nrel']
-                            if self.model.weights[doc, term] != 0 
                         ]
                     )
                 )   
-
-        print(self.queries[query]['weights'].__dict__)
