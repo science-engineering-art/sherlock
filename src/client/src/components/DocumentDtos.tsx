@@ -3,7 +3,8 @@ import { DocumentDto, DocumentIl } from './DocumentIl';
 import { useState } from 'react';
 
 interface DocumentDtosProps {
-    items: DocumentDto[]
+    items: DocumentDto[], 
+    setItems: Function
 }
 
 export function DocumentDtos(props: DocumentDtosProps) {
@@ -19,7 +20,8 @@ const [isThereDocs, setIsThereDocs] = useState(true);
                     title={item.title}
                     author={item.author}
                     text={item.text}
-                    score={item.score} />
+                    score={item.score} 
+                    setDocs={item.setDocs} />
             );})}
             {isThereDocs && <p> Sorry, no matches for your query. </p>}
         </div> 

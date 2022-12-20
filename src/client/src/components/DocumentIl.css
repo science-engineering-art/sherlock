@@ -37,3 +37,27 @@
     padding: 10px;
     text-align: justify;
 }
+
+.button-rel {
+  width: 50px;
+  height: 36px;
+  border: 1px solid #00B4CC;
+  background: #00B4CC;
+  text-align: center;
+  color: #fff;
+  border-radius: 20px 20px 20px 20px;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.button-nrel {
+  width: 50px;
+  height: 36px;
+  border: 1px solid #00B4CC;
+  background: #00B4CC;
+  text-align: center;
+  color: #fff;
+  border-radius: 20px 20px 20px 20px;
+  cursor: pointer;
+  font-size: 20px;
+}

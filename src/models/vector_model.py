@@ -71,11 +71,11 @@ class VectorModel(BaseModel):
             Search for the most relevant set of documents in the corpus and 
             their ranking, given a specific query.
         """      
-        query_vector, weights, norm = self.__query_preprocessing(query)
+        query_vector, weights, norm = self.query_preprocessing(query)
 
-        return self.__calculate_similarity(query_vector, weights, norm)
+        return self.calculate_similarity(query_vector, weights, norm)
 
-    def __calculate_similarity(self, query_vector: Dict, 
+    def calculate_similarity(self, query_vector: Dict, 
         weights: Dict, norm: int ) -> List[Tuple[float, str]]:
         """
             Calculate the similarity between the query vector and the document 
@@ -95,7 +95,7 @@ class VectorModel(BaseModel):
 
         return [i for i in sorted(sims, key=lambda x: x[0], reverse=True) ]
 
-    def __query_preprocessing(self, query: str) -> Tuple[Dict, Dict, int]:
+    def query_preprocessing(self, query: str) -> Tuple[Dict, Dict, int]:
         """
             Build the query vector, its weight and norm.
         """
