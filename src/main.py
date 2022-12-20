@@ -10,6 +10,7 @@ from models.corpus import Corpus
 from models.fuzzy_model import FuzzyModel
 from models.vector_model import VectorModel
 from models.kmeans_based_model import VectorModelKMEANS
+from models.relevance_feedback import RelevanceFeedback
 
 
 class DocumentDto(BaseModel):
@@ -19,10 +20,29 @@ class DocumentDto(BaseModel):
     text: str
     score: float
 
+
 corpus = {
-    "cranfield": Corpus('cranfield'),
-    "vaswani": Corpus('vaswani'),
-    "cord19/trec-covid/round1": Corpus('cord19/trec-covid/round1')
+    'cranfield': Corpus('cranfield'),
+    'vaswani': Corpus('vaswani'),
+    'cord19': Corpus('cord19/trec-covid/round1')
+}
+
+models = {
+    'vector': {
+        'cranfield': VectorModel(corpus['cranfield']),
+        # 'vaswani': VectorModel(corpus['vaswani']),
+        # 'cord19': VectorModel(corpus['cord19'])
+    },
+    # 'boolean': {
+    #     'cranfield': BooleanModel(corpus['cranfield']),
+    #     'vaswani': BooleanModel(corpus['vaswani']),
+    #     'cord19': BooleanModel(corpus['cord19']) 
+    # },
+    # 'fuzzy': {
+    #     'cranfield': FuzzyModel(corpus['cranfield']),
+    #     'vaswani': FuzzyModel(corpus['vaswani']),
+    #     'cord19': FuzzyModel(corpus['cord19'])
+    # }
 }
 
 # model = VectorModel(corpus['cranfield'])
@@ -41,14 +61,40 @@ app.add_middleware(
 )
 
 @app.get("/search")
-async def root(dataset: str, query: str):
-    result = []    
+async def root(model: str, dataset: str, query: str):
+    result = []  
 
-    for tuple in model.search(query):
-        #if abs(tuple[0]) < 1e-16: break
-        doc = corpus['cranfield'].get_doc(tuple[1])
+    if query in feedback[model][dataset].queries:
+        ranking = feedback[model][dataset].search(query)
+    else:
+        ranking = models[model][dataset].search(query)
+
+    for tuple in ranking:
+        doc = corpus[dataset].get_doc(tuple[1])
         result.append(DocumentDto(doc_id=doc['doc_id'], 
             title=doc['title'], author=doc['author'], 
             text=doc['text'], score=tuple[0]))
     
+    return { "results": result }
+
+feedback = {
+    'vector': {
+        'cranfield': RelevanceFeedback(models['vector']['cranfield'])
+    }
+} 
+
+@app.get('/feedback')
+async def feedbackController(
+    model: str, dataset: str, query: str, doc_id: str, is_rel: bool):
+
+    feedback[model][dataset].add_relevance(query, doc_id, is_rel)
+
+    result = []    
+
+    for tuple in feedback[model][dataset].search(query):
+        doc = corpus[dataset].get_doc(tuple[1])
+        result.append(DocumentDto(doc_id=doc['doc_id'], 
+            title=doc['title'], author=doc['author'], 
+            text=doc['text'], score=tuple[0]))
+
     return { "results": result }

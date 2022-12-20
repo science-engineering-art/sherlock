@@ -9,6 +9,8 @@ import { useState } from 'react';
 function App() {
   const [documentDtos, setDocumentDtos] = useState([] as DocumentDto[]);
   const [showResults, setShowResults] = useState(false);
+  sessionStorage['model'] = 'vector'
+  sessionStorage['dataset'] = 'cranfield'
 
   return (
     <div id='app' className='sm:text-center space-x-10'>
@@ -22,7 +24,7 @@ function App() {
         } }
       />
       {/*\!showResults && <Loading />*/}
-      {showResults && <DocumentDtos items={documentDtos}/>}
+      {showResults && <DocumentDtos items={documentDtos} setItems={setDocumentDtos}/>}
     </div>
   )
 }

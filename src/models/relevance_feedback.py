@@ -1,66 +1,88 @@
+from models.dict import Dict
 from models.vector_model import VectorModel
 
 class RelevanceFeedback:
 
-    def __init__(self, model: VectorModel, query: str, 
-        alpha: int = 1, beta: int =0.75, ganma: int =0.15):
+    def __init__(self, model: VectorModel, 
+        alpha: int = 1, beta: int = 0.75, ganma: int = 0.15):
 
         self.model = model
-        self.query_vector, self.weights, self.norm = \
-            model.__query_preprocessing(query)
-        self.doc_rel  = set()
-        self.doc_nrel = set()
+
         self.alpha = alpha
         self.beta = beta
         self.ganma = ganma
+        
+        self.queries = {}
 
-    def add_relevance(self, doc_id: str, is_relevant: bool = True):
+    def search(self, query: str):
+        norm = 0
+        for term in self.queries[query]['weights']:
+            norm += self.queries[query]['weights'][term] ** 2
+        self.queries[query]['norm']= norm ** (1/2)
+
+        return self.model.calculate_similarity(
+            self.queries[query]['query_vector'],
+            self.queries[query]['weights'],
+            self.queries[query]['norm']
+        )        
+
+    def add_relevance(self, query: str, doc_id: str, is_relevant: bool = True):
+
+        if query not in self.queries:
+            self.queries[query] = {
+                'query_vector': Dict(),
+                'weights': Dict(),
+                'norm': 0,
+                'doc_rel': set(),
+                'doc_nrel': set()
+            }
+            query_vector, weights, norm = self.model.query_preprocessing(query)
+            self.queries[query]['query_vector'] = query_vector
+            self.queries[query]['weights'] = weights
+            self.queries[query]['norm'] = norm
+
+            for term in self.model.idfs:
+                self.queries[query]['query_vector'][term] = 0
+                self.queries[query]['weights'][term] = 0
+
+        elif doc_id in self.queries[query]['doc_rel'] or \
+            doc_id in self.queries[query]['doc_nrel']: return
 
         if is_relevant:
-            self.doc_rel.add(doc_id)
+            self.queries[query]['doc_rel'].add(doc_id)
         else:
-            self.doc_nrel.add(doc_id)
+            self.queries[query]['doc_nrel'].add(doc_id)
 
-        if len(self.doc_rel) > 0 and len(self.doc_nrel) > 0:
+        self.rocchio_algorithm(query)
 
-            for term in self.weights:
-                self.weights[term] = (self.alpha * self.weights[term]
-                    + (self.beta / len(self.doc_rel))
+    def rocchio_algorithm(self, query: str):
+
+        if len(self.queries[query]['doc_rel']) > 0:
+
+            for term in self.queries[query]['weights']:
+
+                self.queries[query]['weights'][term] = (self.alpha 
+                    * self.queries[query]['weights'][term] 
+                    + (self.beta / len(self.queries[query]['doc_rel'])) 
                     * sum(
                         [
-                            self.model.weights[doc][term]
-                            for doc in self.doc_rel
-                            if term in self.model.weights[doc]
-                        ]
-                    )
-                    - (self.ganma / len(self.doc_nrel))
-                    * sum(
-                        [
-                            self.model.weights[doc_id][term]
-                            for doc_id in self.doc_nrel
-                            if term in self.model.weights[doc_id]
+                            self.model.weights[doc, term]
+                            for doc in self.queries[query]['doc_rel']
                         ]
                     )
                 )
 
-        elif len(self.doc_nrel) == 0:
+        if len(self.queries[query]['doc_nrel']) > 0:
 
-            for term in self.query_vector:
-                self.query_vector[term] = self.alpha * self.query_vector[term] - (self.ganma / len(self.doc_nrel)) * sum(
-                    [
-                        self.model.weights[doc][term]
-                        for doc in self.doc_nrel
-                        if term in self.model.weights[doc]
-                    ]
-                )
-
-        elif len(self.doc_rel) == 0:
-            
-            for term in self.query_vector:
-                self.query_vector[term] = self.alpha * self.query_vector[term] + (self.beta / len(self.doc_rel)) * sum(
-                    [
-                        self.model.weights[doc][term]
-                        for doc in self.doc_rel
-                        if term in self.model.weights[doc]
-                    ]
-                )
+            for term in self.queries[query]['weights']:
+               
+                self.queries[query]['weights'][term] = (self.alpha 
+                    * self.queries[query]['weights'][term] 
+                    - (self.ganma / len(self.queries[query]['doc_nrel'])) 
+                    * sum(
+                        [
+                            self.model.weights[doc, term]
+                            for doc in self.queries[query]['doc_nrel']
+                        ]
+                    )
+                )   
