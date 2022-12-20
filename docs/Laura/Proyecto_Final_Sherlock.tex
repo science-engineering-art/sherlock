@@ -20,19 +20,13 @@
 \DeclareMathOperator*{\argmax}{arg\,max}
 \DeclareMathOperator*{\argmin}{arg\,min}
 
-\usepackage[spanish, english]{babel}
+\usepackage[spanish]{babel}
 
 % Keywords command
 \providecommand{\keywords}[1]
 {
 	\small	
 	\textbf{\textit{Palabras clave --- }} #1
-}
-
-\providecommand{\enkeywords}[1]
-{
-	\small	
-	\textbf{\textit{Keywords --- }} #1
 }
 
 \begin{document}
@@ -69,24 +63,15 @@
 	
 	\newpage
 	\pagenumbering{gobble}
-	\selectlanguage{spanish} 
 	\begin{abstract}
 		Se abordan los aspectos principales de una posible implementaci\'on del modelo vectorial cl\'asico.
 		
 		\vspace{1em}
 		\keywords{recuperaci\'on de informaci\'on (RI) \textbf{$\cdot$} modelo vectorial}
 	\end{abstract} 
-	
-	\selectlanguage{english} 
-	\begin{abstract}
-		Se abordan los aspectos principales de una posible implementaci\'on del modelo vectorial cl\'asico.
-		
-		\vspace{1em}
-		\enkeywords{recuperaci\'on de informaci\'on (RI) \textbf{$\cdot$} modelo vectorial}
-	\end{abstract} 
 	\thispagestyle{empty}
 	
-	\selectlanguage{spanish} 
+	
 	\newpage
 	\pagenumbering{gobble}
 	\tableofcontents
@@ -99,7 +84,7 @@
 	
 	En la actualidad, con el inmenso crecimiento del internet, se convierte en un reto cada vez mayor el manejo de la información, su recuperaci\'on y la extracci\'on de conocimiento de ella. Por esto, es de especial interes\'es la creaci\'on de algoritmos que ayuden a su manipulaci\'on. En este informe se expondr\'an algunas ideas importantes seguidas a la hora de implementar un modelo de recuperaci\'on de informaci\'on cl\'asico: el modelo vectorial.
 	
-	\section{Dise\~no del sistema}
+	\section{Modelaci\'on del problema}
 	
 	\subsection{Documentos}
 	Para el desarrollo de este Sistema de Recuperaci\'on de la Informaci\'on modelamos un documento como un objeto que contiene al menos dos propiedades, un \texttt{doc\_id} que identifica de manera \'unica a un documento dentro del conjunto de documentos del dataset en cuesti\'on; y un \texttt{text} que corresponde con el texto de este. Tambi\'en puede tener otras propiedades, por ejemplo: \texttt{title}, \texttt{author}; pero eso depende de la riqueza del dataset que provee el paquete de Python \texttt{ir\_datasets} (ver \cite{B3}).
@@ -122,13 +107,36 @@
 	
 	Cada instancia de un modelo tiene un corpus asociado a este, sobre el cual se hacen las b\'usquedas. Se deja en manos del programador qu\'e preprocesamientos hacer con el corpus, en dependencia del modelo que se est\'e implementando. 
 	
-	\section{Modelo Booleano}
+	\section{Modelo booleano}
 	
-	\subsection{Descripci\'on}
+	El modelo booleano cl\'asico expuesto en \cite[Secci\'on 2.2.5]{B2} es un modelo simple de Recuperaci\'on de Informaci\'on basado en teor\'ia de conjuntos y \'algebra booleana. Las consultas son expresiones booleanas que utilizan los operadores l\'ogicos AND, OR y NOT, y s\'olo se recuperan los documentos que tengan coincidencias exactas a las mismas. Es un modelo eficiente y formal, de f\'acil comprensi\'on e implementaci\'on, recomendado para el trabajo con expertos sobre un tema espec\'ifico.
+
+	\subsection{Descripci\'on del modelo}
 	
+	
+	
+	\begin{defn}
+		\cite{B2}
+		Para el modelo booleano, los pesos de los t\'erminos indexados son binarios, es decir, $ w_{ij} \in \{0,1\} $.
+		Sea $ q $ una consulta (expresi\'on booleana convencional), $ q_{fnd} $ la forma normal disyuntiva de la consulta $ q $. Además, sea $ q_{cc} $ cualquiera de los componentes conjuntivos de $ q_{fnd} $. La similitud de un documento $ d_{j} $ con la consulta $ q $ se define como:
+		
+		\begin{equation}
+			sim(d_{j}, q)=
+			\begin{cases}
+				1, & \text{si}\ \exists  q_{cc} | (q_{cc} \in q_{fnd}) ^ (\forall k_{i}, g_{i}(d_{j}) = g_{i}(q_{cc})) \\
+				0, & \text{en otro caso}
+			\end{cases}
+		\end{equation}
+	
+		Si $ sim(dj, q) = 1 $, entonces el modelo booleano predice que el documento $ dj $ es relevante a la consulta $ q $ (podría no ser). De lo contrario, la predicción es que el documento no es relevante y este no es devuelto.
+	\end{defn}
 	\subsection{Implementaci\'on}
 	
-	\section{Modelo Vectorial}
+	\subsubsection{3.2.1 Querys}
+	
+	\subsubsection{3.2.2 Coincidencias y score}
+	
+	\section{Modelo vectorial}
 	
 	\subsection{Preprocesamiento}
 	
@@ -146,10 +154,10 @@
 		En el modelo booleano se representan las consultas y documentos como conjuntos de palabras. Al determinar que un documento es relevante a una consulta si y solo si tiene una coincidencia exacta de las palabras en la consulta solamente nos acercamos parcialmente al contenido sem\'antico real de los contenidos. Una alternativa ser\'ia definir un conjunto difuso por cada palabra de la consulta y determinar un grado de pertenencia de cada documento a este conjunto, para luego basado en esto, poder asignar un grado de relevancia de cada documento a la consulta dada. Esta es la idea b\'asica detr\'as de distintos modelos de recuperaci\'on de la informaci\'on basados en conjuntos difusos. 
 		
 		Se presentan a continuaci\'on algunos conceptos de la teor\'ia de conjuntos difusos necesario para entender el modelo implementado que se describe en esta secci\'on.
-		\begin{defn} (\cite[Section~2.6.1]{B2}) Un conjunto difuso $A$ de un universo de discurso $U$ est\'a caracterizado por una funci\'on de membres\'ia $\mu_A : U \rightarrow [0,1]$ que asocia a cada elemento $u \in U$ un n\'umero $\mu_A(u)$ en el intervalo $[0,1].$
+		\begin{defn} (\cite[Secci\'on~2.6.1]{B2}) Un conjunto difuso $A$ de un universo de discurso $U$ est\'a caracterizado por una funci\'on de membres\'ia $\mu_A : U \rightarrow [0,1]$ que asocia a cada elemento $u \in U$ un n\'umero $\mu_A(u)$ en el intervalo $[0,1].$
 		\end{defn}
 		Las tres operaciones m\'as usadas de conjuntos difusos se definen a continuaci\'on.
-		\begin{defn} \label{def2} (\cite[Section~2.6.1]{B2})
+		\begin{defn} \label{def2} (\cite[Secci\'on~2.6.1]{B2})
 			Sea $U$ el universo de discurso, $A$ y $B$ dos conjuntos difusos de $U$ y $\overline{A}$ el complemento de $A$ en $U$. Sea adem\'as un elemento $u \in U$. Entonces, 
 			\begin{align*}
 				\mu_{\overline{A}}(u) &= 1- \mu_A(u) \\
@@ -190,76 +198,15 @@
 		
 		Para calcular los valores en cada consulta de $\mu_{q,j}$ simplemente computamos las f\'ormulas descritas antes. La correlaci\'on entre t\'erminos, sin embargo, se calcula una sola vez para el total de pares de t\'erminos que aparecen en todos los documentos, y se guarda en el almacenamiento f\'isico de la computadora. Esto se hace para no tener que recalcular todos estos valores m\'as de una vez, ya que constituye un costo alto en tiempo.
 	
-	\section{Evaluaci\'on de los modelos}
-	
-	\subsection{Modelo Booleano}
-	
-	\subsection{Modelo Vectorial}
-	
-	\subsection{Modelo Fuzzy}
-	
-	Al ser un modelo que extiende el modelo booleano, aunque resuelve muchas de las dificultades del anterior, este aun acarrea las dificultades del mismo. Una de estas principales dificultades es que el lenguaje de consultas es complejo para inexpertos. Las conjuntos de consultas de prueba tanto de \emph{Cranfield} como de \emph{Vaswani} no est\'an pensadas para aplicarlas sobre un modelo booleano. Esto se puede apreciar del simple hecho de que las mismas constituyen oraciones y no expresiones l\'ogicas.
-	
-	 Sin embargo, si se puede apreciar una ligera mejor\'ia respecto al modelo booleano (en el caso de \emph{Crenfield} se obtiene un valor de la F-medida casi cuatro veces mayor). Este resultado es de esperar ya que este modelo mejora algunas de las dificultades del anterior, como por ejemplo que en este caso la coincidencia de los documentos no tiene que ser exacta, se crea un ranking, se adiciona cierta sem\'antica a los t\'erminos analizando cierta correlaci\'on entre los pares de ellos y adem\'as, de esto \'ultimo se puede inferir que no todos los t\'erminos seguir\'an siendo igual de importantes.
-	 
-	 En el caso del conjunto de datos \emph{cord19} este no pudo usarse en el modelo fuzzy ya que la gran cantidad de documentos y t\'erminos que posee este, es muy grande, lo que hace que calcular la correlaci\'on entre cada par de t\'erminos incurra en un uso de recursos muy elevado. Si dicha correlaci\'on se precalcula, har\'ian falta m\'as de $20 GB$ de RAM seg\'un los c\'alculos hechos (que no se presentan pues son aproximaciones poco formales). Si en cambio se hace en el momento de cada consulta solo para los t\'erminos de la consulta, ejecutar cada consulta tomar\'ia m\'as de $5$ minutos. Adem\'as, el modelo fuzzy no has sido extensamente probado en experimentos con colecciones grandes de documentos\footnote{Se tom\'o de \cite{B2}, p\'agina $38$.}.
-	
 	\section{Retroalimentaci\'on}
+	
+	\section{Evaluaci\'on}
 	
 	\section{Agrupamiento}
 	
-	Los algoritmos de agrupamiento, como su nombre lo indica, agrupan un conjunto de documentos en subconjuntos o clústeres. Los grupos formados deben tener un alto grado de asociación entre los documentos de un mismo grupo, es decir, deben ser lo m\'as similares posibles, y un bajo grado entre miembros de diferentes grupos. Es la forma más común de \textit{aprendizaje no supervisado}, es decir no hay ningún experto humano que haya asignado documentos a clases. Es la distribución y composición de los datos lo que determinará la pertenencia al clúster. 
-	
-	Se presenta a continuaci\'on la hip\'otesis en que se basan los algoritmos de agrupamiento, que fue tomada de \cite[Secci\'on 16.1]{B1}.
-	
-	\vspace{1em}
-	\textbf{Hip\'otesis de agrupamiento:}\footnote{Las ideas de esta introducci\'on a la secci\'on fueron tomada de \cite{B6} de los propios autores de este informe.} \textit{Los documentos en el mismo grupo se comportan de manera similar con respecto a la relevancia para las necesidades de información.}
-	
-	\vspace{0.3em}
-	La hipótesis establece que si hay un documento de un grupo que es relevante a una solicitud de búsqueda, entonces es probable que otros documentos del mismo clúster también sean relevantes. 
-	\vspace{1em}
-	
-	\subsection{K-means}
-		En este trabajo se opt\'o por usar uno de los algoritmos de agrupamiento m\'as importantes, conocido como K-means. Este algoritmo se ejecuta sobre un conjunto espacio de documentos representados como vectores dimensionales. El mismo fija inicialmente de forma aleatoria los centroides de los cl\'usteres y en cada iteraci\'on los va moviendo de forma que se disminuya en cada paso la suma de los cuadrados de las distancias de cada documento a su cl\'uster m\'as cercano (RSS).
-		
-		Se define el centroide de un cl\'uster formalmente como 
-		\[
-		\overrightarrow{\mu}(w_k) = \frac{1}{|w|}\sum_{x \in w_k} \overrightarrow{x},
-		\]
-		donde $w_k$ es el cl\'uster y $\overrightarrow{x}$ es un vector que representa a un documento que pertenece a $w$. Se define RSS como 
-		\[
-			RSS = \sum_{i = 1}^K \sum_{\overrightarrow{x} \in w_k} |\overrightarrow{x} - \overrightarrow{\mu}(w_k)|^2,
-		\]
-		donde $K$ es el n\'umero de cl\'usteres.
-	
-	\subsection{Objetivo perseguido}
-	
-	Se decidi\'o usar este algoritmo de agrupamiento para mejorar la recuperaci\'on de documentos en el modelo vectorial. La idea perseguida es que seg\'un la hip\'otesis de agrupamiento se espera que documentos en \'el cl\'uster m\'as cercano al vector de la consulta debe contener con mayor probabilidad documentos similares a la consulta. Entonces reordenamos y reasignamos reasignamos puntuaciones de relevancia a los documentos, de forma que sean m\'as relevantes aquellos que pertenezcan a cl\'usteres m\'as cercanos a la consulta, manteniendo el orden relativo que ten\'ian antes aquellos documentos en el mismo cl\'uster. Adem\'as, podemos presentar al usuario los documentos agrupados en los cl\'usteres, siendo m\'as f\'acil escanear algunos grupos
-	coherentes que muchos documentos individuales. Esto es particularmente \'util
-	si un t\'ermino de b\'usqueda tiene diferentes significados.
-	 
-	\subsection{Implementaci\'on}
-	Para poner en pr\'actica la idea perseguida, se implement\'o un nuevo modelo de recuperaci\'on de la informaci\'on que se sustenta en el modelo vectorial antes explicado. Este modifica el m\'etodo de recuperaci\'on de documentos a una consulta para a\~nadir el criterio por cl\'usteres descrito. Los autores se auxiliaron de la biblioteca de python \emph{sk-learn}.
-
-	 Una de las decisiones de implementaci\'on que se tuvo que tomar fue la elecci\'on de un n\'umero $k$ de cl\'usteres adecuados. Se implement\'o primero el conocido m\'etodo del codo que toma la decisi\'on en funci\'on de la gr\'afica de los valores de RSS para cada elecci\'on de $k$ considerada. Sin embargo este m\'etodo no arroj\'o ninguna luz en el conjunto de datos de \emph{Cranfield} el cual se us\'o para implementar este modelo. Entonces se opt\'o por una decisi\'on en funci\'on de minimizar los RSS, pero penalizando el n\'umero de cl\'usteres usados. La expresi\'on que se utiliz\'o fue la siguiente
-	 \[
-		k = \argmin_{k \in \mathbb{N}} (RSS_k + \lambda * k),
-	 \]
-	 donde $\lambda$ se tomo como $0.08$ multiplicado por la cantidad de documentos del corpus. Seg\'un esta expresi\'on un buen n\'umero de cl\'usteres (inferior a $10$ porque para valores mucho m\'as grandes el algoritmo tomaba mucho tiempo en ejecutarse) es $k=5$, y este es el utilizado.
-	 
-	 Para determinar la nueva puntuaci\'on de cada documento respecto a una consulta se toma 
-	 \[score_d =  \frac{oldscore_d}{10^6} + \frac{1}{|\overrightarrow{q} - \overrightarrow{\mu_d}|},\]
-	 donde $\overrightarrow{q}$ es el vector consulta y $\overrightarrow{\mu}$ es el centroide al que pertenece el documento $d$. De esta forma siempre obtienen mejor puntuaci\'on los documentos de los cl\'usteres m\'as cercanos a la consulta y se mantiene el orden relativo que ten\'ian los documentos de un mismo cl\'uster seg\'un el modelo vectorial.
-	 
-	 \subsection{Resultados}
-	 
-	 En su aplicaci\'on en el conjunto de datos de \emph{Cranfield}, y su evaluaci\'on, este modelo tuvo resultados muy similares a los del modelo vectorial. Por tanto, una conclusi\'on a la que arribamos es que la aplicaci\'on de K-means en la forma descrita no constituye una mejora del modelo vectorial. Estos resultados son coherentes con la idea intuitiva de que si los documentos recuperados con el nuevo modelo son todos de un mismo cl\'uster, entonces son cercanos entre s\'i, y por tanto cercanos al vector consulta, por lo que deber\'ian ser recuperados tambi\'en en el modelo vectorial cl\'asico.
-	 
-	 Sin embargo, se tienen otras ideas de como aplicar este algoritmo al mismo modelo, sobre la base del mismo c\'odigo, que se seguir\'an probando en busca de mejorar los resultados.
-	 
 	\section{Conclusiones}
 	
-	Este trabajo presenta una propuesta para la modelaci\'on del problema de recuperaci\'on de informaci\'on. Se detallaron aspectos generales del modelo vectorial cl\'asico, as\'i como decisiones de dise\~no espec\'ificas de la propia interpretaci\'on del problema. 
+	Este trabajo presenta una propuesta para la modelaci\'on del problema de recuperaci\'on de informaci\'on. Se detallaron aspectos generales del modelo vectorial cl\'asico, as\'i como decisiones de dise\~no espec\'ificas de la propia interpretaci\'on del problema.
 	
 	\begin{thebibliography}{20}
 		\bibitem{B1} Maning C. D.: \emph{An Introduction To Information Retrieval} (2009).
@@ -268,9 +215,6 @@
 		\bibitem{B4} Documentaci\'on oficial: \emph{https://docs.python.org/3/library/re.html}
 		
 		\bibitem{B5} Y. Ogawa, T. Morita y K. Kobayashi. A fuzzy document retrieval system using the keyword connection matrix and a learning method. Fuzzy Sets and Systems, 39:163-179, 1991.
-		
-		\bibitem{B6} Laura Riera P\'erez y Marcos Tirador del Riego. Aplicaciones del
-		agrupamiento y de la clasificación en la recuperaci\'on	de informaci\'on en la Web.
 	\end{thebibliography}
 	
 \end{document}
