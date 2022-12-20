@@ -47,7 +47,7 @@ models = {
 
 # model = VectorModel(corpus['cranfield'])
 # model = BooleanModel(corpus['cranfield'])
-model = VectorModelKMEANS(corpus['cranfield'])
+model = VectorModelKMEANS(corpus['vaswani'])
 # model = FuzzyModel(corpus['cranfield'])
 
 app = FastAPI()

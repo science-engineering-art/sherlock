@@ -17,4 +17,8 @@ class OurKmeans():
                 sum += (vector[i] - cent[i])**2
             trans.append(sqrt(sum))
         return trans
-                
+    
+    def ClassifyAllDocuments(self, doc_position):
+        self.clusters = [[] for _ in range(len(self.cluster_centers_))]
+        for i in doc_position.values():
+            self.clusters[self.labels_[i]].append(i)

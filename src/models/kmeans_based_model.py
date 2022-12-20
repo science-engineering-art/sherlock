@@ -14,26 +14,18 @@ class VectorModelKMEANS(VectorModel):
     
     def __init__(self, corpus):
         super().__init__(corpus)
-        print('Done with basee init')
            
         self.terms, docs, self.doc_postion, self.term_postion = self.Get_Docs_and_Terms()   
         sparse_matrix, _ = self.Arrange_matrix(docs)
-        print('Done with assign fileds')
+        print('Done preparing matrix')
            
         self.noClusters = self.get_best_k(sparse_matrix, len(self.doc_postion), 10, 10)
-        # sparse_matrix.clear()
-        print('Done with get_best_k')
+        print('Done obatining the bst k value')
+        
         print(".....Creating clusters.......")
         self.kmeans = self.Getkmeans(self.noClusters, sparse_matrix)
         print(".....Clusters created.......")
         
-        self.clusters = [[] for _ in range(self.noClusters)]
-        for i in self.doc_postion.values():
-            self.clusters[self.kmeans.labels_[i]].append(i)
-            
-        print('exiting init')
-        # while True:
-        #     continue  
             
     def Get_Docs_and_Terms(self):
         '''Compute documents and terms as lists and stores it positions in a dictionary'''
@@ -57,7 +49,6 @@ class VectorModelKMEANS(VectorModel):
             doc_postion[docs[i]] = i
     
         return (terms, docs, doc_postion, term_postion)
-    
     
     def search(self, query: str):
         results =  super().search(query)
@@ -101,7 +92,6 @@ class VectorModelKMEANS(VectorModel):
             query_vector_result.append(weights[term])
             
         return query_vector_result
-        
         
     def AssignFieldsWithStorage(self):
         '''Restore or save the necesary properties in local storage'''
