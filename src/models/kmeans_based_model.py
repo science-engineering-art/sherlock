@@ -1,29 +1,13 @@
-from multiprocessing.pool import IMapUnorderedIterator
-from pydoc import doc
-from unittest import result
-from xml.etree.ElementInclude import DEFAULT_MAX_INCLUSION_DEPTH
-from matplotlib.font_manager import weight_dict
-from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import KMeans, cluster_optics_dbscan
-from sklearn.metrics import silhouette_score
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from traitlets import FuzzyEnum
+from sklearn.cluster import KMeans
 from models.dict import Dict
-from models.boolean_model import BooleanModel
-from models.corpus import Corpus
-from models.fuzzy_model import FuzzyModel
 from models.vector_model import VectorModel
 from collections import Counter
 from unidecode import unidecode
 import dictdatabase as ddb
-import numpy as np
 import re
 import matplotlib.pyplot as plt
-
 from models.vector_model import VectorModel
-# from symbols import term
+from sklearn import KMeans
 
 class VectorModelKMEANS(VectorModel):
     
@@ -32,7 +16,7 @@ class VectorModelKMEANS(VectorModel):
     
         sparse_matrix, _ = self.AssignFields()
            
-        self.noClusters = self.get_best_k(sparse_matrix, len(self.docs), 8, 20)
+        self.noClusters = self.get_best_k(sparse_matrix, len(self.docs), 10, 10)
         self.kmeans = self.Getkmeans(self.noClusters, sparse_matrix)
         
         self.clusters = [[] for _ in range(self.noClusters)]

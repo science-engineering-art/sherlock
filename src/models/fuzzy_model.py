@@ -8,8 +8,8 @@ class FuzzyModel(BooleanModel):
 
     def search(self, query: str):
         processed_query = super().process_query(query)
-        maxtime = 0
         recovered = []
+        
         for doc_id in self.docs_dict:
             product = 1.0
             for cc in processed_query:      #foreach conjuntive component
@@ -20,10 +20,7 @@ class FuzzyModel(BooleanModel):
                     if term_i[0] == '~':
                         negated = True
                         term_i = term_i[1:]
-                    time_4 = time()                              
                     membership = self.__get_membership(term_i, doc_id)
-                    time_5 = time()                                   
-                    maxtime = max(maxtime, time_5 - time_4)
                     if negated:
                         membership = 1.0 - membership
                     factor_cc *= membership
@@ -52,7 +49,6 @@ class FuzzyModel(BooleanModel):
 
         #memorize the result
         self.membership_degree[(term_i, doc_id)] = membership
-
 
         return membership
 
