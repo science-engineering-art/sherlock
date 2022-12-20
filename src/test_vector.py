@@ -10,7 +10,7 @@ cranfield_QRels.precision_measurements(amount_docs=1400, amount_queries=225)
 vaswani_Corpus = Corpus('vaswani')
 vaswani_Vector = VectorModel(vaswani_Corpus)
 vaswani_QRels = VaswaniQRels(vaswani_Vector)
-vaswani_QRels.precision_measurements(amount_docs=11000, amount_queries=93)
+vaswani_QRels.precision_measurements(amount_docs=11000, amount_queries=93, step_size=2)
 
 cord19_Corpus = Corpus('cord19/trec-covid/round1')
 cord19_Vector = VectorModel(cord19_Corpus)

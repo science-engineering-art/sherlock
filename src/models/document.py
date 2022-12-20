@@ -1,9 +1,7 @@
 import re
 from collections import Counter
 from typing import List
-
 from unidecode import unidecode
-
 from models.dict import Dict
 
 
@@ -19,7 +17,7 @@ class Document:
 
     def tokenizer(self, text) -> List[str]:
         return [ unidecode(word.lower()) for word in 
-            re.findall(r"[\w']+", text) ]
+            re.findall(r"[\w]+", text) ]
     
     def __getitem__(self, key):
         return self.dict[key]
