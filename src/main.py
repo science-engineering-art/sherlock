@@ -64,7 +64,10 @@ async def root(model: str, dataset: str, query: str, pag: int = 1):
     result = []  
     pag -= 1
 
-    if model in feedback and query in feedback[model][dataset].queries:
+    print(models[model])
+
+    if model in feedback and dataset in feedback[model] \
+        and query in feedback[model][dataset].queries:
         ranking = feedback[model][dataset].search(query)
     else:
         if type(models[model][dataset]) == str:
