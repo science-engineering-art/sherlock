@@ -13,8 +13,7 @@ export type QueryBarProps = {
 
 function QueryBar(props: QueryBarProps) {
 
-  const [query, setQuery] = useState('');
-  sessionStorage['query'] = query;
+  const [query, setQuery] = useState(sessionStorage['query']);
 
   return (
       <div className="container">
@@ -32,6 +31,7 @@ function QueryBar(props: QueryBarProps) {
             type="submit"
             className="searchButton"
             onClick={async () => {
+              sessionStorage[ 'query'] = query
               await axios.get('http://localhost:8000/search?' +
                 'model='+encodeURIComponent(sessionStorage['model'])+
                 '&dataset=' + encodeURIComponent(sessionStorage['dataset']) +

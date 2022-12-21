@@ -54,6 +54,8 @@ export default function BasicTabs() {
 
   const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setChecked(event.target.checked);
+    console.log('holaaaaaaaaa')
+    sessionStorage['model'] = 'clustering';
   };
 
   return (
@@ -62,7 +64,7 @@ export default function BasicTabs() {
         <Tabs value={value} onChange={handleChange} aria-label="basic tabs example" centered>
           <Tab label="Model" {...a11yProps(0)} />
           <Tab label="Corpus" {...a11yProps(1)} />
-          <Tab label="Clustering" {...a11yProps(2)} />
+          {/* <Tab label="Clustering" {...a11yProps(2)} /> */}
         </Tabs>
       </Box>
       <TabPanel value={value} index={0}>
@@ -75,6 +77,7 @@ export default function BasicTabs() {
             >
               <FormControlLabel value="Boolean" control={<Radio />} label="Boolean" />
               <FormControlLabel value="Vector" control={<Radio />} label="Vector" />
+              <FormControlLabel value="Clustering" control={<Radio />} label="Clustering" />
               <FormControlLabel value="Fuzzy" control={<Radio />} label="Fuzzy" />
             </RadioGroup>
         </FormControl>
@@ -93,14 +96,14 @@ export default function BasicTabs() {
             </RadioGroup>
         </FormControl>
       </TabPanel>
-      <TabPanel value={value} index={2}>
+      {/* <TabPanel value={value} index={2}>
         Show clustered results
         <Switch
           checked={checked}
           onChange={handleSwitchChange}
           inputProps={{ 'aria-label': 'controlled' }}
         />
-      </TabPanel>
+      </TabPanel> */}
     </Box>
   );
 }
