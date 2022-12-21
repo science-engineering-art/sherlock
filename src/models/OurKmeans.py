@@ -14,8 +14,8 @@ class OurKmeans():
         for cent in self.cluster_centers_:
             sum = 0
             for i in range(len(vector)):
-                sum += (vector[i] - cent[i])**2
-            trans.append(sqrt(sum))
+                sum += (vector[i] - cent[i])*(vector[i] - cent[i])
+            trans.append(sqrt(sum).real)
         return trans
     
     def ClassifyAllDocuments(self, doc_position):

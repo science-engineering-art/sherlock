@@ -56,27 +56,32 @@ class VectorModelKMEANS(VectorModel):
         results =  super().search(query)
         query_vector = VectorModelKMEANS.GetQueryVector(self.idfs, self.terms, query)
         
-        query_distances = self.kmeans.transform([query_vector])
+        query_distances = self.kmeans.transform(query_vector)
         best_clusters = []
         for i in range(self.noClusters):
             best_clusters.append((query_distances[i], i))
         best_clusters = sorted(best_clusters, key=lambda x: x[0], reverse=False) 
         
+        min_distance = max(best_clusters[0][0] - 1, 1)
+        mx_score = results[0][0]
+        
         #we sort this time based in nearest clusters
-        results = sorted(results, key = lambda x : x[0]*1e-6 + 1/query_distances[self.kmeans.labels_[self.doc_postion[x[1]]]], reverse = True)
+        results = sorted(results, key = lambda x :   (mx_score * min_distance + x[0]*1e-1)/query_distances[self.kmeans.labels_[self.doc_postion[x[1]]]], reverse = True)
         for i in range(len(results)):
             x = results[i]
             
             #Is assigned to each document a score depending on the corresponding cluster for the document
-            x2 = float(x[0]*1e-6 + 1/query_distances[self.kmeans.labels_[self.doc_postion[x[1]]]])
+            x2 = float((mx_score * min_distance + x[0]*1e-1)/query_distances[self.kmeans.labels_[self.doc_postion[x[1]]]])
             results[i] = (x2,x[1])
+            
+        return results
             
     def searchSplitedByClusters(self, query : str):
         results = self.search(query)
         
-        results_by_cluster = []
+        results_by_cluster = [[] for _ in range(self.noClusters)]
         for score, doc_id in results:
-            results_by_cluster.append((self.kmeans.labels_[self.doc_postion[doc_id]], score, doc_id))
+            results_by_cluster[self.kmeans.labels_[self.doc_postion[doc_id]]].append((self.kmeans.labels_[self.doc_postion[doc_id]], score, doc_id))
         
         return results_by_cluster
         
