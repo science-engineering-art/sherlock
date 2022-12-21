@@ -22,25 +22,7 @@ class BooleanModel(BaseModel):
                 self.doc_terms[doc_id][f'kw_{term}'] = 1
 
     def secure_storage(self):
-        dataset = self.corpus.get_dataset_name
-        json = f'{self.__class__.__name__}/{dataset}/preprocessing'
-        s = ddb.at(json)
-        
-        if not s.exists():
-            s.create({
-                "doc_terms" : {}
-            })
-
-            with ddb.at(json, key="doc_terms").session() as (session, doc_terms):
-            
-                for doc_id in self.doc_terms:                    
-                    if not doc_id in doc_terms:
-                        doc_terms[doc_id] = {}
-
-                    for term in self.doc_terms[doc_id]:
-                        doc_terms[doc_id][term] = 1
-
-                session.write()
+        pass
 
     def secure_loading(self):
         dataset = self.corpus.get_dataset_name
@@ -69,7 +51,7 @@ class BooleanModel(BaseModel):
                     for doc in self.corpus.dataset.docs_iter() ]
         result = sorted(result, key=lambda x: x[0], reverse=True)
         
-        return result
+        return result[1:100]
 
 
     def process_query(self, query: str):
@@ -99,14 +81,7 @@ class BooleanModel(BaseModel):
         # and add '&' between words with no operand between them
         i = 0
         while i != len(query):
-            if query[i] in self.operators.keys():
-                query[i] = self.operators[query[i]]
-                if query[i].startswith("~") and not (query[i - 1].endswith("&") or query[i - 1].endswith("|")):
-                    query[i - 1] += "&" + query[i]
-                    query.__delitem__(i)
-                i += 1
-            elif i != len(query) - 1 and query[i] not in special_symbols and \
-                    query[i + 1] not in self.operators.keys() and query[i + 1] not in special_symbols \
+            if i != len(query) - 1 and query[i] not in special_symbols and query[i + 1] not in special_symbols \
                     and not (query[i + 1].startswith("|") or query[i + 1].startswith("&")):
                 query[i] += "&" + query[i + 1]
                 query.__delitem__(i + 1)
@@ -136,6 +111,7 @@ class BooleanModel(BaseModel):
         # split each cc by '&' to get each term in it
         for i in range(0, len(query_dnf)):
             query_dnf[i] = query_dnf[i].split(" & ")
+
 
         return query_dnf
     

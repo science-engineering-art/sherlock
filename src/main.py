@@ -29,25 +29,27 @@ corpus = {
 
 models = {
     'vector': {
-        'cranfield': VectorModel(corpus['cranfield']),
-        # 'vaswani': VectorModel(corpus['vaswani']),
-        # 'cord19': VectorModel(corpus['cord19'])
+        'cranfield': 'VectorModel(corpus[\'cranfield\'])',
+        'vaswani': 'VectorModel(corpus[\'vaswani\'])',
+        'cord19': 'VectorModel(corpus[\'cord19\'])'
     },
     'boolean': {
-        # 'cranfield': BooleanModel(corpus['cranfield']),
-        # 'vaswani': BooleanModel(corpus['vaswani']),
-        # 'cord19': BooleanModel(corpus['cord19']) 
+        'cranfield': 'BooleanModel(corpus[\'cranfield\'])',
+        'vaswani': 'BooleanModel(corpus[\'vaswani\'])',
+        'cord19': 'BooleanModel(corpus[\'cord19\'])' 
     },
     'fuzzy': {
-        # 'cranfield': FuzzyModel(corpus['cranfield']),
-        # 'vaswani': FuzzyModel(corpus['vaswani']),
-        # 'cord19': FuzzyModel(corpus['cord19'])
+        'cranfield': 'FuzzyModel(corpus[\'cranfield\'])',
+        'vaswani': 'FuzzyModel(corpus[\'vaswani\'])',
+        # 'cord19': 'FuzzyModel(corpus['cord19'])'
     }
 }
 
+# execute
+
 # model = VectorModel(corpus['cranfield'])
 # model = BooleanModel(corpus['cranfield'])
-model = VectorModelKMEANS(corpus['vaswani'])
+# model = VectorModelKMEANS(corpus['vaswani'])
 # model = FuzzyModel(corpus['cranfield'])
 
 app = FastAPI()
@@ -67,7 +69,9 @@ async def root(model: str, dataset: str, query: str):
     if model in feedback and query in feedback[model][dataset].queries:
         ranking = feedback[model][dataset].search(query)
     else:
-        ranking = models[model][dataset].search(query)
+        if type(models[model][dataset]) == str:
+            models[model][dataset] = eval(models[model][dataset]).search(query)
+        ranking = models[model][dataset]
 
     for tuple in ranking:
         doc = corpus[dataset].get_doc(tuple[1])
@@ -79,7 +83,7 @@ async def root(model: str, dataset: str, query: str):
 
 feedback = {
     'vector': {
-        'cranfield': RelevanceFeedback(models['vector']['cranfield'])
+        'cranfield': RelevanceFeedback(eval(models['vector']['cranfield']))
     }
 } 
 
