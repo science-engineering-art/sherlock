@@ -44,7 +44,7 @@ models = {
         # 'cord19': 'FuzzyModel(corpus['cord19'])'
     },
     'clustering' : {
-        'cranfield': 'VectorModelKMEANS(\'cranfield\')'
+        'cranfield': 'VectorModelKMEANS(corpus[\'cranfield\'])'
     }
 }
 
