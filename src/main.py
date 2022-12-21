@@ -64,7 +64,7 @@ app.add_middleware(
 async def root(model: str, dataset: str, query: str):
     result = []  
 
-    if query in feedback[model][dataset].queries:
+    if model in feedback and query in feedback[model][dataset].queries:
         ranking = feedback[model][dataset].search(query)
     else:
         ranking = models[model][dataset].search(query)

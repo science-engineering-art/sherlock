@@ -6,9 +6,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
 import './QueryBar.css'
-import BasicTabs from "./TabsModal";
 import ConfirmationDialog from "./DialogContents";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({

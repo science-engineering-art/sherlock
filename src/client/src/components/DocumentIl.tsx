@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Children, useState } from 'react';
+import { useState } from 'react';
 import '../styles/globals.css';
 import './DocumentIl.css'
 
@@ -68,9 +68,13 @@ function DocumentText(props: DocText) {
             onClick={(e)=>e.stopPropagation()}
         >
             <p> {props.text} </p>
-            <strong> Do you consider the document to be relevant? </strong>
-            <button className='button-rel' onClick={async () => feedback(true)}>Yes</button> 
-            <button className='button-nrel' onClick={async () => feedback(false)}>No</button>
+
+            {sessionStorage['model'] === 'vector' && 
+            <div>
+                <strong> Do you consider the document to be relevant? </strong>
+                <button className='button-rel' onClick={async () => feedback(true)}>Yes</button> 
+                <button className='button-nrel' onClick={async () => feedback(false)}>No</button>
+            </div>}
         </div>
     );
 }
