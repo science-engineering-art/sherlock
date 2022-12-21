@@ -1,3 +1,4 @@
+from turtle import mode
 from numpy import *
 import math
 import matplotlib.pyplot as plt
@@ -46,10 +47,11 @@ def plot_eval_meassures(data, path, plot_color):
         
         ax.plot(x, y, color=plot_color[i])
 
-    if sys.platform.startswith('win'):
-        fig.savefig(path[0] + "\PR_plot.png")
-    elif sys.platform.startswith('linux'):
-        fig.savefig(path[0] + "/PR_plot.png")
+    for i in range(0,len(data)):
+        if sys.platform.startswith('win'):
+            fig.savefig(path[i] + "\PR_plot.png")
+        elif sys.platform.startswith('linux'):
+            fig.savefig(path[i] + "/PR_plot.png")
 
 path = os.getcwd()
 
@@ -77,7 +79,10 @@ for model in models:
                 with open(temp + "\k_Rank.json") as json_file:
                     data = json.load(json_file)
                     data_list.append(data)    
+    
     plot_eval_meassures(data_list, path_list, [corpus[0][1], corpus[1][1], corpus[2][1]])        
+
+    print(path_list)
 
 # path1 = path + f'/ddb_storage/VectorModel/{corpus[0][0]}'
 
