@@ -97,7 +97,7 @@
 	
 	\section{Introducci\'on}
 	
-	Un sistema de informaci\'on es un conjunto de componentes interrelacionados que permiten capturar, procesar, almacenar y distribuir la informaci\'on para apoyar la toma de decisiones y el control en una organizaci\'on. \todo{referenciar conferencia 1}
+	Un sistema de informaci\'on es ``un conjunto de componentes interrelacionados que permiten capturar, procesar, almacenar y distribuir la informaci\'on para apoyar la toma de decisiones y el control en una organizaci\'on".\footnote{C. Fleitas y M. S\'anchez, Conferencia 1 de Sistemas de la Recuperaci\'on de la Informaci\'on, Curso 2022, p. 12} \todo{chequear si les cuadra}
 	Por otro lado, la recuperación de información se ocupa de la localizaci\'on  de materiales de naturaleza no estructurada en grandes repositorios de datos (generalmente documentos de texto).
 	Se cree que la recuperación de información es la forma dominante de acceso a la información. 
 	
@@ -107,13 +107,13 @@
 	
 	Los sistemas de recuperación de información son muy importantes para dar sentido a los datos. La información no es conocimiento sin sistemas de recuperación de información.
 	
-	En el presente trabajo se implement\'o un sistema de recuperaci\'on de informaci\'on mediante el motor de b\'usqueda web "Sherlock". Se utilizaron tres colecciones de textos y se implementaron tres modelos de recuperaci\'on  de informaci\'on: el booleano y el vectorial cl\'asicos, y el fuzzy. Se realiz\'o una evaluaci\'on de los resultados obtenidos en cada uno de los modelos compar\'andolos con los de las colecciones de prueba. Adem\'as se a\~nadieron funcionalidades de retroalimentaci\'on, expansi\'on de consultas y agrupamiento. 
+	En el presente trabajo se implement\'o un sistema de recuperaci\'on de informaci\'on mediante el motor de b\'usqueda web "Sherlock". Se utilizaron tres colecciones de textos y se implementaron tres modelos de recuperaci\'on  de informaci\'on: el booleano y el vectorial cl\'asicos, y el modelo difuso o fuzzy. Se realiz\'o una evaluaci\'on de los resultados obtenidos en cada uno de los modelos compar\'andolos con los de las colecciones de prueba. Adem\'as se a\~nadieron funcionalidades de retroalimentaci\'on, expansi\'on de consultas y agrupamiento. 
 	
 	\todo{P\'arrafo con estructura del doc ???}
 	\section{Dise\~no del sistema}
 	
 	\subsection{Documentos}
-	Para el desarrollo de este Sistema de Recuperaci\'on de la Informaci\'on modelamos un documento como un objeto que contiene al menos dos propiedades, un \texttt{doc\_id} que identifica de manera \'unica a un documento dentro del conjunto de documentos del dataset en cuesti\'on; y un \texttt{text} que corresponde con el texto de este. Tambi\'en puede tener otras propiedades, por ejemplo: \texttt{title}, \texttt{author}; pero eso depende de la riqueza del dataset que provee el paquete de Python \texttt{ir\_datasets} (ver \cite{B3}).
+	Para el desarrollo de este Sistema de Recuperaci\'on de la Informaci\'on se model\'o un documento como un objeto que contiene al menos dos propiedades, un \texttt{doc\_id} que identifica de manera \'unica a un documento dentro del conjunto de documentos del dataset en cuesti\'on; y un \texttt{text} que corresponde con el texto de este. Tambi\'en puede tener otras propiedades, por ejemplo: \texttt{title}, \texttt{author}; pero eso depende de la riqueza del dataset que provee el paquete de Python \texttt{ir\_datasets} (ver \cite{B3}).
 	
 	Como el texto de un documento es inc\'omodo de manipular por venir en forma de \texttt{string}, este se toqueniza y convierte en una lista de t\'erminos indexados normalizados. Esto se logra haciendo uso del paquete de Python \texttt{re} (referirse a \cite{B4}) que proporciona una colecci\'on de funciones que facilitan el trabajo con expresiones regulares. 
 	
