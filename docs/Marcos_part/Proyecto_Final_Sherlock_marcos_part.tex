@@ -118,7 +118,7 @@
 	Como el texto de un documento es inc\'omodo de manipular por venir en forma de \texttt{string}, este se toqueniza y convierte en una lista de t\'erminos indexados normalizados. Esto se logra haciendo uso del paquete de Python \texttt{re} (referirse a \cite{B4}) que proporciona una colecci\'on de funciones que facilitan el trabajo con expresiones regulares. 
 	
 	\subsection{Normalizaci\'on de un t\'ermino}
-	
+	\todo{muchas de estas cosas ya no se hacen asi}
 	Es importante destacar algunas asunciones que se tuvieron en cuenta en el proceso de toquenizaci\'on. No se considera relevante la diferenciación entre una letra may\'uscula y una min\'uscula, ya que, en la mayoría de los casos, el significado sem\'antico que expresan es el mismo. Para reducir algunos errores ortográficos, y que esto no perjudique la recuperaci\'on de un documento importante, se considera que las tildes no diferencian una palabra de otra. Se conoce que esto \'ultimo no es cierto en el español, pero por el momento se est\'a trabajando con textos en ingl\'es.
 	
 	Resumiendo, se trata de llevar todos los t\'erminos a cadenas de caracteres que contienen letras min\'usculas o n\'umeros.
@@ -179,9 +179,9 @@
 	
 	\section{Modelo Fuzzy}
 	
-		En el modelo booleano se representan las consultas y documentos como conjuntos de palabras. Al determinar que un documento es relevante a una consulta si y solo si tiene una coincidencia exacta de las palabras en la consulta solamente nos acercamos parcialmente al contenido sem\'antico real de los contenidos. Una alternativa ser\'ia definir un conjunto difuso por cada palabra de la consulta y determinar un grado de pertenencia de cada documento a este conjunto, para luego basado en esto, poder asignar un grado de relevancia de cada documento a la consulta dada. Esta es la idea b\'asica detr\'as de distintos modelos de recuperaci\'on de la informaci\'on basados en conjuntos difusos. 
+		En el modelo booleano se representan las consultas y documentos como conjuntos de palabras. Al determinar que un documento es relevante a una consulta si y solo si tiene una coincidencia exacta de las palabras en la consulta, solamente nos acercamos parcialmente al contenido sem\'antico real de la informaci\'on. Una alternativa ser\'ia definir un conjunto difuso por cada palabra de la consulta y determinar un grado de pertenencia de cada documento a este conjunto, para luego basado en esto, poder asignar un grado de relevancia de cada documento a la consulta dada. Esta es la idea b\'asica detr\'as de distintos modelos de recuperaci\'on de la informaci\'on basados en conjuntos difusos. 
 		
-		Se presentan a continuaci\'on algunos conceptos de la teor\'ia de conjuntos difusos necesario para entender el modelo implementado que se describe en esta secci\'on.
+		Se presentan a continuaci\'on algunos conceptos de la teor\'ia de conjuntos difusos necesarios para entender el modelo implementado que se describe en esta secci\'on.
 		\begin{defn} (\cite[Section~2.6.1]{B2}) Un conjunto difuso $A$ de un universo de discurso $U$ est\'a caracterizado por una funci\'on de membres\'ia $\mu_A : U \rightarrow [0,1]$ que asocia a cada elemento $u \in U$ un n\'umero $\mu_A(u)$ en el intervalo $[0,1].$
 		\end{defn}
 		Las tres operaciones m\'as usadas de conjuntos difusos se definen a continuaci\'on.
@@ -204,27 +204,27 @@
 	\]
 	donde $n_i$ (respectivamente $n_j$) es el n\'umero de documentos que contienen a $k_i$ (respectivamente $k_j$) y $n_{i,j}$ es el n\'umero de documentos que los contienen a ambos. Esta correlaci\'on se basa en la idea de que si dos palabras est\'an relacionadas aparecer\'an, con frecuencia, juntas en un mismo documento.
 	
-	Definimos entonces la pertenencia de un documento $d_j$ al conjunto difuso relativo al t\'ermino $k_i$ como
+	Se define entonces la pertenencia de un documento $d_j$ al conjunto difuso relativo al t\'ermino $k_i$ como
 	\[ \mu_{i,j} =  1 - \prod_{k_l \in d_j} (1 - c_{i,l}).\]
-	Como podemos ver, luego de expandir el producto de la derecha, esta f\'ormula lo que computa es cierta suma algebraica de la correlaci\'on entre $k_l$ y todos los t\'erminos del documento $d_j$. Se observa que esta expresi\'on no es exactamente la suma directa de los $c_{i,l}$ para cada $k_l$, sino que es una suma suavizada. La expresi\'on resultante de expandir es similar a un principio de inclusi\'on exclusi\'on. Esto da la idea de que la relaci\'on entre $d_j$ y $k_i$ no es la suma de las correlaciones entre cada $k_l \in d_j$ y  $k_i$, sino que tiene en cuenta la relaci\'on conjunta con $k_i$ de los subconjuntos de t\'erminos de $d_j$, ya que puede que varios $k_l$ diferentes est\'en muy relacionados entre s\'i, y a $k_i$, y su aporte a la suma este siendo sobre valorado. 
+	Como se puede ver, luego de expandir el producto de la derecha, esta f\'ormula lo que computa es cierta suma algebraica de la correlaci\'on entre $k_l$ y todos los t\'erminos del documento $d_j$. Se observa que esta expresi\'on no es exactamente la suma directa de los $c_{i,l}$ para cada $k_l$, sino que es una suma suavizada. La expresi\'on resultante de expandir es similar a un principio de inclusi\'on exclusi\'on. Esto da la idea de que la relaci\'on entre $d_j$ y $k_i$ no es la suma de las correlaciones entre cada $k_l \in d_j$ y  $k_i$, sino que tiene en cuenta la relaci\'on conjunta con $k_i$ de los subconjuntos de t\'erminos de $d_j$, ya que puede que varios $k_l$ diferentes est\'en muy relacionados entre s\'i, y relacionados con  $k_i$, y su aporte a la suma este siendo sobrevalorado. 
 	
-	Aun con lo expuesto antes, cuando un t\'ermino  $k_l \in d_j$ est\'a muy relacionado con $k_i$ (es decir $c_{i,l} \approx 1$), entonces $\mu_{i,j} \approx 1$, lo cual dice que $d_j$ tiene un grado de pertenencia alto al conjunto difuso de $k_i$. Lo opuesto sucede cuando todos los t\'erminos $k_l \in d_j$ est\'an vagamente relacionados con $k_i$, en cuyo caso $c_{i,l} \approx 0$. Por tanto se mantiene el objetivo de la relaci\'on, aun cuando la suma usada no es la usual.
+	Aun no us\'andose la suma directa, se sigue cumpliendo que cuando un t\'ermino  $k_l \in d_j$ est\'a muy relacionado con $k_i$ (es decir $c_{i,l} \approx 1$), entonces $\mu_{i,j} \approx 1$, lo cual dice que $d_j$ tiene un grado de pertenencia alto al conjunto difuso de $k_i$. Lo opuesto sucede cuando todos los t\'erminos $k_l \in d_j$ est\'an vagamente relacionados con $k_i$, en cuyo caso $c_{i,l} \approx 0$. Por tanto se mantiene el objetivo de la relaci\'on, aun cuando la suma usada no es la usual.
 	
-	Las consultas del usuario en este modelo vienen dadas de la misma forma que en el modelo booleano. Estamos hablando de una expresi\'on l\'ogica que se convierte luego a forma normal disyuntiva. Supongamos entonces que una consulta $q$ se descompone en las $n$ componentes conjuntivas $cc_1, cc_2 , \dots, cc_n$. Sea $\mu_{cc_t,j}$ el grado de pertenencia del documento $d_j$ al conjunto de documentos relevantes para la forma normal disyuntiva $c_t$. Este se calcula como sigue
+	Las consultas del usuario en este modelo vienen dadas de la misma forma que en el modelo booleano. Estamos hablando de una expresi\'on l\'ogica que se convierte luego a forma normal disyuntiva. Sup\'ongase entonces que una consulta $q$ se descompone en las $n$ componentes conjuntivas $cc_1, cc_2 , \dots, cc_n$. Sea $\mu_{cc_t,j}$ el grado de pertenencia del documento $d_j$ al conjunto de documentos relevantes para la forma normal disyuntiva $cc_t$. Este se calcula como sigue
 	\[
 	\mu_{cc_t,j} = \prod_{k_i \in cc_t} \mu'_{i,j}, 
 	\]
-	donde $\mu'_{i,j} = 1 - \mu_{i,j}$ si $k_i$ aparece negado en $cc_t$ y $\mu'_{i,j} =  \mu_{i,j}$ en otro caso. Entonces si denotamos $\mu_{q,j}$ como el grado de pertenencia del documento $d_j$ al conjunto de documentos relevantes a la consulta $q$, este se podr\'ia calcular como
+	donde $\mu'_{i,j} = 1 - \mu_{i,j}$ si $k_i$ aparece negado en $cc_t$ y $\mu'_{i,j} =  \mu_{i,j}$ en otro caso. Entonces si se denota $\mu_{q,j}$ como el grado de pertenencia del documento $d_j$ al conjunto de documentos relevantes a la consulta $q$, este se podr\'ia calcular como
 	\[
 	\mu_{q,j} = 1 - \prod_{t=1}^n (1 - \mu_{cc_t,j}).
 	\]
 	
-	Seg\'un la Definici\'on~\ref{def2}, el valor $\mu_{cc_t,j}$ (el grado de pertenencia a una conjunto difuso conjuntivo) y $\mu_{q,j}$ (el grado de pertenencia a un conjunto difuso disyuntivo) deber\'ian ser calculados tomando el m\'inimo y el m\'aximo de las variables que intervienen respectivamente. Sin embargo se opta en este caso por usar producto y suma algebraica, respectivamente, para suavizar los resultados.
+	Seg\'un la Definici\'on~\ref{def2}, el valor $\mu_{cc_t,j}$ (el grado de pertenencia a una conjunto difuso conjuntivo) y $\mu_{q,j}$ (el grado de pertenencia a un conjunto difuso disyuntivo) deber\'ian ser calculados tomando el m\'inimo y el m\'aximo de las variables que intervienen respectivamente. Sin embargo, se opta en este caso por usar producto y suma algebraica, respectivamente, para suavizar los resultados.
 	
 	\subsection{Implementaci\'on.}
 		Para implementar el modelo descrito los autores del presente se basaron en el procesamiento de los documentos y consultas que se expusieron en el modelo booleano, ya que estas adoptan la misma forma. Se modifica entonces el m\'etodo que computa el resultado de una consulta, asignando en esta ocasi\'on una puntuaci\'on a cada documento  $d_j$ respecto a la consulta $q$, correspondiente a $\mu_{q,j}$. Los documentos ser\'an recuperados estableciendo un orden seg\'un este valor.
 		
-		Para calcular los valores en cada consulta de $\mu_{q,j}$ simplemente computamos las f\'ormulas descritas antes. La correlaci\'on entre t\'erminos, sin embargo, se calcula una sola vez para el total de pares de t\'erminos que aparecen en todos los documentos, y se guarda en el almacenamiento f\'isico de la computadora. Esto se hace para no tener que recalcular todos estos valores m\'as de una vez, ya que constituye un costo alto en tiempo.
+		Para calcular los valores en cada consulta de $\mu_{q,j}$ simplemente se computan las f\'ormulas descritas antes. La correlaci\'on entre t\'erminos, sin embargo, se calcula una sola vez para el total de pares de t\'erminos que aparecen en todos los documentos, y se guarda en el almacenamiento f\'isico de la computadora. Esto se hace para no tener que recalcular todos estos valores m\'as de una vez, ya que constituye un costo alto en tiempo.
 	
 	\section{Evaluaci\'on de los modelos}
 	
@@ -234,22 +234,22 @@
 	
 	\subsection{Modelo Fuzzy}
 	
-	Al ser un modelo que extiende el modelo booleano, aunque resuelve muchas de las dificultades del anterior, este aun acarrea las dificultades del mismo. Una de estas principales dificultades es que el lenguaje de consultas es complejo para inexpertos. Las conjuntos de consultas de prueba tanto de \emph{Cranfield} como de \emph{Vaswani} no est\'an pensadas para aplicarlas sobre un modelo booleano. Esto se puede apreciar del simple hecho de que las mismas constituyen oraciones y no expresiones l\'ogicas.
+	Al ser un modelo que extiende al modelo booleano, aunque resuelve muchas de las dificultades del anterior, este aun acarrea otras de sus deficiencias. Una de estas principales dificultades es que el lenguaje de consultas es complejo para inexpertos. Las conjuntos de consultas de prueba tanto de \emph{Cranfield} como de \emph{Vaswani} no est\'an pensadas para aplicarlas sobre un modelo booleano. Esto se puede apreciar del simple hecho de que las mismas constituyen oraciones y no expresiones l\'ogicas.
 	
 	 Sin embargo, si se puede apreciar una ligera mejor\'ia respecto al modelo booleano (en el caso de \emph{Crenfield} se obtiene un valor de la F-medida casi cuatro veces mayor). Este resultado es de esperar ya que este modelo mejora algunas de las dificultades del anterior, como por ejemplo que en este caso la coincidencia de los documentos no tiene que ser exacta, se crea un ranking, se adiciona cierta sem\'antica a los t\'erminos analizando cierta correlaci\'on entre los pares de ellos y adem\'as, de esto \'ultimo se puede inferir que no todos los t\'erminos seguir\'an siendo igual de importantes.
 	 
-	 En el caso del conjunto de datos \emph{cord19} este no pudo usarse en el modelo fuzzy ya que la gran cantidad de documentos y t\'erminos que posee este, es muy grande, lo que hace que calcular la correlaci\'on entre cada par de t\'erminos incurra en un uso de recursos muy elevado. Si dicha correlaci\'on se precalcula, har\'ian falta m\'as de $20 GB$ de RAM seg\'un los c\'alculos hechos (que no se presentan pues son aproximaciones poco formales). Si en cambio se hace en el momento de cada consulta solo para los t\'erminos de la consulta, ejecutar cada consulta tomar\'ia m\'as de $5$ minutos. Adem\'as, el modelo fuzzy no has sido extensamente probado en experimentos con colecciones grandes de documentos\footnote{Se tom\'o de \cite{B2}, p\'agina $38$.}.
+	 En el caso del conjunto de datos \emph{cord19} este no pudo usarse en el modelo fuzzy ya que la gran cantidad de documentos y t\'erminos que posee este es muy grande, lo que hace que calcular la correlaci\'on entre cada par de t\'erminos incurra en un uso de recursos muy elevado. Si dicha correlaci\'on se precalcula, har\'ian falta m\'as de $20 GB$ de RAM seg\'un los c\'alculos hechos (que no se presentan pues son aproximaciones poco formales). Si en cambio se hace en el momento de cada consulta solo para los t\'erminos de la consulta, ejecutar cada consulta tomar\'ia m\'as de $5$ minutos. Adem\'as, el modelo fuzzy no has sido extensamente probado en experimentos con colecciones grandes de documentos\footnote{Esta idea se tom\'o de \cite{B2}, p\'agina $38$.}.
 	
 	\section{Retroalimentaci\'on}
 	
 	\section{Agrupamiento}
 	
-	Los algoritmos de agrupamiento, como su nombre lo indica, agrupan un conjunto de documentos en subconjuntos o clústeres. Los grupos formados deben tener un alto grado de asociación entre los documentos de un mismo grupo, es decir, deben ser lo m\'as similares posibles, y un bajo grado entre miembros de diferentes grupos. Es la forma más común de \textit{aprendizaje no supervisado}, es decir no hay ningún experto humano que haya asignado documentos a clases. Es la distribución y composición de los datos lo que determinará la pertenencia al clúster. 
+	Los algoritmos de agrupamiento, como su nombre lo indica, agrupan un conjunto de documentos en subconjuntos o clústeres. Los grupos formados deben tener un alto grado de asociación entre los documentos de un mismo grupo, es decir, deben ser lo m\'as similares posibles, y un bajo grado entre miembros de diferentes grupos. Es la forma más común de \textit{aprendizaje no supervisado}, es decir no hay ningún experto humano que haya asignado documentos a clases. Es la distribución y composición de los datos lo que determinará la pertenencia al clúster.\footnote{Las ideas de esta introducci\'on a la secci\'on fueron tomada de \cite{B6} de los propios autores de este informe.}
 	
 	Se presenta a continuaci\'on la hip\'otesis en que se basan los algoritmos de agrupamiento, que fue tomada de \cite[Secci\'on 16.1]{B1}.
 	
 	\vspace{1em}
-	\textbf{Hip\'otesis de agrupamiento:}\footnote{Las ideas de esta introducci\'on a la secci\'on fueron tomada de \cite{B6} de los propios autores de este informe.} \textit{Los documentos en el mismo grupo se comportan de manera similar con respecto a la relevancia para las necesidades de información.}
+	\textbf{Hip\'otesis de agrupamiento:} \textit{Los documentos en el mismo grupo se comportan de manera similar con respecto a la relevancia para las necesidades de información.}
 	
 	\vspace{0.3em}
 	La hipótesis establece que si hay un documento de un grupo que es relevante a una solicitud de búsqueda, entonces es probable que otros documentos del mismo clúster también sean relevantes. 
@@ -270,7 +270,7 @@
 	
 	\subsection{Objetivo perseguido}
 	
-	Se decidi\'o usar este algoritmo de agrupamiento para mejorar la recuperaci\'on de documentos en el modelo vectorial. La idea perseguida es que seg\'un la hip\'otesis de agrupamiento se espera que documentos en \'el cl\'uster m\'as cercano al vector de la consulta debe contener con mayor probabilidad documentos similares a la consulta. Entonces reordenamos y reasignamos reasignamos puntuaciones de relevancia a los documentos, de forma que sean m\'as relevantes aquellos que pertenezcan a cl\'usteres m\'as cercanos a la consulta, manteniendo el orden relativo que ten\'ian antes aquellos documentos en el mismo cl\'uster. Adem\'as, podemos presentar al usuario los documentos agrupados en los cl\'usteres, siendo m\'as f\'acil escanear algunos grupos
+	Se decidi\'o usar este algoritmo de agrupamiento para mejorar la recuperaci\'on de documentos en el modelo vectorial. La idea perseguida es que seg\'un la hip\'otesis de agrupamiento se espera que documentos en \'el cl\'uster m\'as cercano al vector de la consulta debe contener con mayor probabilidad documentos similares a la consulta. Entonces reordenamos y reasignamos puntuaciones de relevancia a los documentos, de forma que sean m\'as relevantes aquellos que pertenezcan a cl\'usteres m\'as cercanos a la consulta, manteniendo el orden relativo que ten\'ian antes aquellos documentos en el mismo cl\'uster. Adem\'as, podemos presentar al usuario los documentos agrupados en los cl\'usteres, siendo m\'as f\'acil escanear algunos grupos
 	coherentes que muchos documentos individuales. Esto es particularmente \'util
 	si un t\'ermino de b\'usqueda tiene diferentes significados.
 	 
@@ -284,12 +284,14 @@
 	 donde $\lambda$ se tomo como $0.08$ multiplicado por la cantidad de documentos del corpus. Seg\'un esta expresi\'on un buen n\'umero de cl\'usteres (inferior a $10$ porque para valores mucho m\'as grandes el algoritmo tomaba mucho tiempo en ejecutarse) es $k=5$, y este es el utilizado.
 	 
 	 Para determinar la nueva puntuaci\'on de cada documento respecto a una consulta se toma 
-	 \[score_d =  \frac{oldscore_d}{10^6} + \frac{1}{|\overrightarrow{q} - \overrightarrow{\mu_d}|},\]
-	 donde $\overrightarrow{q}$ es el vector consulta y $\overrightarrow{\mu}$ es el centroide al que pertenece el documento $d$. De esta forma siempre obtienen mejor puntuaci\'on los documentos de los cl\'usteres m\'as cercanos a la consulta y se mantiene el orden relativo que ten\'ian los documentos de un mismo cl\'uster seg\'un el modelo vectorial.
+	 \[score_d =  \frac{min\_distance - 1 + oldscore}{|\overrightarrow{q} - \overrightarrow{\mu_d}|},\]
+	 donde $\overrightarrow{q}$ es el vector consulta, $\overrightarrow{\mu}$ es el centroide al que pertenece el documento $d$ y
+	 \[ min\_distance = \min_{d}(|\overrightarrow{q} - \overrightarrow{\mu_d}|).\]
+	 De esta forma siempre obtienen mejor puntuaci\'on los documentos de los cl\'usteres m\'as cercanos a la consulta y se mantiene el orden relativo que ten\'ian los documentos de un mismo cl\'uster seg\'un el modelo vectorial.
 	 
 	 \subsection{Resultados}
 	 
-	 En su aplicaci\'on en el conjunto de datos de \emph{Cranfield}, y su evaluaci\'on, este modelo tuvo resultados muy similares a los del modelo vectorial. Por tanto, una conclusi\'on a la que arribamos es que la aplicaci\'on de K-means en la forma descrita no constituye una mejora del modelo vectorial. Estos resultados son coherentes con la idea intuitiva de que si los documentos recuperados con el nuevo modelo son todos de un mismo cl\'uster, entonces son cercanos entre s\'i, y por tanto cercanos al vector consulta, por lo que deber\'ian ser recuperados tambi\'en en el modelo vectorial cl\'asico.
+	 En su aplicaci\'on en los conjuntos de datos de \emph{Cranfield} y \emph{Vaswani}, y su evaluaci\'on, este modelo tuvo resultados muy similares a los del modelo vectorial. Por tanto, una conclusi\'on a la que arribamos es que la aplicaci\'on de K-means en la forma descrita no constituye una mejora del modelo vectorial. Estos resultados son coherentes con la idea intuitiva de que si los documentos recuperados con el nuevo modelo son todos de un mismo cl\'uster, entonces son cercanos entre s\'i, y por tanto cercanos al vector consulta, por lo que deber\'ian ser recuperados tambi\'en en el modelo vectorial cl\'asico.
 	 
 	 Sin embargo, se tienen otras ideas de como aplicar este algoritmo al mismo modelo, sobre la base del mismo c\'odigo, que se seguir\'an probando en busca de mejorar los resultados.
 	 
@@ -303,8 +305,7 @@
 		\bibitem{B3} Documentaci\'on oficial: \emph{https://ir-datasets.com/index.html}
 		\bibitem{B4} Documentaci\'on oficial: \emph{https://docs.python.org/3/library/re.html}
 		
-		\bibitem{B5} Y. Ogawa, T. Morita y K. Kobayashi. A fuzzy document retrieval system using the keyword connection matrix and a learning method. Fuzzy Sets and Systems, 39:163-179, 1991.
-		
+		\bibitem{B5} Y. Ogawa, T. Morita y K. Kobayashi. A fuzzy document retrieval system using the keyword connection matrix and a learning method. Fuzzy Sets and Systems, 39:163-179, 1991.		
 		\bibitem{B6} Laura Riera P\'erez y Marcos Tirador del Riego. Aplicaciones del
 		agrupamiento y de la clasificación en la recuperaci\'on	de informaci\'on en la Web.
 	\end{thebibliography}
