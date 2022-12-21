@@ -57,7 +57,8 @@ function DocumentText(props: DocText) {
         
         await axios.get('http://localhost:8000/feedback?model='+ encodeURIComponent(model) + 
             '&dataset=' + encodeURIComponent(dataset) + '&query=' + encodeURIComponent(query) + 
-            '&doc_id=' + encodeURIComponent(props.doc_id) + '&is_rel=' + encodeURIComponent(is_relevant))
+            '&doc_id=' + encodeURIComponent(props.doc_id) + '&is_rel=' + encodeURIComponent(is_relevant) +
+            '&pag=1')
             .then((resp) => {
                 props.setDocs(resp.data.results)
             }).catch((err) => console.log(err.data));
