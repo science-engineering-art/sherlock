@@ -100,8 +100,7 @@ class BooleanModel(BaseModel):
                 query[i - 1] += "&" + query[i]
                 query.__delitem__(i)
                 i += 1
-            elif i != len(query) - 1 and query[i] not in special_symbols and \
-                    query[i + 1] not in self.operators.keys() and query[i + 1] not in special_symbols \
+            elif i != len(query) - 1 and query[i] not in special_symbols and query[i + 1] not in special_symbols \
                     and not (query[i + 1].startswith("|") or query[i + 1].startswith("&")):
                 query[i] += "&" + query[i + 1]
                 query.__delitem__(i + 1)
