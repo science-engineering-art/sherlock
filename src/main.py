@@ -38,8 +38,8 @@ models = {
         'cord19': BooleanModel(corpus['cord19']) 
     },
     'fuzzy': {
-        'cranfield': FuzzyModel(corpus['cranfield']),
-        'vaswani': FuzzyModel(corpus['vaswani']),
+        # 'cranfield': FuzzyModel(corpus['cranfield']),
+        # 'vaswani': FuzzyModel(corpus['vaswani']),
         # 'cord19': FuzzyModel(corpus['cord19'])
     }
 }
@@ -63,7 +63,7 @@ app.add_middleware(
 async def root(model: str, dataset: str, query: str):
     result = []  
 
-    if query in feedback[model][dataset].queries:
+    if model in feedback and query in feedback[model][dataset].queries:
         ranking = feedback[model][dataset].search(query)
     else:
         ranking = models[model][dataset].search(query)
