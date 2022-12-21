@@ -113,12 +113,12 @@
 	\section{Dise\~no del sistema}
 	
 	\subsection{Documentos}
-	Para el desarrollo de este Sistema de Recuperaci\'on de la Informaci\'on se model\'o un documento como un objeto que contiene al menos dos propiedades, un \texttt{doc\_id} que identifica de manera \'unica a un documento dentro del conjunto de documentos del dataset en cuesti\'on; y un \texttt{text} que corresponde con el texto de este. Tambi\'en puede tener otras propiedades, por ejemplo: \texttt{title}, \texttt{author}; pero eso depende de la riqueza del dataset que provee el paquete de Python \texttt{ir\_datasets} (ver \cite{B3}).
+	Para el desarrollo de este Sistema de Recuperaci\'on de la Informaci\'on modelamos un documento como un objeto que tiene dos propiedades, un \texttt{doc\_id} que identifica de manera \'unica a un documento dentro del conjunto de documentos del dataset en cuesti\'on; y un diccionario que posee el conjunto de términos indexados contra la frecuencia de los mismos en el documento.
 	
 	Como el texto de un documento es inc\'omodo de manipular por venir en forma de \texttt{string}, este se toqueniza y convierte en una lista de t\'erminos indexados normalizados. Esto se logra haciendo uso del paquete de Python \texttt{re} (referirse a \cite{B4}) que proporciona una colecci\'on de funciones que facilitan el trabajo con expresiones regulares. 
 	
 	\subsection{Normalizaci\'on de un t\'ermino}
-	\todo{muchas de estas cosas ya no se hacen asi}
+	
 	Es importante destacar algunas asunciones que se tuvieron en cuenta en el proceso de toquenizaci\'on. No se considera relevante la diferenciación entre una letra may\'uscula y una min\'uscula, ya que, en la mayoría de los casos, el significado sem\'antico que expresan es el mismo. Para reducir algunos errores ortográficos, y que esto no perjudique la recuperaci\'on de un documento importante, se considera que las tildes no diferencian una palabra de otra. Se conoce que esto \'ultimo no es cierto en el español, pero por el momento se est\'a trabajando con textos en ingl\'es.
 	
 	Resumiendo, se trata de llevar todos los t\'erminos a cadenas de caracteres que contienen letras min\'usculas o n\'umeros.
@@ -131,7 +131,7 @@
 	
 	Se define un modelo base como un concepto abstracto, que engloba los comportamientos comunes que debe tener cada modelo de recuperaci\'on de informaci\'on. 
 	
-	Cada instancia de un modelo tiene un corpus asociado a este, sobre el cual se hacen las b\'usquedas. Se deja en manos del programador qu\'e preprocesamientos hacer con el corpus, en dependencia del modelo que se est\'e implementando. 
+	Cada instancia de un modelo tiene un corpus asociado a este, sobre el cual se hacen las b\'usquedas. Se deja en manos del programador qu\'e preprocesamientos hacer con el corpus, en dependencia del modelo que se est\'e implementando, cómo guardar y cargar estos preprocesamientos. Esto último se logra con el paquete de Python \texttt{dictdatabase} (\cite{B7}), que permite un manejo fácil con \textit{JSON}.
 	
 	\section{Modelo Booleano}
 	
@@ -165,17 +165,99 @@
 	Para hallar las coincidencias a documentos simplemente se recorre cada componente conjuntiva y se a\~naden a la respuesta los documentos que contengan a todos los t\'erminos de la misma con un score igual a 1.  
 	
 	\section{Modelo Vectorial}
-	
-	\subsection{Preprocesamiento}
+
+    En el modelo vectorial cada documento se representa como un vector de términos indexados, donde lo único que interesa saber es qué términos aparecen en el documento y qué pesos tiene cada uno de esos términos en el documento. Luego dada una consulta, que también se representa como un documento, hallar el conjunto de documentos relevantes se reduce a encontrar el conjunto de vectores documento más similares a la consulta.
+
+    Para entender mejor estas ideas, se necesitan conocer que es \emph{TF * IDF}.
+        
+    \subsubsection{TF} La frecuencia de un término en un documento se halla calculando la cantidad de ocurrencias del término en el documento dividido por la máxima cantidad de ocurrencias que obtiene algún término en ese documento. Esta idea de dividir por la máxima cantidad de ocurrencias pretende normalizar los valores de frecuencia para evitar que documentos muy extensos obtengan mayores valores de frecuencia que otros documentos más pequeños. 
+
+    \begin{equation}
+        TF_{t_i,d_j} = \frac{freq(t_i, d_j)}{\texttt{max} freq (t_k, d_j)} 
+    \end{equation}
+
+    \begin{center}
+        $t_i$ - i-ésimo término\\
+        $d_j$ - j-ésimo documento\\
+        $freq(t_i, d_j)$ - cantidad de ocurrencias de $t_i$ en $d_j$
+    \end{center}
+
+    Con TF solamente no basta para saber la relevancia que tiene un término en un documento porque las palabras muy comunes en un texto, como por ejemplo las preposiciones, aparecerían con un TF alto en todos los documentos, por tanto se les daría mayor relevacia a estas palabras, que no tienen mucha importancia, con a otras que quizás son palabras claves para la consulta. Idealmente se quisiera penalizar este tipo de palabras tan frecuentes en todos los textos, ese es el objetivo de \emph{IDF}.
+
+    \subsubsection{IDF} La frecuencia inversa de un documento calcula la proporción de documentos en los que está un término contra la cantidad total de documentos. Luego se halla el inverso para obtener mayores valores mientras en menos documentos esté el término, bajo el supuesto de que mientras en menos documentos esté, mayor rareza tiene y por tanto más importante debe ser ese término si aparece en la consulta.
+
+    \begin{equation}
+        IDF_{t_i} = \log \frac{N}{n_i}
+    \end{equation}
+
+    \begin{center}
+        $t_i$ - i-ésimo término\\
+        $N$ - cantidad total de documentos\\
+        $n_i$- cantidad de documentos en los que aparece $t_i$ 
+    \end{center}
+
+    Teniendo estas dos medidas es posible formular el peso de un término en un documento, dado que se conoce la frecuencia de cada término en un documento y la frecuencia inversa de un término dentro del conjunto de documentos. 
+
+    \begin{equation}
+        W_{t_i, d_j} = TF_{t_i, d_j} * IDF_{t_i}
+    \end{equation}
+
+    En el caso del vector consulta, al calculo de los pesos del término se le adiciona una constante de suavizado para amortiguar la variación en los pesos de términos que ocurren poco y evitar grandes saltos entre la frecuencia de un término que aparece una vez y otro que aparece dos veces.
+
+    \begin{equation}
+        W_{t_i, q} = (a + (1-a) * TF_{t_i, q}) * IDF_{t_i}
+    \end{equation}
+        
+    Por tanto si se quisiera hacer una consuta, idealmente se quiere recuperar documentos que tenga términos de la consulta que sean poco comunes dentro del conjunto de documentos, y a la vez tengan una frecuencia alta dentro del documentos recuperados. Ahora la pregunta interesante sería cómo encontrar esos documentos que cumplen esto y cómo ordenarlos por su nivel de relevancia.
+
+    \subsubsection{Similitud del coseno} Para calcular la correlación entre el vector consulta y un vector documento se calcula el coseno del ángulo entre estos dos vectores, obteniendo valores cercanos a 1 mientras más cercanos sean, y cercanos a -1 mientras más distintos sean. Con esto se logra obtener una función de ranking, que le da mayor peso a documentos que poseen términos poco comunes dentro del conjunto de documentos y una alta frecuencia dentro del documento. 
+
+    \begin{equation}
+        \texttt{sim} (\Vec{d_j}, \Vec{q}) = \frac{\Vec{d_j} * \Vec{q}}{ \| \Vec{d_j} \| * \| \Vec{q} \| }
+    \end{equation}
+
+    \begin{center}
+        $d_j$ - vector del j-ésimo documento\\
+        $q$ - vector consulta
+    \end{center}
+
+    Para encontrar una explicación más detallada de como funcionan estás ideas, se sugiere leer \cite[epígrafe 6]{B1}.
+
+    \subsection{Implementación}
+
+    \subsubsection{Preprocesamiento}
 	
 	Seg\'un la f\'ormula de similitud del coseno (\cite[\emph{Ecuaci\'on}~(6.10)]{B1}), se puede notar que el aporte de un documento a la f\'ormula se mantiene invariante para todas las consultas, ya que este solo depende del vector que representa al documento, el cual es independiente de la consulta. Por tanto, como el corpus sobre el cu\'al se va a recuperar informaci\'on se mantendr\'a est\'atico, se calcula el peso de cada t\'ermino en cada documento para as\'i poder utilizarlo en cada consulta que se realice.
 	
 	Para calcular el peso de cada t\'ermino en cada documento seg\'un \cite[Ecuaci\'on (2.3)]{B1}, primero se necesita calcular las frecuencias normalizadas de los t\'erminos en cada documento (TF \cite[Ecuaci\'on (2.1)]{B2}), y la frecuencia de ocurrencia de cada t\'ermino dentro de todos los documentos del corpus (IDF \cite[Ecuaci\'on(2.2)]{B2}).
 	
-	\subsection{Recuperación de documentos}
+	\subsubsection{Recuperación de documentos}
 	
 	La primera fase es similar a la del preprocesamiento de los documentos del corpus. Lo primero que se hace es toquenizar y normalizar la consulta. Luego se hallan los TFs, y se calcula el peso de cada t\'ermino en la consulta. Para el c\'alculo de los pesos de cada t\'ermino  se utiliza la medida de suavizado \texttt{a = 0.4} para amortizar la contribuci\'on de la frecuencia del t\'ermino (ver \cite[ecuaci\'on (2.4)]{B2}). Por \'ultimo se halla la cercan\'ia entre el vector consulta y cada vector documento, utilizando la similitud del coseno entre los vectores seg\'un \cite[Ecuaci\'on 6.10]{B1}, y se hace un ranking teniendo este valor calculado.
-	
+
+    \subsection{Retroalimentaci\'on}
+
+    Con el objetivo de mejorar los resultados del sistema es bueno involucrar al usuario en el proceso de recuperación de información. Para ello el usuario debe emitir un clasificación de algunos documentos recuperados, en relevantes o no, dada la consulta realizada, y de esta forma poder descartar o incluir a otros documentos. El algoritmo utilizado para esto es el de Rocchio, a continuación se explicará brevemente.
+
+    \subsubsection{Algoritmo de Rocchio} 
+        
+    Este consiste en acercar el vector que representa a la consulta con aquellos que representan a los documentos clasificados como relevantes por el usuario y alejarlo de los no relevantes. Así mediante este proceso se va modificando el vector de la consulta inicial, hasta encontrar un vector consulta que satisfaga las necesidades del usuario. El vector $q_m$ de la consulta se transforma en el vector:
+
+    \begin{equation}
+        q_m = \alpha * q_0 + \frac{\beta}{\| D_r \|} *  \sum_{d_i \in D_r} d_i - \frac{\gamma}{\| D_{nr} \|} *  \sum_{d_j \in D_{nr}} d_j
+    \end{equation}
+
+    \begin{center}
+        $q_m$ - vector consulta modificado\\
+        $q_0$ - vector consulta inicial\\
+        $D_r$ - conjunto de documentos relevantes\\
+        $D_{nr}$ - conjunto de documentos no relevantes\\
+        $\alpha$ - peso asignado al vector consulta inicial\\
+        $\beta$ - peso asignado al conjunto de documentos clasificados como relevantes\\
+        $\gamma$ - peso asignado al conjunto de documentos clasificados como no relevantes\\
+    \end{center}
+
+    Para obtener más información sobre este algoritmo se propone consultar a \cite[epígrafe 9.1.1]{B1}.
 	
 	\section{Modelo Fuzzy}
 	
@@ -243,33 +325,42 @@
 		
 		\includegraphics[width=10cm]{cord19_boolean}
 	\end{center}
-
-	\subsection{Modelo Vectorial}
 	
-	\begin{center}
-		\includegraphics[width=10cm]{cranfield_vector}
-		
-		\includegraphics[width=10cm]{vaswani_vector}
-		
-		\includegraphics[width=10cm]{cord19_vector}
-	\end{center}
+	\subsection{Modelo Vectorial}
+
+    El modelo vectorial no se comporta bien en corpus de dominio específico. Tanto \emph{Cranfield}, como \emph{Vaswani} y \emph{Cord19} son corpus de dominio específico, por lo que las evaluaciones no son muy acertadas.
+
+    \begin{center}
+        \includegraphics[width=10cm]{PR_plot(k=300).png}    
+    \end{center}
+
+    En esta gráfica se muestra hasta los primeros 300 documentos, como se comporta el modelo con los 3 corpus. 
+        
+    \emph{Cord19} comienza con una precisión bastante alta, puesto que es un corpus grande, y el modelo puede distinguir mejor entre palabras que sean comunes en muchos documentos y aquellas que no lo son. Esto como bien sabemos es una ventaja y desventaja a la vez, puesto que como tiene muchos documentos, deben haber una mayor cantidad de documentos relevantes y en las primeras iteraciones se logra recuperar menos, por lo que el recobrado da muy bajo. Esto a su vez afecta bastante a la medida F1. Pero a medida que va disminuyendo la precisión y aumentando el recobrado se logra un mejor equilibrio de ambos para $k = 71$, con $F1=0.2196$, $P=0.2192$ y $R=0.2201$.
+
+    Por otra parte, \emph{Vaswani} y \emph{Cranfield} se comportan bastante parecidos. La diferencia radica en que la precisión de \emph{Vaswani} baja con mayor rapidez que la de \emph{Cranfield} ya que es un corpus más grande y para subir el recobrado necesita de mayor cantidad de documentos a recolectar, y con este aumento de la cantidad de documentos disminuye la precisión porque este modelo como no tiene en cuenta la correlación entre los términos y en corpus de dominio específico esto influye bastante. 
+        
+    Los mejores resultados para \emph{Cranfield} se obtienen en $k = 8$ con $F1 = 0.2472$, $P = 0.2111$ y $R = 0.2982$; y para \emph{Vaswani} en $k = 29$ con $F1 = 0.1902$, $P = 0.1561$ y $R = 0.2435$ .
+
+    \begin{center}
+        \includegraphics[width=10cm]{PR_plot(all).png}    
+    \end{center}
 
 	\subsection{Modelo Fuzzy}
 	
 	Al ser un modelo que extiende al modelo booleano, aunque resuelve muchas de las dificultades del anterior, este aun acarrea otras de sus deficiencias. Una de estas principales dificultades es que el lenguaje de consultas es complejo para inexpertos. Las conjuntos de consultas de prueba tanto de \emph{Cranfield} como de \emph{Vaswani} no est\'an pensadas para aplicarlas sobre un modelo booleano. Esto se puede apreciar del simple hecho de que las mismas constituyen oraciones y no expresiones l\'ogicas.
 	
-	 Sin embargo, si se puede apreciar una ligera mejor\'ia respecto al modelo booleano (en el caso de \emph{Crenfield} se obtiene un valor de la F-medida casi cuatro veces mayor). Este resultado es de esperar ya que este modelo mejora algunas de las dificultades del anterior, como por ejemplo que en este caso la coincidencia de los documentos no tiene que ser exacta, se crea un ranking, se adiciona cierta sem\'antica a los t\'erminos analizando cierta correlaci\'on entre los pares de ellos y adem\'as, de esto \'ultimo se puede inferir que no todos los t\'erminos seguir\'an siendo igual de importantes.
+	Sin embargo, si se puede apreciar una ligera mejor\'ia respecto al modelo booleano (en el caso de \emph{Crenfield} se obtiene un valor de la F-medida casi cuatro veces mayor). Este resultado es de esperar ya que este modelo mejora algunas de las dificultades del anterior, como por ejemplo que en este caso la coincidencia de los documentos no tiene que ser exacta, se crea un ranking, se adiciona cierta sem\'antica a los t\'erminos analizando cierta correlaci\'on entre los pares de ellos y adem\'as, de esto \'ultimo se puede inferir que no todos los t\'erminos seguir\'an siendo igual de importantes.
 	 
-	 En el caso del conjunto de datos \emph{cord19} este no pudo usarse en el modelo fuzzy ya que la gran cantidad de documentos y t\'erminos que posee este es muy grande, lo que hace que calcular la correlaci\'on entre cada par de t\'erminos incurra en un uso de recursos muy elevado. Si dicha correlaci\'on se precalcula, har\'ian falta m\'as de $20 GB$ de RAM seg\'un los c\'alculos hechos (que no se presentan pues son aproximaciones poco formales). Si en cambio se hace en el momento de cada consulta solo para los t\'erminos de la consulta, ejecutar cada consulta tomar\'ia m\'as de $5$ minutos. Adem\'as, el modelo fuzzy no has sido extensamente probado en experimentos con colecciones grandes de documentos\footnote{Esta idea se tom\'o de \cite{B2}, p\'agina $38$.}.
+	En el caso del conjunto de datos \emph{cord19} este no pudo usarse en el modelo fuzzy ya que la gran cantidad de documentos y t\'erminos que posee este es muy grande, lo que hace que calcular la correlaci\'on entre cada par de t\'erminos incurra en un uso de recursos muy elevado. Si dicha correlaci\'on se precalcula, har\'ian falta m\'as de $20 GB$ de RAM seg\'un los c\'alculos hechos (que no se presentan pues son aproximaciones poco formales). Si en cambio se hace en el momento de cada consulta solo para los t\'erminos de la consulta, ejecutar cada consulta tomar\'ia m\'as de $5$ minutos. Adem\'as, el modelo fuzzy no has sido extensamente probado en experimentos con colecciones grandes de documentos\footnote{Esta idea se tom\'o de \cite{B2}, p\'agina $38$.}.
 	
 	\begin{center}
 		\includegraphics[width=10cm]{cranfield_fuzzy}
 		
 		\includegraphics[width=10cm]{vaswani_fuzzy}
 	\end{center}	
-	\section{Retroalimentaci\'on}
 	
-	\section{Agrupamiento}
+    \section{Agrupamiento}
 	
 	Los algoritmos de agrupamiento, como su nombre lo indica, agrupan un conjunto de documentos en subconjuntos o clústeres. Los grupos formados deben tener un alto grado de asociación entre los documentos de un mismo grupo, es decir, deben ser lo m\'as similares posibles, y un bajo grado entre miembros de diferentes grupos. Es la forma más común de \textit{aprendizaje no supervisado}, es decir no hay ningún experto humano que haya asignado documentos a clases. Es la distribución y composición de los datos lo que determinará la pertenencia al clúster.\footnote{Las ideas de esta introducci\'on a la secci\'on fueron tomada de \cite{B6} de los propios autores de este informe.}
 	
