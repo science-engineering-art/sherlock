@@ -65,7 +65,7 @@ async def root(model: str, dataset: str, query: str):
     else:
         if type(models[model][dataset]) == str:
             models[model][dataset] = eval(models[model][dataset])
-        ranking = models[model][dataset].search(query)
+        ranking = models[model][dataset].search(query)[1:100]
 
     for tuple in ranking:
         doc = corpus[dataset].get_doc(tuple[1])
