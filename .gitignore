@@ -11,6 +11,10 @@ src\ddb_storage\
 src\node_modules\
 
 
+#storage
+/src/ddb_storage
+/ddb_storage
+
 # C extensions
 *.so
 
