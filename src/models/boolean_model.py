@@ -10,11 +10,9 @@ from models.dict import Dict
 
 class BooleanModel(BaseModel):
 
-    def preprocessing(self):        
+    def preprocessing(self):
         self.doc_terms = Dict()
 
-        self.operators = {} 
-        
         for doc_id in self.corpus:
             self.doc_terms[doc_id] = Dict()
 
@@ -25,15 +23,15 @@ class BooleanModel(BaseModel):
         dataset = self.corpus.get_dataset_name
         json = f'{self.__class__.__name__}/{dataset}/preprocessing'
         s = ddb.at(json)
-        
+
         if not s.exists():
             s.create({
-                "doc_terms" : {}
+                "doc_terms": {}
             })
 
             with ddb.at(json, key="doc_terms").session() as (session, doc_terms):
-            
-                for doc_id in self.doc_terms:                    
+
+                for doc_id in self.doc_terms:
                     if not doc_id in doc_terms:
                         doc_terms[doc_id] = {}
 
@@ -46,7 +44,7 @@ class BooleanModel(BaseModel):
         dataset = self.corpus.get_dataset_name
         json = f'{self.__class__.__name__}/{dataset}/preprocessing'
         s = ddb.at(json)
-        
+
         if s.exists():
             json = s.read()
             self.doc_terms = Dict()
@@ -65,12 +63,11 @@ class BooleanModel(BaseModel):
 
         doc_matches = self.get_docs_matches_to_query(processed_query)
 
-        result = [(1, doc.doc_id) if doc.doc_id in doc_matches else (0, doc.doc_id) \
-                    for doc in self.corpus.dataset.docs_iter() ]
+        result = [(1, doc.doc_id) if doc.doc_id in doc_matches else (0, doc.doc_id)
+                  for doc in self.corpus.dataset.docs_iter()]
         result = sorted(result, key=lambda x: x[0], reverse=True)
-        
-        return result
 
+        return result
 
     def process_query(self, query: str):
 
@@ -99,11 +96,9 @@ class BooleanModel(BaseModel):
         # and add '&' between words with no operand between them
         i = 0
         while i != len(query):
-            if query[i] in self.operators.keys():
-                query[i] = self.operators[query[i]]
-                if query[i].startswith("~") and not (query[i - 1].endswith("&") or query[i - 1].endswith("|")):
-                    query[i - 1] += "&" + query[i]
-                    query.__delitem__(i)
+            if query[i].startswith("~") and not (query[i - 1].endswith("&") or query[i - 1].endswith("|")):
+                query[i - 1] += "&" + query[i]
+                query.__delitem__(i)
                 i += 1
             elif i != len(query) - 1 and query[i] not in special_symbols and \
                     query[i + 1] not in self.operators.keys() and query[i + 1] not in special_symbols \
@@ -112,7 +107,7 @@ class BooleanModel(BaseModel):
                 query.__delitem__(i + 1)
             else:
                 i += 1
-                
+
         query = " ".join(query)
         # we use try except here, in case the logical expression of the query was not a valid one
         try:
@@ -138,9 +133,9 @@ class BooleanModel(BaseModel):
             query_dnf[i] = query_dnf[i].split(" & ")
 
         return query_dnf
-    
 
     # finds all matches of the query to the documents
+
     def get_docs_matches_to_query(self, processed_query):
 
         # matches a conjunctive component to a document
