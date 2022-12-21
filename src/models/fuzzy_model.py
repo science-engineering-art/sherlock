@@ -8,8 +8,8 @@ class FuzzyModel(BooleanModel):
 
     def search(self, query: str):
         processed_query = super().process_query(query)
-        maxtime = 0
         recovered = []
+        
         for doc_id in self.docs_dict:
             product = 1.0
             for cc in processed_query:      #foreach conjuntive component
@@ -20,10 +20,7 @@ class FuzzyModel(BooleanModel):
                     if term_i[0] == '~':
                         negated = True
                         term_i = term_i[1:]
-                    time_4 = time()                              
                     membership = self.__get_membership(term_i, doc_id)
-                    time_5 = time()                                   
-                    maxtime = max(maxtime, time_5 - time_4)
                     if negated:
                         membership = 1.0 - membership
                     factor_cc *= membership
@@ -52,7 +49,6 @@ class FuzzyModel(BooleanModel):
 
         #memorize the result
         self.membership_degree[(term_i, doc_id)] = membership
-
 
         return membership
 
@@ -129,6 +125,8 @@ class FuzzyModel(BooleanModel):
         for doc_id in self.docs_dict:
             self.docs_dict[doc_id] = set(self.docs_dict[doc_id])
         self.keyword_conex_precalculated = True
+        
+        print('......Precalculations not needed.....')
     
     def secure_storage(self):
         dataset = self.corpus.get_dataset_name
@@ -151,6 +149,8 @@ class FuzzyModel(BooleanModel):
         
     def preprocessing(self):
         
+        print('......Doing precalculations.....')
+        
         self.postprocessing()
         
         self.docs_dict = {}
@@ -163,6 +163,7 @@ class FuzzyModel(BooleanModel):
                 self.docs_dict[doc_id].add(term)
                 
         self.precalculateConex()
+        print('......Done with precalculations.....')
         
     def postprocessing(self):
         self.operators = {}

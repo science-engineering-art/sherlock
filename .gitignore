@@ -7,6 +7,14 @@ proof.py
 # databases
 src\ddb_storage\
 
+#node_modules
+src\node_modules\
+
+
+#storage
+/src/ddb_storage
+/ddb_storage
+
 # C extensions
 *.so
 
