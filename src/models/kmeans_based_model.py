@@ -82,7 +82,9 @@ class VectorModelKMEANS(VectorModel):
         results_by_cluster = [[] for _ in range(self.noClusters)]
         for score, doc_id in results:
             results_by_cluster[self.kmeans.labels_[self.doc_postion[doc_id]]].append((self.kmeans.labels_[self.doc_postion[doc_id]], score, doc_id))
-        
+
+        results_by_cluster = sorted(results_by_cluster, key=lambda x: x[0][1], reverse=True)
+
         return results_by_cluster
         
     def GetQueryVector(idfs, terms, query):

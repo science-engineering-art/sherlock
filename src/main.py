@@ -8,7 +8,7 @@ from models.boolean_model import BooleanModel
 from models.corpus import Corpus
 from models.fuzzy_model import FuzzyModel
 from models.vector_model import VectorModel
-# from models.kmeans_based_model import VectorModelKMEANS
+from models.kmeans_based_model import VectorModelKMEANS
 from models.relevance_feedback import RelevanceFeedback
 import dictdatabase as ddb
 
@@ -100,3 +100,21 @@ async def feedbackController(
             text=doc['text'], score=tuple[0]))
 
     return { "results": result }
+
+@app.get('/clustering')
+async def clusteringController(dataset: str, query: str, cluster: int):
+    
+    if type(models['clustering'][dataset]) == str:
+        models['clustering'][dataset] = eval(models['clustering'][dataset])
+    ranking: VectorModelKMEANS = models['clustering'][dataset]
+
+    result = []
+
+    for x, score, doc_id in ranking.searchSplitedByClusters(query)[cluster-1]:
+        print(x, score, doc_id)
+        doc = corpus[dataset].get_doc(doc_id)
+        result.append(DocumentDto(doc_id=doc['doc_id'], 
+            title=doc['title'], author=doc['author'], 
+            text=doc['text'], score=score))
+         
+    return {"results": result}

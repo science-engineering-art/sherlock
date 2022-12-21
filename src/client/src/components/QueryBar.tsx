@@ -32,10 +32,19 @@ function QueryBar(props: QueryBarProps) {
             className="searchButton"
             onClick={async () => {
               sessionStorage[ 'query'] = query
-              await axios.get('http://localhost:8000/search?' +
+
+              var url = 'http://localhost:8000/search?' +
                 'model='+encodeURIComponent(sessionStorage['model'])+
                 '&dataset=' + encodeURIComponent(sessionStorage['dataset']) +
-                '&query=' + encodeURIComponent(query))
+                '&query=' + encodeURIComponent(sessionStorage['query']) + 
+                '&pag=' + encodeURIComponent(sessionStorage['pag']);
+              if (sessionStorage['model'] === 'clustering')
+                 url = 'http://localhost:8000/clustering?' +
+                  'dataset=' + encodeURIComponent(sessionStorage['dataset']) +
+                  '&query=' + encodeURIComponent(sessionStorage['query']) + 
+                  '&cluster=' + encodeURIComponent(sessionStorage['pag']);
+
+              await axios.get(url)
                 .then((resp) => {
                   props.setDocumentDtos(resp.data.results);
                   props.setShowResults(true);})

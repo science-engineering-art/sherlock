@@ -53,12 +53,20 @@ function App() {
           count={100} 
           page={page} 
           onChange={async (_, value) => {
-              setPage(value);
-              await axios.get('http://localhost:8000/search?' +
+              var url = 'http://localhost:8000/search?' +
                 'model='+encodeURIComponent(model)+
                 '&dataset=' + encodeURIComponent(dataset) +
                 '&query=' + encodeURIComponent(sessionStorage['query']) + 
-                '&pag=' + encodeURIComponent(value))
+                '&pag=' + encodeURIComponent(value);
+              console.log(sessionStorage['model'])
+              if (sessionStorage['model'] === 'clustering')
+                url = 'http://localhost:8000/clustering?' +
+                'dataset=' + encodeURIComponent(dataset) +
+                '&query=' + encodeURIComponent(sessionStorage['query']) + 
+                '&cluster=' + encodeURIComponent(value);
+
+                setPage(value);
+              await axios.get(url)
                 .then((resp) => {
                   setDocumentDtos(resp.data.results);
                   setShowResults(true);
