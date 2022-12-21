@@ -334,23 +334,18 @@
 	
 	El modelo booleano puede ser complejo para usuarios inexpertos, debido a la dificultad de expresar las necesidades de informaci\'on en la consulta como una expresi\'on l\'ogica. No ofrece un ranking, por lo que potencialmente los documentos mostrados al inicio no sean los de mayor inter\'es para el usuario. No establece correlaci\'on entre t\'erminos por lo que puede devolver documentos que cumplan con la consulta, pero que no sean los m\'as precisos para esta. Adem\'as, al todos los t\'erminos son igual de importantes, cuando en la pr\'actica no es as\'i, y solo permitir coincidencias exactas, puede que no se devuelvan documentos en donde si bien, por ejemplo, falta un t\'ermino, estos sean relevantes a la informaci\'on requerida.
 	
-	Las conjuntos de consultas de prueba tanto de \emph{Cranfield} como de \emph{Vaswani} no est\'an pensadas para aplicarlas sobre un modelo booleano. Esto se puede apreciar del simple hecho de que las mismas constituyen oraciones y no expresiones l\'ogicas. 
+	Las conjuntos de consultas de prueba tanto de \emph{Cranfield} como de \emph{Vaswani} y \emph{Cord19} no est\'an pensadas para aplicarlas sobre un modelo booleano. Esto se puede apreciar del simple hecho de que las mismas constituyen oraciones y no expresiones l\'ogicas. Por esta raz\'on, al ser consultas tan largas sin operadores y asumirse que todos los t\'erminos de las mismas deben aparecer, en la mayor\'ia de los casos no se obtiene ning\'un resultado de b\'usqueda.
 	
-	
-	\begin{center}
-		\includegraphics[width=10cm]{cranfield_boolean}
-		
-		\includegraphics[width=10cm]{vaswani_boolean}
-		
-		\includegraphics[width=10cm]{cord19_boolean}
-	\end{center}
+%	\begin{center}
+%		\includegraphics[width=10cm]{boolean}
+%	\end{center}
 	
 	\subsection{Modelo Vectorial}
 
     El modelo vectorial no se comporta bien en corpus de dominio específico. Tanto \emph{Cranfield}, como \emph{Vaswani} y \emph{Cord19} son corpus de dominio específico, por lo que las evaluaciones no son muy acertadas.
 
     \begin{center}
-        \includegraphics[width=10cm]{PR_plot(k=300).png}    
+        \includegraphics[width=10cm]{PR_plot(k=300).png}  
     \end{center}
 
     En esta gráfica se muestra hasta los primeros 300 documentos, como se comporta el modelo con los 3 corpus. 
@@ -374,9 +369,7 @@
 	En el caso del conjunto de datos \emph{cord19} este no pudo usarse en el modelo fuzzy ya que la gran cantidad de documentos y t\'erminos que posee este es muy grande, lo que hace que calcular la correlaci\'on entre cada par de t\'erminos incurra en un uso de recursos muy elevado. Si dicha correlaci\'on se precalcula, har\'ian falta m\'as de $20 GB$ de RAM seg\'un los c\'alculos hechos (que no se presentan pues son aproximaciones poco formales). Si en cambio se hace en el momento de cada consulta solo para los t\'erminos de la consulta, ejecutar cada consulta tomar\'ia m\'as de $5$ minutos. Adem\'as, el modelo fuzzy no has sido extensamente probado en experimentos con colecciones grandes de documentos\footnote{Esta idea se tom\'o de \cite{B2}, p\'agina $38$.}.
 	
 	\begin{center}
-		\includegraphics[width=10cm]{cranfield_fuzzy}
-		
-		\includegraphics[width=10cm]{vaswani_fuzzy}
+		\includegraphics[width=10cm]{fuzzy}
 	\end{center}	
 	
     \section{Agrupamiento}
@@ -434,7 +427,8 @@
 	 
 	\section{Conclusiones y trabajo futuro}
 	
-	Este trabajo presenta una propuesta para la modelaci\'on del problema de recuperaci\'on de informaci\'on. Se detallaron aspectos generales del modelo vectorial cl\'asico, as\'i como decisiones de dise\~no espec\'ificas de la propia interpretaci\'on del problema. 
+	
+	
 	
 	\begin{thebibliography}{20}
 		\bibitem{B1} Maning C. D.: \emph{An Introduction To Information Retrieval} (2009).

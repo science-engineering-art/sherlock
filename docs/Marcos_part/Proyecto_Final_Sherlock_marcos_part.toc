@@ -1,7 +1,7 @@
-\babel@toc {english}{}\relax 
-\babel@toc {spanish}{}\relax 
-\babel@toc {english}{}\relax 
-\babel@toc {spanish}{}\relax 
+\babel@toc {english}{}
+\babel@toc {spanish}{}
+\babel@toc {english}{}
+\babel@toc {spanish}{}
 \contentsline {section}{\numberline {1}Introducci\'on}{1}{}%
 \contentsline {section}{\numberline {2}Dise\~no del sistema}{1}{}%
 \contentsline {subsection}{\numberline {2.1}Documentos}{1}{}%
@@ -24,12 +24,12 @@
 \contentsline {subsection}{\numberline {5.1}Descripci\'on del modelo usado}{7}{}%
 \contentsline {subsection}{\numberline {5.2}Implementaci\'on.}{8}{}%
 \contentsline {section}{\numberline {6}Evaluaci\'on de los modelos}{8}{}%
-\contentsline {subsection}{\numberline {6.1}Modelo Booleano}{10}{}%
-\contentsline {subsection}{\numberline {6.2}Modelo Vectorial}{11}{}%
-\contentsline {subsection}{\numberline {6.3}Modelo Fuzzy}{12}{}%
-\contentsline {section}{\numberline {7}Agrupamiento}{14}{}%
-\contentsline {subsection}{\numberline {7.1}K-means}{14}{}%
-\contentsline {subsection}{\numberline {7.2}Objetivo perseguido}{15}{}%
-\contentsline {subsection}{\numberline {7.3}Implementaci\'on}{15}{}%
-\contentsline {subsection}{\numberline {7.4}Resultados}{16}{}%
-\contentsline {section}{\numberline {8}Conclusiones y trabajo futuro}{16}{}%
+\contentsline {subsection}{\numberline {6.1}Modelo Booleano}{9}{}%
+\contentsline {subsection}{\numberline {6.2}Modelo Vectorial}{10}{}%
+\contentsline {subsection}{\numberline {6.3}Modelo Fuzzy}{11}{}%
+\contentsline {section}{\numberline {7}Agrupamiento}{12}{}%
+\contentsline {subsection}{\numberline {7.1}K-means}{13}{}%
+\contentsline {subsection}{\numberline {7.2}Objetivo perseguido}{13}{}%
+\contentsline {subsection}{\numberline {7.3}Implementaci\'on}{13}{}%
+\contentsline {subsection}{\numberline {7.4}Resultados}{14}{}%
+\contentsline {section}{\numberline {8}Conclusiones y trabajo futuro}{15}{}%
