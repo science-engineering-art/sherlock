@@ -312,9 +312,23 @@
 	
 	Se han presentado en este trabajo tres alternativas a modelos usados para implementar un sistema de recuperaci\'on de la informaci\'on. Es importante entonces contar con una forma de calcular la efectividad de cada uno de estos, de forma que podamos compararlos en sus distintas aplicaciones.
 	
-	Para medir la efectividad de cualquier modelo se necesita de una colecci\'on de  prueba, que no es m\'as que un conjunto de documentos sobre el que se puede ejecutar el motor de b\'usqueda con el modelo en cuesti\'on. Esta colecci\'on debe contar con un conjunto de necesidades de informaci\'on, expresadas en forma de consulta, as\'i como con una evaluaci\'on de cada documento de la colecci\'on seg\'un su relevancia respecto a cada consulta.\footnote{Idea tomada de \cite[Secci\'on 8.1]{B1}} En el sistema implementado se usaron los siguientes tres colecciones de prueba
+	Para medir la efectividad de cualquier modelo se necesita de una colecci\'on de  prueba, que no es m\'as que un conjunto de documentos sobre el que se puede ejecutar el motor de b\'usqueda con el modelo en cuesti\'on. Esta colecci\'on debe contar con un conjunto de necesidades de informaci\'on, expresadas en forma de consulta, as\'i como con una evaluaci\'on de cada documento de la colecci\'on seg\'un su relevancia respecto a cada consulta.\footnote{Idea tomada de \cite[Secci\'on 8.1]{B1}} En el sistema implementado se usaron los siguientes tres colecciones de prueba: \emph{Cranfield}, \emph{Vaswani} y \emph{Cord19/trec-covid/round1} presentes en la biblioteca de python \texttt{ir\_datasets}.
 	
+	Para evaluar los modelos se dividieron los grados de relevancia de los documentos en dos grupos, relevantes y no relevantes. Idealmente los conjuntos de prueba deber\'ian contar por cada necesidad de informaci\'on con una evaluaci\'on de relevancia para cada documento. Sin embargo, esto no sucede para las colecciones disponibles por lo que  aquellos documentos que no han sido evaluados se considerar\'an como irrelevantes.
 	
+	Las medidas que se usaron para evaluar los modelos fueron precisi\'on ($P$), recobrado ($R$) y $F_1$. Estas se definen como sigue
+	\[
+	P = \frac{RR}{RR + RI},
+	\]
+	\[
+	R = \frac{RR}{RR + NR},
+	\]
+	\[
+	F_1 = \frac{2}{1/P + 1/R},
+	\]
+	donde $RR$ es la cantidad de documentos relevantes que fueron correctamente recuperados, $RI$ los recuperados que no eran relevantes y $NR$ los no recuperados que eran relevantes. Estas medidas se eval\'uan por cada consulta disponible en la colecci\'on y luego se procede a promediarlas para el total de consultas.
+	
+	En el caso de los modelos por ranking, como el vectorial y el fuzzy, se procede a calcular los valores anteriormente mencionados tomando como recuperados los primeros $k$ documentos del ranking. Entonces se procede a graficar la relaci\'on de precis\'on-recobrado para cada uno de estos valores de $k$.
 	
 	\subsection{Modelo Booleano}
 	
