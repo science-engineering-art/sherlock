@@ -334,11 +334,11 @@
 	
 	El modelo booleano puede ser complejo para usuarios inexpertos, debido a la dificultad de expresar las necesidades de informaci\'on en la consulta como una expresi\'on l\'ogica. No ofrece un ranking, por lo que potencialmente los documentos mostrados al inicio no sean los de mayor inter\'es para el usuario. No establece correlaci\'on entre t\'erminos por lo que puede devolver documentos que cumplan con la consulta, pero que no sean los m\'as precisos para esta. Adem\'as, al todos los t\'erminos son igual de importantes, cuando en la pr\'actica no es as\'i, y solo permitir coincidencias exactas, puede que no se devuelvan documentos en donde si bien, por ejemplo, falta un t\'ermino, estos sean relevantes a la informaci\'on requerida.
 	
-	Las conjuntos de consultas de prueba tanto de \emph{Cranfield} como de \emph{Vaswani} no est\'an pensadas para aplicarlas sobre un modelo booleano. Esto se puede apreciar del simple hecho de que las mismas constituyen oraciones y no expresiones l\'ogicas. 
+	Las conjuntos de consultas de prueba tanto de \emph{Cranfield} como de \emph{Vaswani} y \emph{Cord19} no est\'an pensadas para aplicarlas sobre un modelo booleano. Esto se puede apreciar del simple hecho de que las mismas constituyen oraciones y no expresiones l\'ogicas. Por esta raz\'on, al ser consultas tan largas sin operadores y asumirse que todos los t\'erminos de las mismas deben aparecer, en la mayor\'ia de los casos no se obtiene ning\'un resultado de b\'usqueda.
 	
-	\begin{center}
-		\includegraphics[width=10cm]{boolean}
-	\end{center}
+%	\begin{center}
+%		\includegraphics[width=10cm]{boolean}
+%	\end{center}
 	
 	\subsection{Modelo Vectorial}
 
@@ -427,7 +427,8 @@
 	 
 	\section{Conclusiones y trabajo futuro}
 	
-	Este trabajo presenta una propuesta para la modelaci\'on del problema de recuperaci\'on de informaci\'on. Se detallaron aspectos generales del modelo vectorial cl\'asico, as\'i como decisiones de dise\~no espec\'ificas de la propia interpretaci\'on del problema. 
+	
+	
 	
 	\begin{thebibliography}{20}
 		\bibitem{B1} Maning C. D.: \emph{An Introduction To Information Retrieval} (2009).
