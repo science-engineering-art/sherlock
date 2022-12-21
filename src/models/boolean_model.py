@@ -1,9 +1,7 @@
 import re
-
 import dictdatabase as ddb
 from sympy import sympify
 from sympy.logic.boolalg import to_dnf
-
 from models.base_model import BaseModel
 from models.dict import Dict
 
@@ -133,5 +131,5 @@ class BooleanModel(BaseModel):
                 if doc_matches_cc(cc, self.doc_terms[doc_id]):
                     matches.append(doc_id)
                     break
-                
+
         return matches

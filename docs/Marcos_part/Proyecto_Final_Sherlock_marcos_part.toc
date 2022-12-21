@@ -12,19 +12,24 @@
 \contentsline {subsection}{\numberline {3.1}Descripci\'on del modelo}{3}{}%
 \contentsline {subsection}{\numberline {3.2}Implementaci\'on}{3}{}%
 \contentsline {section}{\numberline {4}Modelo Vectorial}{3}{}%
-\contentsline {subsection}{\numberline {4.1}Preprocesamiento}{3}{}%
-\contentsline {subsection}{\numberline {4.2}Recuperación de documentos}{4}{}%
-\contentsline {section}{\numberline {5}Modelo Fuzzy}{4}{}%
-\contentsline {subsection}{\numberline {5.1}Descripci\'on del modelo usado}{5}{}%
-\contentsline {subsection}{\numberline {5.2}Implementaci\'on.}{6}{}%
-\contentsline {section}{\numberline {6}Evaluaci\'on de los modelos}{6}{}%
-\contentsline {subsection}{\numberline {6.1}Modelo Booleano}{6}{}%
-\contentsline {subsection}{\numberline {6.2}Modelo Vectorial}{6}{}%
-\contentsline {subsection}{\numberline {6.3}Modelo Fuzzy}{6}{}%
-\contentsline {section}{\numberline {7}Retroalimentaci\'on}{7}{}%
-\contentsline {section}{\numberline {8}Agrupamiento}{7}{}%
-\contentsline {subsection}{\numberline {8.1}K-means}{7}{}%
-\contentsline {subsection}{\numberline {8.2}Objetivo perseguido}{8}{}%
-\contentsline {subsection}{\numberline {8.3}Implementaci\'on}{8}{}%
-\contentsline {subsection}{\numberline {8.4}Resultados}{9}{}%
-\contentsline {section}{\numberline {9}Conclusiones y trabajo futuro}{9}{}%
+\contentsline {subsubsection}{TF}{4}{}%
+\contentsline {subsubsection}{IDF}{4}{}%
+\contentsline {subsubsection}{Similitud del coseno}{5}{}%
+\contentsline {subsection}{\numberline {4.1}Implementación}{5}{}%
+\contentsline {subsubsection}{Preprocesamiento}{5}{}%
+\contentsline {subsubsection}{Recuperación de documentos}{5}{}%
+\contentsline {subsection}{\numberline {4.2}Retroalimentaci\'on}{6}{}%
+\contentsline {subsubsection}{Algoritmo de Rocchio}{6}{}%
+\contentsline {section}{\numberline {5}Modelo Fuzzy}{6}{}%
+\contentsline {subsection}{\numberline {5.1}Descripci\'on del modelo usado}{7}{}%
+\contentsline {subsection}{\numberline {5.2}Implementaci\'on.}{8}{}%
+\contentsline {section}{\numberline {6}Evaluaci\'on de los modelos}{8}{}%
+\contentsline {subsection}{\numberline {6.1}Modelo Booleano}{10}{}%
+\contentsline {subsection}{\numberline {6.2}Modelo Vectorial}{11}{}%
+\contentsline {subsection}{\numberline {6.3}Modelo Fuzzy}{12}{}%
+\contentsline {section}{\numberline {7}Agrupamiento}{14}{}%
+\contentsline {subsection}{\numberline {7.1}K-means}{14}{}%
+\contentsline {subsection}{\numberline {7.2}Objetivo perseguido}{15}{}%
+\contentsline {subsection}{\numberline {7.3}Implementaci\'on}{15}{}%
+\contentsline {subsection}{\numberline {7.4}Resultados}{16}{}%
+\contentsline {section}{\numberline {8}Conclusiones y trabajo futuro}{16}{}%

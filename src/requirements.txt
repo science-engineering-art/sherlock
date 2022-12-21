@@ -3,6 +3,5 @@ uvicorn[standard]
 unidecode
 ir_datasets
 dictdatabase
-spacy
 typing
 scikit-learn

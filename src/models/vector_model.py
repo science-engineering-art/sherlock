@@ -1,5 +1,4 @@
 import re
-import spacy
 from math import log
 import dictdatabase as ddb
 from models.dict import Dict
@@ -8,9 +7,6 @@ from unidecode import unidecode
 from collections import Counter
 from models.document import Document
 from models.base_model import BaseModel
-
-NLP = spacy.load('en_core_web_sm')
-# ddb.config.use_compression = True
 
 class VectorModel(BaseModel):
 

@@ -87,9 +87,11 @@ class QRels:
 
         s = ddb.at(f'{self.model.__class__.__name__}/'
             + f'{self.model.corpus.get_dataset_name}/'
-            + 'k_Rank')
-        
+            + f'k_Rank_{amount_docs}_{step_size}')
+        print()
         if s.exists():
+            data = s.read()
+            print(f'{data["max"]["index"]} : {data["max"]["F1"]}')
             return
 
         max = (-1,-1)

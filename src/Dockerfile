@@ -10,8 +10,6 @@ COPY ./requirements.txt /src/requirements.txt
 
 RUN pip install --no-cache-dir --upgrade -r /src/requirements.txt
 
-RUN python -m spacy download en_core_web_sm
-
 COPY ./models /src/models
 
 COPY ./main.py /src/main.py
