@@ -109,7 +109,6 @@ class BooleanModel(BaseModel):
         for i in range(0, len(query_dnf)):
             query_dnf[i] = query_dnf[i].split(" & ")
 
-        print(query_dnf)
         return query_dnf
 
     # finds all matches of the query to the documents

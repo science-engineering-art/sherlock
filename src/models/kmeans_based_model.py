@@ -127,7 +127,6 @@ class VectorModelKMEANS(VectorModel):
         else:
             data = s.read()
             self.terms,  self.doc_postion, self.term_postion = data['terms'],data['doc_postion'],data['term_postion']
-            print('here')
             return (data['sm'], data['dimension'])
       
     def Arrange_matrix(self, docs):
