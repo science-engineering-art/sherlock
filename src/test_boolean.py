@@ -10,7 +10,7 @@ from corpus_qrels import CranfieldQRels, VaswaniQRels, Cord19QRels
 vaswani_Corpus = Corpus('vaswani')
 vaswani_Vector = BooleanModel(vaswani_Corpus)
 vaswani_QRels = VaswaniQRels(vaswani_Vector)
-vaswani_QRels.precision_measurements(amount_docs=11000, amount_queries=93)
+vaswani_QRels.precision_measurements(amount_docs=11000, amount_queries=93, step_size = 20)
 
 # cord19_Corpus = Corpus('cord19/trec-covid/round1')
 # cord19_Vector = BooleanModel(cord19_Corpus)

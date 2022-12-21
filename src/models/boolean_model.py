@@ -19,7 +19,7 @@ class BooleanModel(BaseModel):
             self.doc_terms[doc_id] = Dict()
 
             for term in self.corpus[doc_id]:
-                self.doc_terms[doc_id][f'kw_{term}'] = 1
+                self.doc_terms[doc_id][str(term)] = 1
 
     def secure_storage(self):
         pass
@@ -51,7 +51,7 @@ class BooleanModel(BaseModel):
                     for doc in self.corpus.dataset.docs_iter() ]
         result = sorted(result, key=lambda x: x[0], reverse=True)
         
-        return result[1:100]
+        return result
 
 
     def process_query(self, query: str):
@@ -112,7 +112,7 @@ class BooleanModel(BaseModel):
         for i in range(0, len(query_dnf)):
             query_dnf[i] = query_dnf[i].split(" & ")
 
-
+        print(query_dnf)
         return query_dnf
     
 
@@ -137,5 +137,4 @@ class BooleanModel(BaseModel):
                 if doc_matches_cc(cc, self.doc_terms[doc_id]):
                     matches.append(doc_id)
                     break
-
         return matches

@@ -29,7 +29,7 @@ corpus = {
 
 models = {
     'vector': {
-        'cranfield': 'VectorModel(corpus[\'cranfield\'])',
+        'cranfield': VectorModel(corpus['cranfield']),
         'vaswani': 'VectorModel(corpus[\'vaswani\'])',
         'cord19': 'VectorModel(corpus[\'cord19\'])'
     },
@@ -45,12 +45,6 @@ models = {
     }
 }
 
-# execute
-
-# model = VectorModel(corpus['cranfield'])
-# model = BooleanModel(corpus['cranfield'])
-# model = VectorModelKMEANS(corpus['vaswani'])
-# model = FuzzyModel(corpus['cranfield'])
 
 app = FastAPI()
 origins = ["*"]
@@ -70,8 +64,8 @@ async def root(model: str, dataset: str, query: str):
         ranking = feedback[model][dataset].search(query)
     else:
         if type(models[model][dataset]) == str:
-            models[model][dataset] = eval(models[model][dataset]).search(query)
-        ranking = models[model][dataset]
+            models[model][dataset] = eval(models[model][dataset])
+        ranking = models[model][dataset].search(query)
 
     for tuple in ranking:
         doc = corpus[dataset].get_doc(tuple[1])
@@ -83,7 +77,7 @@ async def root(model: str, dataset: str, query: str):
 
 feedback = {
     'vector': {
-        'cranfield': RelevanceFeedback(eval(models['vector']['cranfield']))
+        'cranfield': RelevanceFeedback(models['vector']['cranfield'])
     }
 } 
 
