@@ -23,7 +23,6 @@ const [isThereDocs, setIsThereDocs] = useState(true);
                     score={item.score} 
                     setDocs={props.setItems} />
             );})}
-            {isThereDocs && <p> Sorry, no matches for your query. </p>}
         </div> 
     );
 }

@@ -4,12 +4,12 @@ import BasicTabs from "./TabsModal";
 function ConfigurationModal() {
 
   return (
-      <div>
-          <button
-            type="submit"
-            className="searchButton"
+        <div>
+            <button
+                type="submit"
+                className="searchButton"
             >
-            <i className="fa fa-cog"></i>
+                <i className="fa fa-cog"></i>
             </button>
           <div className="modal-content">
               <label htmlFor="modal" className="close">
@@ -24,9 +24,9 @@ function ConfigurationModal() {
               <footer>
                   <a href="https://joshuaward.me" target="_blank" className="button success">Accept</a>
                   <label htmlFor="modal" className="button danger">Decline</label>
-              </footer>
-          </div>
-      </div>
+                </footer>
+            </div>
+        </div>
   )
 }
 

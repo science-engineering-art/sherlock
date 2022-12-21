@@ -16,6 +16,7 @@ import Switch from "@mui/material/Switch";
 const model_options = [
   'Boolean',
   'Vector',
+  'Clustering',
   'Fuzzy',
 ];
 
@@ -232,7 +233,7 @@ export default function ConfirmationDialog(props: Settings) {
           <ListItemText primary="Corpus" secondary={props.valueCorpus} />
         </ListItem>
 
-        <ListItem button >
+        {/* <ListItem button >
            <FormControlLabel
           value="cluster"
           control={<Switch checked={checked}
@@ -242,7 +243,7 @@ export default function ConfirmationDialog(props: Settings) {
           label="Show clustered results"
           labelPlacement="start"
         />
-        </ListItem>
+        </ListItem> */}
 
         <ConfirmationDialogModel
           id="model-menu"
