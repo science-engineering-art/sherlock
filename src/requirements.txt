@@ -5,3 +5,4 @@ ir_datasets
 dictdatabase
 spacy
 typing
+scikit-learn

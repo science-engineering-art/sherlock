@@ -32,8 +32,10 @@ function QueryBar(props: QueryBarProps) {
             type="submit"
             className="searchButton"
             onClick={async () => {
-              await axios.get('http://localhost:8000/search?model=vector&dataset=cranfield&query=' +
-                encodeURIComponent(query))
+              await axios.get('http://localhost:8000/search?' +
+                'model='+encodeURIComponent(sessionStorage['model'])+
+                '&dataset=' + encodeURIComponent(sessionStorage['dataset']) +
+                '&query=' + encodeURIComponent(query))
                 .then((resp) => {
                   props.setDocumentDtos(resp.data.results);
                   props.setShowResults(true);})

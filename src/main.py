@@ -1,4 +1,3 @@
-from msilib.schema import Verb
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -30,19 +29,19 @@ corpus = {
 models = {
     'vector': {
         'cranfield': VectorModel(corpus['cranfield']),
-        # 'vaswani': VectorModel(corpus['vaswani']),
-        # 'cord19': VectorModel(corpus['cord19'])
+        'vaswani': VectorModel(corpus['vaswani']),
+        'cord19': VectorModel(corpus['cord19'])
     },
-    # 'boolean': {
-    #     'cranfield': BooleanModel(corpus['cranfield']),
-    #     'vaswani': BooleanModel(corpus['vaswani']),
-    #     'cord19': BooleanModel(corpus['cord19']) 
-    # },
-    # 'fuzzy': {
-    #     'cranfield': FuzzyModel(corpus['cranfield']),
-    #     'vaswani': FuzzyModel(corpus['vaswani']),
-    #     'cord19': FuzzyModel(corpus['cord19'])
-    # }
+    'boolean': {
+        'cranfield': BooleanModel(corpus['cranfield']),
+        'vaswani': BooleanModel(corpus['vaswani']),
+        'cord19': BooleanModel(corpus['cord19']) 
+    },
+    'fuzzy': {
+        'cranfield': FuzzyModel(corpus['cranfield']),
+        'vaswani': FuzzyModel(corpus['vaswani']),
+        # 'cord19': FuzzyModel(corpus['cord19'])
+    }
 }
 
 # model = VectorModel(corpus['cranfield'])
