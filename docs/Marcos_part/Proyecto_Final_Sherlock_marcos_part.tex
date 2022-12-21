@@ -336,13 +336,8 @@
 	
 	Las conjuntos de consultas de prueba tanto de \emph{Cranfield} como de \emph{Vaswani} no est\'an pensadas para aplicarlas sobre un modelo booleano. Esto se puede apreciar del simple hecho de que las mismas constituyen oraciones y no expresiones l\'ogicas. 
 	
-	
 	\begin{center}
-		\includegraphics[width=10cm]{cranfield_boolean}
-		
-		\includegraphics[width=10cm]{vaswani_boolean}
-		
-		\includegraphics[width=10cm]{cord19_boolean}
+		\includegraphics[width=10cm]{boolean}
 	\end{center}
 	
 	\subsection{Modelo Vectorial}
@@ -350,7 +345,7 @@
     El modelo vectorial no se comporta bien en corpus de dominio específico. Tanto \emph{Cranfield}, como \emph{Vaswani} y \emph{Cord19} son corpus de dominio específico, por lo que las evaluaciones no son muy acertadas.
 
     \begin{center}
-        \includegraphics[width=10cm]{PR_plot(k=300).png}    
+        \includegraphics[width=10cm]{PR_plot(k=300).png}  
     \end{center}
 
     En esta gráfica se muestra hasta los primeros 300 documentos, como se comporta el modelo con los 3 corpus. 
@@ -367,16 +362,14 @@
 
 	\subsection{Modelo Fuzzy}
 	
-	Al ser un modelo que extiende al modelo booleano, aunque resuelve muchas de las dificultades del anterior, este aun acarrea otras de sus deficiencias. Una de estas principales dificultades es que el lenguaje de consultas es complejo para inexpertos.
+	Al ser un modelo que extiende al modelo booleano, aunque resuelve muchas de las dificultades del anterior, este aun acarrea otras de sus deficiencias. Una de estas principales dificultades es que el lenguaje de consultas es complejo para inexpertos. Las conjuntos de consultas de prueba tanto de \emph{Cranfield} como de \emph{Vaswani} no est\'an pensadas para aplicarlas sobre un modelo booleano. Esto se puede apreciar del simple hecho de que las mismas constituyen oraciones y no expresiones l\'ogicas.
 	
 	Sin embargo, si se puede apreciar una ligera mejor\'ia respecto al modelo booleano (en el caso de \emph{Crenfield} se obtiene un valor de la F-medida casi cuatro veces mayor). Este resultado es de esperar ya que este modelo mejora algunas de las dificultades del anterior, como por ejemplo que en este caso la coincidencia de los documentos no tiene que ser exacta, se crea un ranking, se adiciona cierta sem\'antica a los t\'erminos analizando cierta correlaci\'on entre los pares de ellos y adem\'as, de esto \'ultimo se puede inferir que no todos los t\'erminos seguir\'an siendo igual de importantes.
 	 
 	En el caso del conjunto de datos \emph{cord19} este no pudo usarse en el modelo fuzzy ya que la gran cantidad de documentos y t\'erminos que posee este es muy grande, lo que hace que calcular la correlaci\'on entre cada par de t\'erminos incurra en un uso de recursos muy elevado. Si dicha correlaci\'on se precalcula, har\'ian falta m\'as de $20 GB$ de RAM seg\'un los c\'alculos hechos (que no se presentan pues son aproximaciones poco formales). Si en cambio se hace en el momento de cada consulta solo para los t\'erminos de la consulta, ejecutar cada consulta tomar\'ia m\'as de $5$ minutos. Adem\'as, el modelo fuzzy no has sido extensamente probado en experimentos con colecciones grandes de documentos\footnote{Esta idea se tom\'o de \cite{B2}, p\'agina $38$.}.
 	
 	\begin{center}
-		\includegraphics[width=10cm]{cranfield_fuzzy}
-		
-		\includegraphics[width=10cm]{vaswani_fuzzy}
+		\includegraphics[width=10cm]{fuzzy}
 	\end{center}	
 	
     \section{Agrupamiento}
