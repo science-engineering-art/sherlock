@@ -334,11 +334,11 @@
 	
 	El modelo booleano puede ser complejo para usuarios inexpertos, debido a la dificultad de expresar las necesidades de informaci\'on en la consulta como una expresi\'on l\'ogica. No ofrece un ranking, por lo que potencialmente los documentos mostrados al inicio no sean los de mayor inter\'es para el usuario. No establece correlaci\'on entre t\'erminos por lo que puede devolver documentos que cumplan con la consulta, pero que no sean los m\'as precisos para esta. Adem\'as, al todos los t\'erminos son igual de importantes, cuando en la pr\'actica no es as\'i, y solo permitir coincidencias exactas, puede que no se devuelvan documentos en donde si bien, por ejemplo, falta un t\'ermino, estos sean relevantes a la informaci\'on requerida.
 	
-	Las conjuntos de consultas de prueba tanto de \emph{Cranfield} como de \emph{Vaswani} no est\'an pensadas para aplicarlas sobre un modelo booleano. Esto se puede apreciar del simple hecho de que las mismas constituyen oraciones y no expresiones l\'ogicas. 
+	Las conjuntos de consultas de prueba tanto de \emph{Cranfield}, como de \emph{Vaswani}, como de \emph{Cord19} no est\'an pensadas para aplicarlas sobre un modelo booleano. Dado que las consultas evaluadas poseen forma oracional, si tan solo un t\'ermino no aparece en el documento, el mismo no ser\'a devuelto. Es por esto que tanto precisi\'on como recobrado en este modelo son prácticamente cero.
 	
-	\begin{center}
-		\includegraphics[width=10cm]{boolean}
-	\end{center}
+%	\begin{center}
+%		\includegraphics[width=10cm]{boolean}
+%	\end{center}
 	
 	\subsection{Modelo Vectorial}
 
@@ -364,7 +364,7 @@
 	
 	Al ser un modelo que extiende al modelo booleano, aunque resuelve muchas de las dificultades del anterior, este aun acarrea otras de sus deficiencias. Una de estas principales dificultades es que el lenguaje de consultas es complejo para inexpertos.
 	
-	Sin embargo, si se puede apreciar una ligera mejor\'ia respecto al modelo booleano (en el caso de \emph{Crenfield} se obtiene un valor de la F-medida casi cuatro veces mayor). Este resultado es de esperar ya que este modelo mejora algunas de las dificultades del anterior, como por ejemplo que en este caso la coincidencia de los documentos no tiene que ser exacta, se crea un ranking, se adiciona cierta sem\'antica a los t\'erminos analizando cierta correlaci\'on entre los pares de ellos y adem\'as, de esto \'ultimo se puede inferir que no todos los t\'erminos seguir\'an siendo igual de importantes.
+	Sin embargo, si se puede apreciar una ligera mejor\'ia respecto al modelo booleano. Este resultado es de esperar ya que este modelo mejora algunas de las dificultades del anterior, como por ejemplo que en este caso la coincidencia de los documentos no tiene que ser exacta, se crea un ranking, se adiciona cierta sem\'antica a los t\'erminos analizando cierta correlaci\'on entre los pares de ellos y adem\'as, de esto \'ultimo se puede inferir que no todos los t\'erminos seguir\'an siendo igual de importantes.
 	 
 	En el caso del conjunto de datos \emph{cord19} este no pudo usarse en el modelo fuzzy ya que la gran cantidad de documentos y t\'erminos que posee este es muy grande, lo que hace que calcular la correlaci\'on entre cada par de t\'erminos incurra en un uso de recursos muy elevado. Si dicha correlaci\'on se precalcula, har\'ian falta m\'as de $20 GB$ de RAM seg\'un los c\'alculos hechos (que no se presentan pues son aproximaciones poco formales). Si en cambio se hace en el momento de cada consulta solo para los t\'erminos de la consulta, ejecutar cada consulta tomar\'ia m\'as de $5$ minutos. Adem\'as, el modelo fuzzy no has sido extensamente probado en experimentos con colecciones grandes de documentos\footnote{Esta idea se tom\'o de \cite{B2}, p\'agina $38$.}.
 	
