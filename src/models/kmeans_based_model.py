@@ -22,7 +22,7 @@ class VectorModelKMEANS(VectorModel):
         print('Done preparing matrix')
            
         self.noClusters = self.get_best_k(sparse_matrix, len(self.doc_postion), 10, 10)
-        print('Done obatining the bst k value')
+        print('Done obatining the best k value')
         
         print(".....Creating clusters.......")
         self.kmeans = self.Getkmeans(self.noClusters, sparse_matrix)

@@ -15,9 +15,11 @@ class Document:
         elif 'abstract' in doc._fields:
             self.dict = Dict(Counter(self.tokenizer(doc.abstract)))
 
-    def tokenizer(self, text) -> List[str]:
+    def tokenizer(self, text : str) -> List[str]:
+        text_ = text.replace("'","")
+        
         return [ unidecode(word.lower()) for word in 
-            re.findall(r"[\w]+", text) ]
+            re.findall(r"[\w]+", text_) ]
     
     def __getitem__(self, key):
         return self.dict[key]
