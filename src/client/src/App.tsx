@@ -15,10 +15,24 @@ import axios from 'axios';
 function App() {
   const [documentDtos, setDocumentDtos] = useState([] as DocumentDto[]);
   const [showResults, setShowResults] = useState(false);
-  const [page, setPage] = React.useState(1);
-  sessionStorage['model'] = 'vector'
-  sessionStorage['dataset'] = 'cranfield' 
-  sessionStorage['pag'] = 0
+  const [page, setPage] = React.useState(() => {
+    if (typeof(sessionStorage['pag']) == 'undefined'){
+      sessionStorage['pag'] = 1;
+    }
+    return sessionStorage['pag']
+  });
+  const [model, setModel] = React.useState(() =>{
+    if (typeof(sessionStorage['model']) == 'undefined'){
+      sessionStorage['model'] = 'vector';
+    }
+    return sessionStorage['model']
+  });
+  const [dataset, setDataset] = React.useState(() =>{
+    if (typeof(sessionStorage['dataset']) == 'undefined'){
+      sessionStorage['dataset'] = 'cranfield';
+    }
+    return sessionStorage['dataset']
+  });
 
   return (
     <div id='app' className='sm:text-center space-x-10'>
@@ -41,8 +55,8 @@ function App() {
           onChange={async (_, value) => {
               setPage(value);
               await axios.get('http://localhost:8000/search?' +
-                'model='+encodeURIComponent(sessionStorage['model'])+
-                '&dataset=' + encodeURIComponent(sessionStorage['dataset']) +
+                'model='+encodeURIComponent(model)+
+                '&dataset=' + encodeURIComponent(dataset) +
                 '&query=' + encodeURIComponent(sessionStorage['query']) + 
                 '&pag=' + encodeURIComponent(value))
                 .then((resp) => {
