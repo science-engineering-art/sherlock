@@ -4,8 +4,6 @@ import json
 import matplotlib.pyplot as plt
 import os
 
-# boolean model evaluation meassures
-
 
 def plot_eval_meassures(data, path, plot_color):
     P_vs_R = {}
@@ -31,9 +29,6 @@ def plot_eval_meassures(data, path, plot_color):
 
 
 path = os.getcwd()
-path = path.split('/')
-path = path[0:len(path)-3]
-path = "/".join(path)
 
 models = ["BooleanModel", "VectorModel", "FuzzyModel"]
 corpus = [("cranfield", "orange"), ("vaswani", "plum"),
@@ -41,7 +36,7 @@ corpus = [("cranfield", "orange"), ("vaswani", "plum"),
 
 for model in models:
     for corp in corpus:
-        if model != "FuzzyModel" and corp[0] != "cord19/trec-covid/round1":
+        if model != "FuzzyModel" or corp[0] != "cord19/trec-covid/round1":
             temp = path + f'/ddb_storage/{model}/{corp[0]}'
 
             with open(temp + "/k_Rank.json") as json_file:
