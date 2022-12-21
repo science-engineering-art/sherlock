@@ -230,8 +230,24 @@
 	
 	\subsection{Modelo Booleano}
 	
+	\begin{center}
+		\includegraphics[width=10cm]{cranfield_boolean}
+		
+		\includegraphics[width=10cm]{vaswani_boolean}
+		
+		\includegraphics[width=10cm]{cord19_boolean}
+	\end{center}
+
 	\subsection{Modelo Vectorial}
 	
+	\begin{center}
+		\includegraphics[width=10cm]{cranfield_vector}
+		
+		\includegraphics[width=10cm]{vaswani_vector}
+		
+		\includegraphics[width=10cm]{cord19_vector}
+	\end{center}
+
 	\subsection{Modelo Fuzzy}
 	
 	Al ser un modelo que extiende al modelo booleano, aunque resuelve muchas de las dificultades del anterior, este aun acarrea otras de sus deficiencias. Una de estas principales dificultades es que el lenguaje de consultas es complejo para inexpertos. Las conjuntos de consultas de prueba tanto de \emph{Cranfield} como de \emph{Vaswani} no est\'an pensadas para aplicarlas sobre un modelo booleano. Esto se puede apreciar del simple hecho de que las mismas constituyen oraciones y no expresiones l\'ogicas.
@@ -240,6 +256,11 @@
 	 
 	 En el caso del conjunto de datos \emph{cord19} este no pudo usarse en el modelo fuzzy ya que la gran cantidad de documentos y t\'erminos que posee este es muy grande, lo que hace que calcular la correlaci\'on entre cada par de t\'erminos incurra en un uso de recursos muy elevado. Si dicha correlaci\'on se precalcula, har\'ian falta m\'as de $20 GB$ de RAM seg\'un los c\'alculos hechos (que no se presentan pues son aproximaciones poco formales). Si en cambio se hace en el momento de cada consulta solo para los t\'erminos de la consulta, ejecutar cada consulta tomar\'ia m\'as de $5$ minutos. Adem\'as, el modelo fuzzy no has sido extensamente probado en experimentos con colecciones grandes de documentos\footnote{Esta idea se tom\'o de \cite{B2}, p\'agina $38$.}.
 	
+	\begin{center}
+		\includegraphics[width=10cm]{cranfield_fuzzy}
+		
+		\includegraphics[width=10cm]{vaswani_fuzzy}
+	\end{center}	
 	\section{Retroalimentaci\'on}
 	
 	\section{Agrupamiento}
