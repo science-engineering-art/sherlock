@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from traitlets import FuzzyEnum
-# from models.kmeans_based_model import  VectorModelKMEANS
+from models.kmeans_based_model import  VectorModelKMEANS
 
 from models.boolean_model import BooleanModel
 from models.corpus import Corpus
