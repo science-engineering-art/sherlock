@@ -52,12 +52,17 @@ function BootstrapDialogTitle(props: DialogTitleProps) {
 
 export default function SettingsModal() {
   const [open, setOpen] = React.useState(false);
-
+  
+  const [valueModel, setValueModel] = React.useState('Vector');
+  const [valueCorpus, setValueCorpus] = React.useState('Cranfield');
+  
   const handleClickOpen = () => {
     setOpen(true);
   };
   const handleClose = () => {
     setOpen(false);
+    sessionStorage['model'] = valueModel.toLowerCase();
+    sessionStorage['dataset'] = valueCorpus.toLowerCase();
   };
 
   return (
@@ -74,7 +79,12 @@ export default function SettingsModal() {
           Settings
         </BootstrapDialogTitle>
         <DialogContent dividers>
-          <ConfirmationDialog></ConfirmationDialog>
+          <ConfirmationDialog
+            valueModel={valueModel}
+            valueCorpus={valueCorpus}
+            setValueModel={setValueModel}
+            setValueCorpus={setValueCorpus}
+          />
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={handleClose}>

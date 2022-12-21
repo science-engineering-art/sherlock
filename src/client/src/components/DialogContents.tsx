@@ -165,11 +165,18 @@ function ConfirmationDialogCorpus(props: ConfirmationDialogRawProps) {
   );
 }
 
-export default function ConfirmationDialog() {
+interface Settings {
+  valueModel: string,
+  valueCorpus: string,
+  setValueModel: Function,
+  setValueCorpus: Function
+}
+
+export default function ConfirmationDialog(props: Settings) {
   const [openModelsOp, setOpenModelsOp] = React.useState(false);
   const [openCorpusOp, setOpenCorpusOp] = React.useState(false);
-  const [valueModel, setValueModel] = React.useState('Vector');
-  const [valueCorpus, setValueCorpus] = React.useState('Cranfield');
+  // const [valueModel, setValueModel] = React.useState('Vector');
+  // const [valueCorpus, setValueCorpus] = React.useState('Cranfield');
 
   const handleClickListItemModel = () => {
     setOpenModelsOp(true);
@@ -179,7 +186,7 @@ export default function ConfirmationDialog() {
     setOpenModelsOp(false);
 
     if (newValue) {
-      setValueModel(newValue);
+      props.setValueModel(newValue);
     }
   };
 
@@ -191,7 +198,7 @@ export default function ConfirmationDialog() {
     setOpenCorpusOp(false);
 
     if (newValue) {
-      setValueCorpus(newValue);
+      props.setValueCorpus(newValue);
     }
   };
 
@@ -212,7 +219,7 @@ export default function ConfirmationDialog() {
           aria-label="model"
           onClick={handleClickListItemModel}
         >
-          <ListItemText primary="Model" secondary={valueModel} />
+          <ListItemText primary="Model" secondary={props.valueModel} />
         </ListItem>
         <ListItem
           button
@@ -222,7 +229,7 @@ export default function ConfirmationDialog() {
           aria-label="corpus"
           onClick={handleClickListItemCorpus}
         >
-          <ListItemText primary="Corpus" secondary={valueCorpus} />
+          <ListItemText primary="Corpus" secondary={props.valueCorpus} />
         </ListItem>
 
         <ListItem button >
@@ -242,14 +249,14 @@ export default function ConfirmationDialog() {
           keepMounted
           open={openModelsOp}
           onClose={handleCloseModel}
-          value={valueModel}
+          value={props.valueModel}
         />
         <ConfirmationDialogCorpus
           id="corpus-menu"
           keepMounted
           open={openCorpusOp}
           onClose={handleCloseCorpus}
-          value={valueCorpus}
+          value={props.valueCorpus}
         />
       </List>
     </Box>
