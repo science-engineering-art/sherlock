@@ -10,7 +10,7 @@ from models.fuzzy_model import FuzzyModel
 from models.vector_model import VectorModel
 from models.kmeans_based_model import VectorModelKMEANS
 from models.relevance_feedback import RelevanceFeedback
-
+import dictdatabase as ddb
 
 class DocumentDto(BaseModel):
     doc_id: str
@@ -19,6 +19,7 @@ class DocumentDto(BaseModel):
     text: str
     score: float
 
+ddb.config.storage_directory = '../ddb_storage'
 
 corpus = {
     'cranfield': Corpus('cranfield'),
@@ -29,17 +30,17 @@ corpus = {
 models = {
     'vector': {
         'cranfield': VectorModel(corpus['cranfield']),
-        'vaswani': VectorModel(corpus['vaswani']),
-        'cord19': VectorModel(corpus['cord19'])
+        # 'vaswani': VectorModel(corpus['vaswani']),
+        # 'cord19': VectorModel(corpus['cord19'])
     },
     'boolean': {
-        'cranfield': BooleanModel(corpus['cranfield']),
-        'vaswani': BooleanModel(corpus['vaswani']),
-        'cord19': BooleanModel(corpus['cord19']) 
+        # 'cranfield': BooleanModel(corpus['cranfield']),
+        # 'vaswani': BooleanModel(corpus['vaswani']),
+        # 'cord19': BooleanModel(corpus['cord19']) 
     },
     'fuzzy': {
-        'cranfield': FuzzyModel(corpus['cranfield']),
-        'vaswani': FuzzyModel(corpus['vaswani']),
+        # 'cranfield': FuzzyModel(corpus['cranfield']),
+        # 'vaswani': FuzzyModel(corpus['vaswani']),
         # 'cord19': FuzzyModel(corpus['cord19'])
     }
 }
