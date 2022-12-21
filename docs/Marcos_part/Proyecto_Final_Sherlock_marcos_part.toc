@@ -1,7 +1,7 @@
-\babel@toc {english}{}\relax 
-\babel@toc {spanish}{}\relax 
-\babel@toc {english}{}\relax 
-\babel@toc {spanish}{}\relax 
+\babel@toc {english}{}
+\babel@toc {spanish}{}
+\babel@toc {english}{}
+\babel@toc {spanish}{}
 \contentsline {section}{\numberline {1}Introducci\'on}{1}{}%
 \contentsline {section}{\numberline {2}Dise\~no del sistema}{1}{}%
 \contentsline {subsection}{\numberline {2.1}Documentos}{1}{}%
