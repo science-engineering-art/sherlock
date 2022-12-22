@@ -54,9 +54,12 @@ class VectorModelKMEANS(VectorModel):
     
     def search(self, query: str):
         results =  super().search(query)
-        query_vector = VectorModelKMEANS.GetQueryVector(self.idfs, self.terms, query)
+        if len(results) == 0:
+            return results
         
-        query_distances = self.kmeans.transform(query_vector)
+        query_vector = self.GetQueryVector(query)
+        
+        query_distances = self.kmeans.transform([query_vector])[0]
         best_clusters = []
         for i in range(self.noClusters):
             best_clusters.append((query_distances[i], i))
@@ -80,6 +83,8 @@ class VectorModelKMEANS(VectorModel):
         results = self.search(query)
         
         results_by_cluster = [[] for _ in range(self.noClusters)]
+        if len(results) == 0:
+            return results_by_cluster
         for score, doc_id in results:
             results_by_cluster[self.kmeans.labels_[self.doc_postion[doc_id]]].append((self.kmeans.labels_[self.doc_postion[doc_id]], score, doc_id))
 
@@ -87,7 +92,7 @@ class VectorModelKMEANS(VectorModel):
 
         return results_by_cluster
         
-    def GetQueryVector(idfs, terms, query):
+    def GetQueryVector(self, query):
         '''Obtains the query in the form of a vector of the same space as the documents'''
         
         query_vector = Dict(Counter([ unidecode(word.lower()) for word in 
@@ -100,11 +105,11 @@ class VectorModelKMEANS(VectorModel):
         # calculation of the weights of the query vector
         weights = Dict()
         for t in query_vector:
-            weights[t] = (a + (1-a)*tf[-1, t]) * idfs[t]
+            weights[t] = (a + (1-a)*tf[-1, t]) * self.idfs[t]
 
-        query_vector_result = []
-        for term in terms:
-            query_vector_result.append(weights[term])
+        query_vector_result = [0 for _ in range(len(self.terms))]
+        for term in self.terms:
+            query_vector_result[self.term_postion[term]] = weights[term]
             
         return query_vector_result
         
@@ -199,6 +204,7 @@ class VectorModelKMEANS(VectorModel):
         json = f'{self.__class__.__name__}/{dataset}/Kmeans_object'
         
         s = ddb.at(json)
+        kmeans = KMeans(n_clusters=k, n_init= 10, init="k-means++").fit(sparse_matrix)
         if not s.exists():
             kmeans = KMeans(n_clusters=k, n_init= 10, init="k-means++").fit(sparse_matrix)
             kmeans2 = OurKmeans(kmeans.cluster_centers_, kmeans.labels_)
@@ -212,7 +218,7 @@ class VectorModelKMEANS(VectorModel):
             data = s.read()
             kmeans2 = OurKmeans(data['cluster_centers_'],  data['labels_'])
     
-        return kmeans2
+        return kmeans
     
     def ElbowMethod(sparse_matrix, min, max):
         k = min
