@@ -3,13 +3,13 @@ __pycache__/
 *.py[cod]
 *$py.class
 proof.py
+vector_ploting.py
 
 # databases
 src\ddb_storage\
 
 #node_modules
 src\node_modules\
-
 
 #storage
 /src/ddb_storage
