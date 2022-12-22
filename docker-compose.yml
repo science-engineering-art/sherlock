@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+
+  sherlock-back:
+    build: ./src
+    ports:
+      - "8000:8000"
+    
+  sherlock-front:
+    build: ./src/client
+    ports:
+      - "3000:3000"
+    depends_on:
+      - sherlock-back

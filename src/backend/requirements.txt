@@ -1,0 +1,11 @@
+os
+sys
+json
+typing
+fastapi
+unidecode
+matplotlib
+ir_datasets
+dictdatabase
+scikit-learn
+uvicorn[standard]

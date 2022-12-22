@@ -2,25 +2,11 @@
 
 ## Installation
 
-### Python
-
 ```shell
-pip install fastapi
-pip install "uvicorn[standard]"
-pip install unidecode
-pip install ir_datasets
-```
-
-### React
-
-```shell
-cd src/client
-npm install
+make install
 ```
 
 ## Execution
-
-### Linux
 
 From the root directory run in a terminal,
 
@@ -34,20 +20,20 @@ and run this in another terminal.
 make react
 ```
 
-### Windows
+## Docker
 
-From the root directory run in a terminal,
+You may not want to conflict with packages installed on your local computer, you can more easily build the docker image and run it with a container.
+
+From the root directory runs from a terminal to lift the service,
 
 ```shell
-cd src
-uvicorn main:app --reload
+make run-docker
 ```
 
-Also run this in another terminal.
+and to close the service.
 
 ```shell
-cd src/client
-npm start
+make stop-docker
 ```
 
 Finally, enter the browser at the following web address [localhost:3000](http://localhost:3000).

@@ -2,9 +2,26 @@
 __pycache__/
 *.py[cod]
 *$py.class
+proof.py
+
+# databases
+src\ddb_storage\
+
+#node_modules
+src\node_modules\
+
+
+#storage
+/src/ddb_storage
+/ddb_storage
 
 # C extensions
 *.so
+
+irs_vs/
+src/tmp.py
+.vscode/
+ddb_storage/
 
 # Distribution / packaging
 .Python
@@ -127,3 +144,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+src/ddb_storage/cranfield_FuzyModelPrecalculus.json
+src/ddb_storage/vaswani_FuzyModelPrecalculus.json
+docs/Marcos_part/Proyecto_Final_Sherlock_marcos_part.pdf
+docs/Marcos_part/Proyecto_Final_Sherlock_marcos_part.pdf
