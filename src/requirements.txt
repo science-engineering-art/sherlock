@@ -5,3 +5,4 @@ ir_datasets
 dictdatabase
 typing
 scikit-learn
+matplotlib

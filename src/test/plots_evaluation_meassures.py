@@ -1,25 +1,6 @@
-from turtle import mode
-from numpy import *
-import math
 import matplotlib.pyplot as plt
-from sympy import im
 import sys
-import dictdatabase as ddb
-
-# t = linspace(0, 2*math.pi, 400)
-# a = sin(t)
-# b = cos(t)
-# c = a + b
-
-# plt.plot(t, a, 'r') # plotting t, a separately 
-# plt.plot(t, b, 'b') # plotting t, b separately 
-# plt.plot(t, c, 'g') # plotting t, c separately 
-# plt.show()
-
-import numpy as np
-import matplotlib
 import json
-import matplotlib.pyplot as plt
 import os
 
 

@@ -1,6 +1,3 @@
-from cProfile import label
-from sklearn.cluster import KMeans
-from sympy import centroid
 from cmath import sqrt
 
 class OurKmeans():

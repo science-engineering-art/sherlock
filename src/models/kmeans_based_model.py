@@ -1,5 +1,3 @@
-from sqlite3 import SQLITE_CREATE_TRIGGER
-from unittest import result
 from sklearn.cluster import KMeans
 from models.OurKmeans import OurKmeans
 from models.dict import Dict
