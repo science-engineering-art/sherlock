@@ -1,4 +1,4 @@
-# Information Retrieval Systems
+<center><img src="media/frontend.jpg"/></center>
 
 ## Installation
 
