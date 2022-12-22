@@ -1,5 +1,6 @@
 from cmath import sqrt
 
+
 class OurKmeans():
 
     def __init__(self, cluster_centers_, labels_):

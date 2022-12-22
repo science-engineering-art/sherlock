@@ -2,8 +2,8 @@ import re
 import dictdatabase as ddb
 from sympy import sympify
 from sympy.logic.boolalg import to_dnf
-from models.base_model import BaseModel
-from models.dict import Dict
+from core.models.base_model import BaseModel
+from core.models.common.dict import Dict
 
 
 class BooleanModel(BaseModel):

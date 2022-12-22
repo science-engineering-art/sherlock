@@ -1,6 +1,6 @@
 import dictdatabase as ddb
 from time import time
-from models.boolean_model import BooleanModel
+from core.models.boolean_model import BooleanModel
 
 
 class FuzzyModel(BooleanModel):

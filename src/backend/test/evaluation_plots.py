@@ -1,5 +1,3 @@
-import numpy as np
-import matplotlib
 import json
 import matplotlib.pyplot as plt
 import os

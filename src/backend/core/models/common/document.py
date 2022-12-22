@@ -2,10 +2,11 @@ import re
 from collections import Counter
 from typing import List
 from unidecode import unidecode
-from models.dict import Dict
+from core.models.common.dict import Dict
 
 
 class Document:
+
     def __init__(self, doc):        
         self.doc_id = doc.doc_id
 

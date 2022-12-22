@@ -1,7 +1,7 @@
 from abc import abstractmethod
 import ir_datasets
 import dictdatabase as ddb
-from models.base_model import BaseModel
+from core.models.base_model import BaseModel
 
 
 class QRels:

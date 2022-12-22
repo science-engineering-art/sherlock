@@ -1,10 +1,8 @@
 from abc import abstractmethod
 from typing import List, Tuple
-
 import dictdatabase as ddb
-
-from models.corpus import Corpus
-from models.document import Document
+from core.models.common.corpus import Corpus
+from core.models.common.document import Document
 
 
 class BaseModel:

@@ -1,15 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from traitlets import FuzzyEnum
-from models.kmeans_based_model import  VectorModelKMEANS
-
-from models.boolean_model import BooleanModel
-from models.corpus import Corpus
-from models.fuzzy_model import FuzzyModel
-from models.vector_model import VectorModel
-from models.kmeans_based_model import VectorModelKMEANS
-from models.relevance_feedback import RelevanceFeedback
+from core.clustering.kmeans_based_model import  VectorModelKMEANS
+from core.models.boolean_model import BooleanModel
+from core.models.common.corpus import Corpus
+from core.models.fuzzy_model import FuzzyModel
+from core.models.vector_model import VectorModel
+from core.clustering.kmeans_based_model import VectorModelKMEANS
+from core.feedback.relevance_feedback import RelevanceFeedback
 import dictdatabase as ddb
 
 class DocumentDto(BaseModel):

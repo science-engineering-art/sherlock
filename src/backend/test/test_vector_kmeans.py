@@ -1,7 +1,7 @@
-from models.corpus import Corpus
-from models.kmeans_based_model import VectorModelKMEANS
+from core.models.common.corpus import Corpus
+from core.clustering.kmeans_based_model import VectorModelKMEANS
 from corpus_qrels import CranfieldQRels, VaswaniQRels, Cord19QRels
-from models.vector_model import VectorModel
+from core.models.vector_model import VectorModel
 
 # cranfield_Corpus = Corpus('cranfield')
 # cranfield_Vector = VectorModelKMEANS(cranfield_Corpus)

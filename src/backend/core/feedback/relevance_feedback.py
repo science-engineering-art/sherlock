@@ -1,5 +1,6 @@
-from models.dict import Dict
-from models.vector_model import VectorModel
+from core.models.common.dict import Dict
+from core.models.vector_model import VectorModel
+
 
 class RelevanceFeedback:
 

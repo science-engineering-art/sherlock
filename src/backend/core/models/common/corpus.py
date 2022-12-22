@@ -1,9 +1,10 @@
 import ir_datasets
-from models.dict import Dict
-from models.document import Document
+from core.models.common.dict import Dict
+from core.models.common.document import Document
 
 
 class Corpus:
+
     def __init__(self, dataset):
         self.dict = Dict()
         self.dataset = ir_datasets.load(dataset)

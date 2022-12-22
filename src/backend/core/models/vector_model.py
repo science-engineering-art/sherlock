@@ -1,12 +1,12 @@
 import re
 from math import log
 import dictdatabase as ddb
-from models.dict import Dict
+from core.models.common.dict import Dict
 from typing import List, Tuple
 from unidecode import unidecode
 from collections import Counter
-from models.document import Document
-from models.base_model import BaseModel
+from core.models.common.document import Document
+from core.models.base_model import BaseModel
 
 class VectorModel(BaseModel):
 

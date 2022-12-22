@@ -1,7 +1,6 @@
-from json import JSONEncoder
 
+class Dict:
 
-class Dict(JSONEncoder):
     def __init__(self, _dict = None):
         self.dict = {}
         if _dict != None:

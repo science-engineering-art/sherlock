@@ -1,14 +1,14 @@
-from sklearn.cluster import KMeans
-from models.OurKmeans import OurKmeans
-from models.dict import Dict
-from models.vector_model import VectorModel
+import re
+import dictdatabase as ddb
 from collections import Counter
 from unidecode import unidecode
-import dictdatabase as ddb
-import re
 import matplotlib.pyplot as plt
-from models.vector_model import VectorModel
 from sklearn.cluster import KMeans
+from core.models.common.dict import Dict
+from core.clustering.OurKmeans import OurKmeans
+from core.models.vector_model import VectorModel
+from core.models.vector_model import VectorModel
+
 
 class VectorModelKMEANS(VectorModel):
     

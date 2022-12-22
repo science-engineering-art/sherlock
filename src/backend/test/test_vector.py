@@ -1,5 +1,5 @@
-from models.corpus import Corpus
-from models.vector_model import VectorModel
+from core.models.common.corpus import Corpus
+from core.models.vector_model import VectorModel
 from corpus_qrels import CranfieldQRels, VaswaniQRels, Cord19QRels
 
 cranfield_Corpus = Corpus('cranfield')

@@ -1,8 +1,11 @@
+os
+sys
+json
+typing
 fastapi
-uvicorn[standard]
 unidecode
+matplotlib
 ir_datasets
 dictdatabase
-typing
 scikit-learn
-matplotlib
+uvicorn[standard]

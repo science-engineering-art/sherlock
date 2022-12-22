@@ -1,5 +1,5 @@
-from models.corpus import Corpus
-from models.fuzzy_model import FuzzyModel
+from core.models.common.corpus import Corpus
+from core.models.fuzzy_model import FuzzyModel
 from corpus_qrels import CranfieldQRels, VaswaniQRels, Cord19QRels
 
 cranfield_Corpus = Corpus('cranfield')

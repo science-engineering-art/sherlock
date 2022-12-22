@@ -1,5 +1,5 @@
-from models.corpus import Corpus
-from models.boolean_model import BooleanModel
+from core.models.common.corpus import Corpus
+from core.models.boolean_model import BooleanModel
 from corpus_qrels import CranfieldQRels, VaswaniQRels, Cord19QRels
 
 # cranfield_Corpus = Corpus('cranfield')
