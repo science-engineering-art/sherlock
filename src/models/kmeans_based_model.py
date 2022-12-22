@@ -59,7 +59,7 @@ class VectorModelKMEANS(VectorModel):
         
         query_vector = self.GetQueryVector(query)
         
-        query_distances = self.kmeans.transform(query_vector)
+        query_distances = self.kmeans.transform([query_vector])[0]
         best_clusters = []
         for i in range(self.noClusters):
             best_clusters.append((query_distances[i], i))
@@ -204,6 +204,7 @@ class VectorModelKMEANS(VectorModel):
         json = f'{self.__class__.__name__}/{dataset}/Kmeans_object'
         
         s = ddb.at(json)
+        kmeans = KMeans(n_clusters=k, n_init= 10, init="k-means++").fit(sparse_matrix)
         if not s.exists():
             kmeans = KMeans(n_clusters=k, n_init= 10, init="k-means++").fit(sparse_matrix)
             kmeans2 = OurKmeans(kmeans.cluster_centers_, kmeans.labels_)
@@ -217,7 +218,7 @@ class VectorModelKMEANS(VectorModel):
             data = s.read()
             kmeans2 = OurKmeans(data['cluster_centers_'],  data['labels_'])
     
-        return kmeans2
+        return kmeans
     
     def ElbowMethod(sparse_matrix, min, max):
         k = min
